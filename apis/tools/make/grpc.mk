@@ -36,3 +36,18 @@ grpc.clean: ## Clean generated code.
 	done
 
 	@find $(ROOT_DIR)/sdks/ts | grep -v  package.json | awk "NR != 1" | xargs rm -rf
+
+.PHONY: grpc.release.ts-sdk
+grpc.release.ts-sdk: ## Release the js sdk.
+	@$(LOG_TARGET)
+	if [ -z "$(VERSION)" ]; then echo "VERSION is not set"; exit 1; fi
+	$(SEDI) "s/\"version\": \".*\"/\"version\": \"$(VERSION)\"/g" $(ROOT_DIR)/sdks/ts/package.json
+	npm --version
+	node --version
+	cd sdks/ts; \
+	npm config set //registry.npmjs.org/:_authToken $(NPM_TOKEN) && \
+	npm publish --access=public
+
+.PHONY: grpc.release
+grpc.release: ## Release the grpc code.
+grpc.release: grpc.release.ts-sdk
