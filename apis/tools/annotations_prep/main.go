@@ -35,8 +35,7 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
-const (
-	outputTemplate = `
+const outputTemplateGo = `
 // GENERATED FILE -- DO NOT EDIT
 
 package {{ .Package }}
@@ -134,7 +133,79 @@ func AllResourceTypes() []string {
 	}
 }
 `
-)
+
+const outputTemplateTs = `
+// GENERATED FILE -- DO NOT EDIT
+
+enum FeatureStatus {
+  Alpha,
+  Beta,
+  Stable
+}
+
+function featureStatusToString(status: FeatureStatus): string {
+  switch (status) {
+    case FeatureStatus.Alpha:
+      return "Alpha";
+    case FeatureStatus.Beta:
+      return "Beta";
+    case FeatureStatus.Stable:
+      return "Stable";
+    default:
+      return "Unknown";
+  }
+}
+
+enum ResourceTypes {
+  Unknown,
+  {{ range .KnownTypes }}{{ . }},{{ end }}
+}
+
+function resourceTypesToString(type: ResourceTypes): string {
+  switch (type) {
+    {{ range $i, $t := .KnownTypes }}case {{ add $i 1 }}:
+      return "{{ $t }}";
+    {{ end }}
+    default:
+      return "Unknown";
+  }
+}
+
+interface Instance {
+  name: string;
+  description: string;
+  featureStatus: FeatureStatus;
+  hidden: boolean;
+  deprecated: boolean;
+  resources: ResourceTypes[];
+}
+
+const instances: { [key: string]: Instance } = {
+  {{ range .Variables }}
+  {{ .GoName }}: {
+    name: "{{ .Name }}",
+    description: {{ processGoDescription .Description 24 }},
+    featureStatus: FeatureStatus.{{ .FeatureStatus }},
+    hidden: {{ .Hidden }},
+    deprecated: {{ .Deprecated }},
+    resources: [
+      {{ range .Resources }}ResourceTypes.{{ . }},{{ end }}
+    ]
+  },{{ end }}
+};
+
+function allResource{{ .Collection.NamePlural }}(): Instance[] {
+  return [
+    {{ range .Variables }}instances.{{ .GoName }},{{ end }}
+  ];
+}
+
+function allResourceTypes(): string[] {
+  return [
+    {{ range .KnownTypes }}"{{ . }}",{{ end }}
+  ];
+}
+`
 
 type FeatureStatus string
 
@@ -162,7 +233,7 @@ var (
 		NamePlural:          "Annotations",
 		NameLowercase:       "annotation",
 		NameLowercasePlural: "annotations",
-		Link:                "https://vink.io/docs/reference/config/annotations/",
+		Link:                "https://github.com/kubevm-io/vink/docs/reference/config/annotations/",
 		ConceptLink:         "todo",
 	}
 
@@ -171,7 +242,7 @@ var (
 		NamePlural:          "Labels",
 		NameLowercase:       "label",
 		NameLowercasePlural: "labels",
-		Link:                "https://vink.io/docs/reference/config/labels/",
+		Link:                "https://github.com/kubevm-io/vink/docs/reference/config/labels/",
 		ConceptLink:         "todo",
 	}
 )
@@ -189,7 +260,8 @@ func collectionForType(typ string) (Collection, error) {
 
 var (
 	input          string
-	output         string
+	outputGo       string
+	outputTs       string
 	collectionType string
 	collection     Collection
 
@@ -255,28 +327,33 @@ var (
 				return strings.Compare(variables[i].Name, variables[j].Name) < 0
 			})
 
-			// Create the output file template.
-			t, err := template.New("varTemplate").Funcs(template.FuncMap{
-				"processGoDescription": processGoDescription, "add": add,
-			}).Parse(outputTemplate)
-			if err != nil {
-				log.Fatalf("failed parsing variable template: %v", err)
+			generateTemplate := func(outputTemplate, outputFileName string) {
+				// Create the output file template.
+				t, err := template.New("varTemplate").Funcs(template.FuncMap{
+					"processGoDescription": processGoDescription, "add": add,
+				}).Parse(outputTemplate)
+				if err != nil {
+					log.Fatalf("failed parsing variable template: %v", err)
+				}
+
+				// Generate the Go source.
+				var goSource bytes.Buffer
+				if err := t.Execute(&goSource, map[string]interface{}{
+					"Package":    getPackage(outputGo),
+					"KnownTypes": knownTypes,
+					"Variables":  variables,
+					"Collection": collection,
+				}); err != nil {
+					log.Fatalf("failed generating output Go source code %s: %v", outputFileName, err)
+				}
+
+				if err := ioutil.WriteFile(outputFileName, goSource.Bytes(), 0o666); err != nil {
+					log.Fatalf("Failed writing to output file %s: %v", outputFileName, err)
+				}
 			}
 
-			// Generate the Go source.
-			var goSource bytes.Buffer
-			if err := t.Execute(&goSource, map[string]interface{}{
-				"Package":    getPackage(),
-				"KnownTypes": knownTypes,
-				"Variables":  variables,
-				"Collection": collection,
-			}); err != nil {
-				log.Fatalf("failed generating output Go source code %s: %v", output, err)
-			}
-
-			if err := ioutil.WriteFile(output, goSource.Bytes(), 0o666); err != nil {
-				log.Fatalf("Failed writing to output file %s: %v", output, err)
-			}
+			generateTemplate(outputTemplateGo, outputGo)
+			generateTemplate(outputTemplateTs, outputTs)
 		},
 	}
 )
@@ -284,7 +361,9 @@ var (
 func init() {
 	rootCmd.PersistentFlags().StringVar(&input, "input", "",
 		"Input YAML file to be parsed.")
-	rootCmd.PersistentFlags().StringVar(&output, "output", "",
+	rootCmd.PersistentFlags().StringVar(&outputGo, "output_go", "",
+		"Output Go file to be generated.")
+	rootCmd.PersistentFlags().StringVar(&outputTs, "output_ts", "",
 		"Output Go file to be generated.")
 	rootCmd.PersistentFlags().StringVar(&collectionType, "collection_type", annotations.NameLowercase,
 		fmt.Sprintf("Output type for the generated collection. Allowed values are '%s' or '%s'.",
@@ -340,7 +419,7 @@ type LabelConfiguration struct {
 	Variables []Variable `json:"labels"`
 }
 
-func getPackage() string {
+func getPackage(output string) string {
 	path, _ := filepath.Abs(output)
 	return filepath.Base(filepath.Dir(path))
 }
