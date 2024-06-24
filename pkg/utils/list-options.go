@@ -1,8 +1,8 @@
 package utils
 
 import (
+	"github.com/kubevm.io/vink/apis/common"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"vink.io/api/common"
 )
 
 func ConvertToK8sListOptions(in *common.ListOptions) (opts metav1.ListOptions) {

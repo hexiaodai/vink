@@ -6,13 +6,13 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/hexiaodai/vink/pkg/clients"
-	"github.com/hexiaodai/vink/pkg/clients/gvr"
-	"github.com/hexiaodai/vink/pkg/utils"
+	"github.com/kubevm.io/vink/apis/common"
+	vmv1alpha1 "github.com/kubevm.io/vink/apis/management/virtualmachine/v1alpha1"
+	"github.com/kubevm.io/vink/pkg/clients"
+	"github.com/kubevm.io/vink/pkg/clients/gvr"
+	"github.com/kubevm.io/vink/pkg/utils"
 	"github.com/samber/lo"
 	virtv1 "kubevirt.io/api/core/v1"
-	"vink.io/api/common"
-	vmv1alpha1 "vink.io/api/management/virtualmachine/v1alpha1"
 )
 
 func ListVirtualMachines(ctx context.Context, namespace string, opts *common.ListOptions) ([]*vmv1alpha1.VirtualMachine, *common.ListOptions, error) {

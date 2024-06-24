@@ -3,11 +3,11 @@ package datavolume
 import (
 	"context"
 
-	"github.com/hexiaodai/vink/internal/management/datavolume/business"
+	dvv1alpha1 "github.com/kubevm.io/vink/apis/management/datavolume/v1alpha1"
+	"github.com/kubevm.io/vink/internal/management/datavolume/business"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"k8s.io/apimachinery/pkg/api/errors"
-	dvv1alpha1 "vink.io/api/management/datavolume/v1alpha1"
 )
 
 func NewDataVolumeManagement() dvv1alpha1.DataVolumeManagementServer {

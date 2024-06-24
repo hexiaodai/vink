@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "vink.io/api/management/network/v1alpha1";
+option go_package = "github.com/kubevm.io/vink/apis/management/network/v1alpha1";
 
 package vink.management.network.v1alpha1;
 

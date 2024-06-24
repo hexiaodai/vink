@@ -9,8 +9,8 @@ import (
 	grpcotel "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 
-	"github.com/hexiaodai/vink/internal/pkg/servers/route"
-	"github.com/hexiaodai/vink/pkg/log"
+	"github.com/kubevm.io/vink/internal/pkg/servers/route"
+	"github.com/kubevm.io/vink/pkg/log"
 )
 
 type grpcServer struct {

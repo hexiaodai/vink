@@ -3,14 +3,14 @@ package business
 import (
 	"context"
 
-	"github.com/hexiaodai/vink/pkg/clients"
-	"github.com/hexiaodai/vink/pkg/clients/gvr"
-	"github.com/hexiaodai/vink/pkg/utils"
+	"github.com/kubevm.io/vink/apis/common"
+	nsv1alpha1 "github.com/kubevm.io/vink/apis/management/namespace/v1alpha1"
+	"github.com/kubevm.io/vink/pkg/clients"
+	"github.com/kubevm.io/vink/pkg/clients/gvr"
+	"github.com/kubevm.io/vink/pkg/utils"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"vink.io/api/common"
-	nsv1alpha1 "vink.io/api/management/namespace/v1alpha1"
 )
 
 func ListNamespaces(ctx context.Context, opts *common.ListOptions) ([]*nsv1alpha1.Namespace, *common.ListOptions, error) {

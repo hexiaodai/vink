@@ -3,11 +3,11 @@ package namespace
 import (
 	"context"
 
-	"github.com/hexiaodai/vink/internal/management/namespace/business"
+	nsv1alpha1 "github.com/kubevm.io/vink/apis/management/namespace/v1alpha1"
+	"github.com/kubevm.io/vink/internal/management/namespace/business"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"k8s.io/apimachinery/pkg/api/errors"
-	nsv1alpha1 "vink.io/api/management/namespace/v1alpha1"
 )
 
 func NewNamespaceManagement() nsv1alpha1.NamespaceManagementServer {

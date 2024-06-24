@@ -3,14 +3,14 @@ package business
 import (
 	"context"
 
-	"github.com/hexiaodai/vink/pkg/clients"
-	"github.com/hexiaodai/vink/pkg/clients/gvr"
-	"github.com/hexiaodai/vink/pkg/utils"
+	"github.com/kubevm.io/vink/apis/common"
+	dvv1alpha1 "github.com/kubevm.io/vink/apis/management/datavolume/v1alpha1"
+	"github.com/kubevm.io/vink/pkg/clients"
+	"github.com/kubevm.io/vink/pkg/clients/gvr"
+	"github.com/kubevm.io/vink/pkg/utils"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	cdiv1beta1 "kubevirt.io/containerized-data-importer-api/pkg/apis/core/v1beta1"
-	"vink.io/api/common"
-	dvv1alpha1 "vink.io/api/management/datavolume/v1alpha1"
 )
 
 func ListDataVolumes(ctx context.Context, namespace string, opts *common.ListOptions) ([]*dvv1alpha1.DataVolume, *common.ListOptions, error) {

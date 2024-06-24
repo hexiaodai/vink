@@ -5,14 +5,14 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/hexiaodai/vink/pkg/clients"
-	"github.com/hexiaodai/vink/pkg/clients/gvr"
-	"github.com/hexiaodai/vink/pkg/utils"
+	"github.com/kubevm.io/vink/apis/common"
+	nwv1alpha1 "github.com/kubevm.io/vink/apis/management/network/v1alpha1"
+	"github.com/kubevm.io/vink/pkg/clients"
+	"github.com/kubevm.io/vink/pkg/clients/gvr"
+	"github.com/kubevm.io/vink/pkg/utils"
 	spv2beta1 "github.com/spidernet-io/spiderpool/pkg/k8s/apis/spiderpool.spidernet.io/v2beta1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
-	"vink.io/api/common"
-	nwv1alpha1 "vink.io/api/management/network/v1alpha1"
 )
 
 func ListNodesNetworkInterfaces(ctx context.Context, opts *common.ListOptions) ([]*nwv1alpha1.NodeNetworkInterface, *common.ListOptions, error) {

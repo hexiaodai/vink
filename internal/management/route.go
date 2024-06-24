@@ -3,16 +3,16 @@ package management
 import (
 	"context"
 
-	dvv1alpha1 "vink.io/api/management/datavolume/v1alpha1"
-	nsv1alpha1 "vink.io/api/management/namespace/v1alpha1"
-	nwv1alpha1 "vink.io/api/management/network/v1alpha1"
-	vmv1alpha1 "vink.io/api/management/virtualmachine/v1alpha1"
+	dvv1alpha1 "github.com/kubevm.io/vink/apis/management/datavolume/v1alpha1"
+	nsv1alpha1 "github.com/kubevm.io/vink/apis/management/namespace/v1alpha1"
+	nwv1alpha1 "github.com/kubevm.io/vink/apis/management/network/v1alpha1"
+	vmv1alpha1 "github.com/kubevm.io/vink/apis/management/virtualmachine/v1alpha1"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/hexiaodai/vink/internal/management/datavolume"
-	"github.com/hexiaodai/vink/internal/management/namespace"
-	"github.com/hexiaodai/vink/internal/management/network"
-	"github.com/hexiaodai/vink/internal/management/virtualmachine"
+	"github.com/kubevm.io/vink/internal/management/datavolume"
+	"github.com/kubevm.io/vink/internal/management/namespace"
+	"github.com/kubevm.io/vink/internal/management/network"
+	"github.com/kubevm.io/vink/internal/management/virtualmachine"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
