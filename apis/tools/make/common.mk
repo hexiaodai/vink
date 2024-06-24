@@ -39,6 +39,11 @@ endif
 # ====================================================================================================
 # Version is the tag to use for build and push image targets.
 VERSION ?= $(shell git describe --tags --abbrev=8)
+ifeq ($(VERSION),)
+VERSION = 0.0.0-$(shell git rev-parse --short=8 HEAD)
+endif
+
+NPM_TOKEN ?=
 
 .PHONY: help
 help: ## Show this help info.
