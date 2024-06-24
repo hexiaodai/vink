@@ -9,10 +9,13 @@ import (
 	spv2beta1 "github.com/spidernet-io/spiderpool/pkg/k8s/apis/spiderpool.spidernet.io/v2beta1"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/hexiaodai/vink/internal/pkg/virtualmachine"
-	"github.com/hexiaodai/vink/pkg/clients"
-	"github.com/hexiaodai/vink/pkg/clients/gvr"
-	"github.com/hexiaodai/vink/pkg/utils"
+	"github.com/kubevm.io/vink/apis/annotation"
+	"github.com/kubevm.io/vink/apis/label"
+	vmv1alpha1 "github.com/kubevm.io/vink/apis/management/virtualmachine/v1alpha1"
+	"github.com/kubevm.io/vink/internal/pkg/virtualmachine"
+	"github.com/kubevm.io/vink/pkg/clients"
+	"github.com/kubevm.io/vink/pkg/clients/gvr"
+	"github.com/kubevm.io/vink/pkg/utils"
 	"github.com/samber/lo"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	corev1 "k8s.io/api/core/v1"
@@ -21,9 +24,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	virtv1 "kubevirt.io/api/core/v1"
 	cdiv1beta1 "kubevirt.io/containerized-data-importer-api/pkg/apis/core/v1beta1"
-	"vink.io/api/annotation"
-	"vink.io/api/label"
-	vmv1alpha1 "vink.io/api/management/virtualmachine/v1alpha1"
 )
 
 func getVirtualMachine(ctx context.Context, namespace, name string) (*virtv1.VirtualMachine, error) {

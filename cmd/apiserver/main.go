@@ -4,13 +4,13 @@ import (
 	"fmt"
 
 	"github.com/gorilla/mux"
-	"github.com/hexiaodai/vink/config"
+	"github.com/kubevm.io/vink/config"
 	"github.com/spf13/cobra"
 
-	"github.com/hexiaodai/vink/internal/management"
-	"github.com/hexiaodai/vink/internal/pkg/servers"
-	"github.com/hexiaodai/vink/pkg/clients"
-	"github.com/hexiaodai/vink/pkg/log"
+	"github.com/kubevm.io/vink/internal/management"
+	"github.com/kubevm.io/vink/internal/pkg/servers"
+	"github.com/kubevm.io/vink/pkg/clients"
+	"github.com/kubevm.io/vink/pkg/log"
 )
 
 func main() {

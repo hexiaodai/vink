@@ -3,11 +3,11 @@ package network
 import (
 	"context"
 
-	"github.com/hexiaodai/vink/internal/management/network/business"
+	nwv1alpha1 "github.com/kubevm.io/vink/apis/management/network/v1alpha1"
+	"github.com/kubevm.io/vink/internal/management/network/business"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"k8s.io/apimachinery/pkg/api/errors"
-	nwv1alpha1 "vink.io/api/management/network/v1alpha1"
 )
 
 func NewNetworkManagement() nwv1alpha1.NetworkManagementServer {

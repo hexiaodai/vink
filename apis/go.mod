@@ -1,4 +1,4 @@
-module vink.io/api
+module github.com/kubevm.io/vink/apis
 
 go 1.22.0
 

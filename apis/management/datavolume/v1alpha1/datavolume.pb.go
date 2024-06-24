@@ -15,7 +15,7 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
-	common "vink.io/api/common"
+	common "github.com/kubevm.io/vink/apis/common"
 )
 
 const (

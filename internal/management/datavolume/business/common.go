@@ -4,15 +4,15 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/hexiaodai/vink/pkg/utils"
+	"github.com/kubevm.io/vink/apis/annotation"
+	"github.com/kubevm.io/vink/apis/label"
+	dvv1alpha1 "github.com/kubevm.io/vink/apis/management/datavolume/v1alpha1"
+	"github.com/kubevm.io/vink/pkg/utils"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	cdiv1beta1 "kubevirt.io/containerized-data-importer-api/pkg/apis/core/v1beta1"
-	"vink.io/api/annotation"
-	"vink.io/api/label"
-	dvv1alpha1 "vink.io/api/management/datavolume/v1alpha1"
 )
 
 const (

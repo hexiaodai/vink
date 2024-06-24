@@ -1,8 +1,8 @@
-module github.com/hexiaodai/vink
+module github.com/kubevm.io/vink
 
 go 1.22.0
 
-replace vink.io/api => ./apis
+replace github.com/kubevm.io/vink/apis => ./apis
 
 require (
 	github.com/gorilla/mux v1.8.1
@@ -24,7 +24,7 @@ require (
 	k8s.io/client-go v0.30.1
 	kubevirt.io/api v1.0.0
 	kubevirt.io/containerized-data-importer-api v1.59.0
-	vink.io/api v0.0.0-00010101000000-000000000000
+	github.com/kubevm.io/vink/apis v0.0.0-00010101000000-000000000000
 )
 
 require (

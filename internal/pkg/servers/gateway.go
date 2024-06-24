@@ -6,7 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/hexiaodai/vink/pkg/log"
+	"github.com/kubevm.io/vink/pkg/log"
 	"github.com/slok/go-http-metrics/middleware"
 	"github.com/slok/go-http-metrics/middleware/std"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"

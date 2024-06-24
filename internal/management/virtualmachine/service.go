@@ -3,11 +3,11 @@ package virtualmachine
 import (
 	"context"
 
-	"github.com/hexiaodai/vink/internal/management/virtualmachine/business"
+	vmv1alpha1 "github.com/kubevm.io/vink/apis/management/virtualmachine/v1alpha1"
+	"github.com/kubevm.io/vink/internal/management/virtualmachine/business"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"k8s.io/apimachinery/pkg/api/errors"
-	vmv1alpha1 "vink.io/api/management/virtualmachine/v1alpha1"
 )
 
 func NewVirtualMachineManagement() vmv1alpha1.VirtualMachineManagementServer {
