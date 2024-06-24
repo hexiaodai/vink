@@ -1,0 +1,128 @@
+syntax = "proto3";
+
+option go_package = "vink.io/api/management/virtualmachine/v1alpha1";
+
+package vink.management.virtualmachine.v1alpha1;
+
+import "common/common.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/descriptor.proto";
+
+service VirtualMachineManagement {
+    rpc CreateVirtualMachine(CreateVirtualMachineRequest) returns (VirtualMachine) {
+        option (google.api.http) = {
+            post: "/apis/vink.io/v1alpha1/namespaces/{namespace}/virtualmachines/{name}"
+            body: "*"
+        };
+    }
+    rpc DeleteVirtualMachine(DeleteVirtualMachineRequest) returns (DeleteVirtualMachineResponse) {
+        option (google.api.http) = {
+            delete: "/apis/vink.io/v1alpha1/namespaces/{namespace}/virtualmachines/{name}"
+        };
+    }
+    rpc ListVirtualMachines(ListVirtualMachinesRequest) returns (ListVirtualMachinesResponse) {
+        option (google.api.http) = {
+            get: "/apis/vink.io/v1alpha1/namespaces/{namespace}/virtualmachines"
+        };
+    }
+    rpc ManageVirtualMachinePowerState(ManageVirtualMachinePowerStateRequest) returns (VirtualMachine) {
+        option (google.api.http) = {
+            put: "/apis/vink.io/v1alpha1/namespaces/{namespace}/virtualmachines/{name}/power"
+            body: "*"
+        };
+    }
+}
+
+message VirtualMachine {
+    message Disk {
+        google.protobuf.Struct root = 1;
+        repeated google.protobuf.Struct data = 2;
+    }
+    string namespace = 1;
+    string name = 2;
+
+    google.protobuf.Struct virtual_machine = 3;
+    google.protobuf.Struct virtual_machine_instance = 4;
+    // google.protobuf.Struct virtual_machine_network = 5;
+    Disk virtual_machine_disk = 6;
+
+    google.protobuf.Timestamp creation_timestamp = 7;
+}
+
+message VirtualMachineInstance {
+    string namespace                                 = 1;
+    string name                                      = 2;
+    google.protobuf.Struct spec           = 3;
+    google.protobuf.Struct status         = 4;
+}
+
+message VirtualMachineConfig {
+    message NamespaceNamed {
+        string namespace = 1;
+        string name = 2;
+    }
+    message Storage {
+        message BootDisk {
+            NamespaceNamed data_volume_ref = 1;
+            string capacity = 2;
+            string storage_class_name = 3;
+        }
+        message DataDisk {
+            string data_volume_ref = 1;
+        }
+        BootDisk boot_disk = 1;
+        repeated DataDisk data_disks = 2;
+    }
+    message Network {
+        string multus_config_ref = 1;
+        string ippool_ref = 2;
+    }
+    message Resources {
+        uint32 cpu_cores = 1;
+        string memory = 2;
+    }
+    message UserConfig {
+        string cloud_init_base64 = 1;
+        repeated string ssh_public_keys = 2;
+    }
+    Storage storage = 1;
+    Network network = 2;
+    Resources resources = 3;
+    UserConfig user_config = 4;
+}
+
+message CreateVirtualMachineRequest {
+    string namespace = 1;
+    string name = 2;
+    VirtualMachineConfig config = 3;
+}
+
+message DeleteVirtualMachineRequest {
+    string namespace = 1;
+    string name = 2;
+}
+
+message DeleteVirtualMachineResponse {}
+
+message ListVirtualMachinesRequest {
+    string namespace = 1;
+    common.ListOptions options = 2;
+}
+
+message ListVirtualMachinesResponse {
+    repeated VirtualMachine items = 1;
+    common.ListOptions options = 2;
+}
+
+message ManageVirtualMachinePowerStateRequest {
+    enum PowerState {
+        UNSPECIFIED = 0;
+        ON = 1;
+        OFF = 2;
+    }
+    string namespace = 1;
+    string name = 2;
+    PowerState power_state = 3;
+}

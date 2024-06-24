@@ -1,0 +1,246 @@
+syntax = "proto3";
+
+option go_package = "vink.io/api/common";
+
+package vink.common;
+
+message Resources {
+    map<string, string> requests = 1;
+    map<string, string> limits   = 2;
+}
+
+message KubeEnv {
+    string name  = 1;
+    string value = 2;
+}
+
+message KubeVolume {
+    enum VolumeType {
+        VOLUME_TYPE_UNSPECIFIED = 0;
+        // The volume is a persistent volume claim.
+        PERSISTENT_VOLUME_CLAIM = 1;
+        DATASET                 = 2;
+    }
+    VolumeType type  = 1;
+    string name      = 2;
+    string mountPath = 3;
+    bool readOnly    = 4;
+}
+
+// PodTemplateConfig is a configuration for a pod template,
+// it includes the environment variables, volumes, resources, affinity and schedulerName.
+// The configuration is used to create a pod template for serving or job?
+message PodConfig {
+    // The environment variables of the pod.
+    repeated KubeEnv kubeEnvs = 1;
+    // The volumes of the pod.
+    repeated KubeVolume kubeVolumes = 2;
+    // The resources of the pod.
+    Resources resources = 3;
+    // The affinity of the pod.
+    Affinity affinity = 4;
+    // The name of the scheduler to use.
+    string schedulerName = 5;
+    // the priority class of pod.
+    // vink-high-priority
+    // vink-medium-priority
+    // vink-low-priority
+    // 目前只支持这三个，后续可能会支持系统其他优先级。
+    string priority_class = 6;
+    // queue name
+    string queue = 7;
+
+    int64 tolerationSeconds = 8;
+}
+
+// The following message is from k8s official: https://github.com/kubernetes/api/blob/master/core/v1/generated.proto
+// Affinity is a group of affinity scheduling rules.
+message Affinity {
+    // Describes node affinity scheduling rules for the pod.
+    NodeAffinity nodeAffinity = 1;
+
+    // Describes pod affinity scheduling rules (e.g. co-locate this pod in the same node, zone, etc. as some other pod(s)).
+    PodAffinity podAffinity = 2;
+
+    // Describes pod anti-affinity scheduling rules (e.g. avoid putting this pod in the same node, zone, etc. as some other pod(s)).
+    PodAntiAffinity podAntiAffinity = 3;
+}
+
+// Pod anti affinity is a group of inter pod anti affinity scheduling rules.
+message PodAntiAffinity {
+    // If the anti-affinity requirements specified by this field are not met at
+    // scheduling time, the pod will not be scheduled onto the node.
+    // If the anti-affinity requirements specified by this field cease to be met
+    // at some point during pod execution (e.g. due to a pod label update), the
+    // system may or may not try to eventually evict the pod from its node.
+    // When there are multiple elements, the lists of nodes corresponding to each
+    // podAffinityTerm are intersected, i.e. all terms must be satisfied.
+    repeated PodAffinityTerm requiredDuringSchedulingIgnoredDuringExecution = 1;
+
+    // The scheduler will prefer to schedule pods to nodes that satisfy
+    // the anti-affinity expressions specified by this field, but it may choose
+    // a node that violates one or more of the expressions. The node that is
+    // most preferred is the one with the greatest sum of weights, i.e.
+    // for each node that meets all of the scheduling requirements (resource
+    // request, requiredDuringScheduling anti-affinity expressions, etc.),
+    // compute a sum by iterating through the elements of this field and adding
+    // "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+    // node(s) with the highest sum are the most preferred.
+    repeated WeightedPodAffinityTerm preferredDuringSchedulingIgnoredDuringExecution = 2;
+}
+
+message PodAffinityTerm {
+    // A label query over a set of resources, in this case pods.
+    LabelSelector labelSelector = 1;
+
+    // namespaces specifies a static list of namespace names that the term applies to.
+    // The term is applied to the union of the namespaces listed in this field
+    // and the ones selected by namespaceSelector.
+    // null or empty namespaces list and null namespaceSelector means "this pod's namespace"
+    repeated string namespaces = 2;
+
+    // This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching
+    // the labelSelector in the specified namespaces, where co-located is defined as running on a node
+    // whose value of the label with key topologyKey matches that of any node on which any of the
+    // selected pods is running.
+    // Empty topologyKey is not allowed.
+    string topologyKey = 3;
+
+    // A label query over the set of namespaces that the term applies to.
+    // The term is applied to the union of the namespaces selected by this field
+    // and the ones listed in the namespaces field.
+    // null selector and null or empty namespaces list means "this pod's namespace".
+    // An empty selector ({}) matches all namespaces.
+    // This field is beta-level and is only honored when PodAffinityNamespaceSelector feature is enabled.
+    LabelSelector namespaceSelector = 4;
+}
+
+message LabelSelector {
+    // matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+    // map is equivalent to an element of matchExpressions, whose key field is "key", the
+    // operator is "In", and the values array contains only "value". The requirements are ANDed.
+    map<string, string> matchLabels = 1;
+
+    // matchExpressions is a list of label selector requirements. The requirements are ANDed.
+    repeated LabelSelectorRequirement matchExpressions = 2;
+}
+
+// The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most preferred node(s)
+message WeightedPodAffinityTerm {
+    // weight associated with matching the corresponding podAffinityTerm,
+    // in the range 1-100.
+    int32 weight = 1;
+
+    // Required. A pod affinity term, associated with the corresponding weight.
+    PodAffinityTerm podAffinityTerm = 2;
+}
+
+// Pod affinity is a group of inter pod affinity scheduling rules.
+message PodAffinity {
+    // If the affinity requirements specified by this field are not met at
+    // scheduling time, the pod will not be scheduled onto the node.
+    // If the affinity requirements specified by this field cease to be met
+    // at some point during pod execution (e.g. due to a pod label update), the
+    // system may or may not try to eventually evict the pod from its node.
+    // When there are multiple elements, the lists of nodes corresponding to each
+    // podAffinityTerm are intersected, i.e. all terms must be satisfied.
+    repeated PodAffinityTerm requiredDuringSchedulingIgnoredDuringExecution = 1;
+
+    // The scheduler will prefer to schedule pods to nodes that satisfy
+    // the affinity expressions specified by this field, but it may choose
+    // a node that violates one or more of the expressions. The node that is
+    // most preferred is the one with the greatest sum of weights, i.e.
+    // for each node that meets all of the scheduling requirements (resource
+    // request, requiredDuringScheduling affinity expressions, etc.),
+    // compute a sum by iterating through the elements of this field and adding
+    // "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+    // node(s) with the highest sum are the most preferred.
+    repeated WeightedPodAffinityTerm preferredDuringSchedulingIgnoredDuringExecution = 2;
+}
+
+// Node affinity is a group of node affinity scheduling rules.
+message NodeAffinity {
+    // If the affinity requirements specified by this field are not met at
+    // scheduling time, the pod will not be scheduled onto the node.
+    // If the affinity requirements specified by this field cease to be met
+    // at some point during pod execution (e.g. due to an update), the system
+    // may or may not try to eventually evict the pod from its node.
+    NodeSelector requiredDuringSchedulingIgnoredDuringExecution = 1;
+
+    // The scheduler will prefer to schedule pods to nodes that satisfy
+    // the affinity expressions specified by this field, but it may choose
+    // a node that violates one or more of the expressions. The node that is
+    // most preferred is the one with the greatest sum of weights, i.e.
+    // for each node that meets all of the scheduling requirements (resource
+    // request, requiredDuringScheduling affinity expressions, etc.),
+    // compute a sum by iterating through the elements of this field and adding
+    // "weight" to the sum if the node matches the corresponding matchExpressions; the
+    // node(s) with the highest sum are the most preferred.
+    repeated PreferredSchedulingTerm preferredDuringSchedulingIgnoredDuringExecution = 2;
+}
+
+// A node selector represents the union of the results of one or more label queries
+// over a set of nodes; that is, it represents the OR of the selectors represented
+// by the node selector terms.
+// +structType=atomic
+message NodeSelector {
+    // Required. A list of node selector terms. The terms are ORed.
+    repeated NodeSelectorTerm nodeSelectorTerms = 1;
+}
+
+// An empty preferred scheduling term matches all objects with implicit weight 0
+// (i.e. it's a no-op). A null preferred scheduling term matches no objects (i.e. is also a no-op).
+message PreferredSchedulingTerm {
+    // Weight associated with matching the corresponding nodeSelectorTerm, in the range 1-100.
+    int32 weight = 1;
+
+    // A node selector term, associated with the corresponding weight.
+    NodeSelectorTerm preference = 2;
+}
+
+// A null or empty node selector term matches no objects. The requirements of
+// them are ANDed.
+// The TopologySelectorTerm type implements a subset of the NodeSelectorTerm.
+// +structType=atomic
+message NodeSelectorTerm {
+    // A list of node selector requirements by node's labels.
+    repeated NodeSelectorRequirement matchExpressions = 1;
+
+    // A list of node selector requirements by node's fields.
+    repeated NodeSelectorRequirement matchFields = 2;
+}
+
+// A node selector requirement is a selector that contains values, a key, and an operator
+// that relates the key and values.
+message NodeSelectorRequirement {
+    // The label key that the selector applies to.
+    string key = 1;
+
+    // Represents a key's relationship to a set of values.
+    // Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+    string operator = 2;
+
+    // An array of string values. If the operator is In or NotIn,
+    // the values array must be non-empty. If the operator is Exists or DoesNotExist,
+    // the values array must be empty. If the operator is Gt or Lt, the values
+    // array must have a single element, which will be interpreted as an integer.
+    // This array is replaced during a strategic merge patch.
+    repeated string values = 3;
+}
+
+message LabelSelectorRequirement {
+    // key is the label key that the selector applies to.
+    // +patchMergeKey=key
+    // +patchStrategy=merge
+    string key = 1;
+
+    // operator represents a key's relationship to a set of values.
+    // Valid operators are In, NotIn, Exists and DoesNotExist.
+    string operator = 2;
+
+    // values is an array of string values. If the operator is In or NotIn,
+    // the values array must be non-empty. If the operator is Exists or DoesNotExist,
+    // the values array must be empty. This array is replaced during a strategic
+    // merge patch.
+    repeated string values = 3;
+}

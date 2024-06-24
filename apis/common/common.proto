@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option go_package = "vink.io/api/common";
+
+package vink.common;
+
+import "google/protobuf/descriptor.proto";
+import "validate/validate.proto";
+
+message ListOptions {
+    int32 limit = 1;
+    string continue = 2;
+    string labelsSelector = 3;
+    string fieldSelector = 4;
+}

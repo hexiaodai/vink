@@ -1,0 +1,237 @@
+syntax = "proto3";
+
+option go_package = "vink.io/api/management/network/v1alpha1";
+
+package vink.management.network.v1alpha1;
+
+import "common/common.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/descriptor.proto";
+
+service NetworkManagement {
+    rpc ListNodesNetworkInterfaces(ListNodesNetworkInterfacesRequest) returns (ListNodesNetworkInterfacesResponse) {
+        option (google.api.http) = {
+            get: "/apis/vink.io/v1alpha1/network/nodes/network-interfaces"
+        };
+    }
+    rpc CreateMultusConfig(CreateMultusConfigRequest) returns (MultusConfig) {
+        option (google.api.http) = {
+            post: "/apis/vink.io/v1alpha1/network/multus-configs/{name}"
+            body: "*"
+        };
+    }
+    rpc CreateSubnet(CreateSubnetRequest) returns (Subnet) {
+        option (google.api.http) = {
+            post: "/apis/vink.io/v1alpha1/network/subnets/{name}"
+            body: "*"
+        };
+    }
+    rpc CreateIPPool(CreateIPPoolRequest) returns (IPPool) {
+        option (google.api.http) = {
+            post: "/apis/vink.io/v1alpha1/network/ippools/{name}"
+            body: "*"
+        };
+    }
+    rpc UpdateMultusConfig(UpdateMultusConfigRequest) returns (MultusConfig) {
+        option (google.api.http) = {
+            put: "/apis/vink.io/v1alpha1/network/multus-configs/{name}"
+            body: "*"
+        };
+    }
+    rpc UpdateSubnet(UpdateSubnetRequest) returns (Subnet) {
+        option (google.api.http) = {
+            put: "/apis/vink.io/v1alpha1/network/subnets/{name}"
+            body: "*"
+        };
+    }
+    rpc UpdateIPPool(UpdateIPPoolRequest) returns (IPPool) {
+        option (google.api.http) = {
+            put: "/apis/vink.io/v1alpha1/network/ippools/{name}"
+            body: "*"
+        };
+    }
+    rpc DeleteMultusConfig(DeleteMultusConfigRequest) returns (DeleteMultusConfigResponse) {
+        option (google.api.http) = {
+            delete: "/apis/vink.io/v1alpha1/network/multus-configs/{name}"
+        };
+    }
+    rpc DeleteSubnet(DeleteSubnetRequest) returns (DeleteSubnetResponse) {
+        option (google.api.http) = {
+            delete: "/apis/vink.io/v1alpha1/network/subnets/{name}"
+        };
+    }
+    rpc DeleteIPPool(DeleteIPPoolRequest) returns (DeleteIPPoolResponse) {
+        option (google.api.http) = {
+            delete: "/apis/vink.io/v1alpha1/network/ippools/{name}"
+        };
+    }
+    rpc ListMultusConfigs(ListMultusConfigsRequest) returns (ListMultusConfigsResponse) {
+        option (google.api.http) = {
+            get: "/apis/vink.io/v1alpha1/network/multus-configs"
+        };
+    }
+    rpc ListSubnets(ListSubnetsRequest) returns (ListSubnetsResponse) {
+        option (google.api.http) = {
+            get: "/apis/vink.io/v1alpha1/network/subnets"
+        };
+    }
+    rpc ListIPPools(ListIPPoolsRequest) returns (ListIPPoolsResponse) {
+        option (google.api.http) = {
+            get: "/apis/vink.io/v1alpha1/network/ippools"
+        };
+    }
+}
+
+message NodeNetworkInterface {
+    message Node {
+        string name = 1;
+    }
+    message NetworkInterface {
+        string name = 1;
+        string ip = 2;
+        string subnet = 3;
+        string gateway = 4;
+        string state = 5;
+    }
+    Node node = 1;
+    repeated NetworkInterface network_interface = 2;
+}
+
+message MultusConfig {
+    string name = 1;
+    google.protobuf.Timestamp creation_timestamp     = 2;
+    google.protobuf.Struct spec = 3;
+    google.protobuf.Struct status = 4;
+}
+
+message ListNodesNetworkInterfacesRequest {
+    common.ListOptions options = 1;
+    // common.Pagination pagination = 1;
+}
+
+message ListNodesNetworkInterfacesResponse {
+    repeated NodeNetworkInterface items = 1;
+    common.ListOptions options = 2;
+    // common.Pagination pagination = 2;
+}
+
+message CreateMultusConfigRequest {
+    string name = 1;
+    string nic = 2;
+}
+
+message UpdateMultusConfigRequest {
+    string name = 1;
+    string nic = 2;
+}
+
+message Subnet {
+    string name = 1;
+    google.protobuf.Timestamp creation_timestamp     = 2;
+    google.protobuf.Struct spec = 3;
+    google.protobuf.Struct status = 4;
+}
+
+message IPPool {
+    string name = 1;
+    google.protobuf.Timestamp creation_timestamp     = 2;
+    google.protobuf.Struct spec = 3;
+    google.protobuf.Struct status = 4;
+}
+
+message SubnetConfig {
+    message Route {
+        string dst = 1;
+        string gw = 2;
+    }
+    string gateway = 1;
+    repeated string ips = 2;
+    repeated string exclude_ips = 3;
+    string subnet = 4;
+    repeated Route routes = 5;
+}
+
+message IPPoolConfig {
+    message Route {
+        string dst = 1;
+        string gw = 2;
+    }
+    string gateway = 1;
+    repeated string ips = 2;
+    repeated string exclude_ips = 3;
+    string subnet = 4;
+    repeated Route routes = 5;
+}
+
+message CreateSubnetRequest {
+    string name = 1;
+    SubnetConfig config = 2;
+}
+
+message UpdateSubnetRequest {
+    string name = 1;
+    SubnetConfig config = 2;
+}
+
+message CreateIPPoolRequest {
+    string name = 1;
+    IPPoolConfig config = 2;
+}
+
+message UpdateIPPoolRequest {
+    string name = 1;
+    IPPoolConfig config = 2;
+}
+
+message DeleteMultusConfigRequest {
+    string name = 1;
+}
+
+message DeleteMultusConfigResponse {}
+
+message DeleteSubnetRequest {
+    string name = 1;
+}
+
+message DeleteSubnetResponse {}
+
+message DeleteIPPoolRequest {
+    string name = 1;
+}
+
+message DeleteIPPoolResponse {}
+
+message ListMultusConfigsRequest {
+    common.ListOptions options = 1;
+    // common.Pagination pagination = 1;
+}
+
+message ListMultusConfigsResponse {
+    repeated MultusConfig items = 1;
+    common.ListOptions options = 2;
+    // common.Pagination pagination = 2;
+}
+
+message ListSubnetsRequest {
+    common.ListOptions options = 1;
+    // common.Pagination pagination = 1;
+}
+
+message ListSubnetsResponse {
+    repeated Subnet items = 1;
+    common.ListOptions options = 2;
+    // common.Pagination pagination = 2;
+}
+
+message ListIPPoolsRequest {
+    common.ListOptions options = 1;
+    // common.Pagination pagination = 1;
+}
+
+message ListIPPoolsResponse {
+    repeated IPPool items = 1;
+    common.ListOptions options = 2;
+    // common.Pagination pagination = 2;
+}

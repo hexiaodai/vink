@@ -1,0 +1,24 @@
+labels:
+  - name: vink.io/disk
+    featureStatus: Alpha
+    description: Defines the boot disk and data disks of the virtual machine, where 'boot' represents the boot disk of the virtual machine, and 'data' represents the data disks of the virtual machine.
+    hidden: true
+    deprecated: false
+    resources:
+      - DataVolume
+  - name: vink.io/os-family
+    featureStatus: Alpha
+    description: Defines the operating system family of the virtual machine, for example, 'windows', 'centos', 'ubuntu', 'debian'.
+    hidden: true
+    deprecated: false
+    resources:
+      - DataVolume
+      - VirtualMachine
+  - name: vink.io/os-version
+    featureStatus: Alpha
+    description: Defines the operating system version of the virtual machine.
+    hidden: true
+    deprecated: false
+    resources:
+      - DataVolume
+      - VirtualMachine

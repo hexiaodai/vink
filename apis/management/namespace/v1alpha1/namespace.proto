@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+option go_package = "vink.io/api/management/namespace/v1alpha1";
+
+package vink.management.namespace.v1alpha1;
+
+import "common/common.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/descriptor.proto";
+
+service NamespaceManagement {
+    rpc CreateNamespace(CreateNamespaceRequest) returns (Namespace) {
+        option (google.api.http) = {
+            post: "/apis/vink.io/v1alpha1/namespaces/{name}"
+            body: "*"
+        };
+    }
+    rpc DeleteNamespace(DeleteNamespaceRequest) returns (DeleteNamespaceResponse) {
+        option (google.api.http) = {
+            delete: "/apis/vink.io/v1alpha1/namespaces/{name}"
+        };
+    }
+    rpc ListNamespaces(ListNamespacesRequest) returns (ListNamespacesResponse) {
+        option (google.api.http) = {
+            get: "/apis/vink.io/v1alpha1/namespaces"
+        };
+    }
+}
+
+message NamespaceConfig {}
+
+message Namespace {
+    string name = 1;
+    google.protobuf.Timestamp creation_timestamp = 2;
+    google.protobuf.Struct namespace = 3;
+}
+
+message CreateNamespaceRequest {
+    string name = 1;
+    NamespaceConfig namespace_config = 2;
+}
+
+message DeleteNamespaceRequest {
+    string name = 1;
+}
+
+message DeleteNamespaceResponse {}
+
+message ListNamespacesRequest {
+    common.ListOptions options = 1;
+}
+
+message ListNamespacesResponse {
+    repeated Namespace items = 1;
+    common.ListOptions options = 2;
+}
