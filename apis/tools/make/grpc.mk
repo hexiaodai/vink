@@ -35,7 +35,12 @@ grpc.clean: ## Clean generated code.
     	rm -f $(ROOT_DIR)/**/*"$$p"; \
 	done
 
-	@find $(ROOT_DIR)/sdks/ts | grep -v  package.json | awk "NR != 1" | xargs rm -rf
+	@find $(ROOT_DIR)/sdks/ts \
+	| grep -v package.json \
+	| grep -v label \
+	| grep -v annotation \
+	| awk "NR != 1" \
+	| xargs rm -rf
 
 .PHONY: grpc.release.ts-sdk
 grpc.release.ts-sdk: ## Release the js sdk.

@@ -56,6 +56,7 @@ help: ## Show this help info.
 # Includes:
 # ====================================================================================================
 include tools/make/grpc.mk
+include tools/make/label_annotation.mk
 
 # Log the running target
 LOG_TARGET = echo -e "\033[0;32m===========> Running $@ ... \033[0m"
