@@ -8,7 +8,7 @@ package v1alpha1
 
 import (
 	_ "github.com/golang/protobuf/protoc-gen-go/descriptor"
-	_struct "google.golang.org/protobuf/types/known/structpb"
+	_struct "github.com/golang/protobuf/ptypes/struct"
 	timestamp "github.com/golang/protobuf/ptypes/timestamp"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
