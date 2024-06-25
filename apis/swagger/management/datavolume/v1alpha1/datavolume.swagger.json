@@ -185,8 +185,7 @@
           "type": "string"
         },
         "capacity": {
-          "type": "string",
-          "title": "enum AccessMode {\n    ACCESS_MODE_UNSPECIFIED = 0;\n    READ_ONLY_MANY          = 1;\n    READ_WRITE_ONCE         = 2;\n    READ_WRITE_MANY         = 3;\n}\nAccessMode accessMode       = 3;"
+          "type": "string"
         }
       }
     },
@@ -224,60 +223,23 @@
         }
       }
     },
-    "DataVolumeConfigDisk": {
-      "type": "string",
-      "enum": [
-        "DATA",
-        "BOOT"
-      ],
-      "default": "DATA"
-    },
-    "DataVolumeConfigOSFamily": {
+    "DataVolumeConfigOperatingSystem": {
       "type": "object",
       "properties": {
-        "centos": {
-          "$ref": "#/definitions/OSFamilyCentos"
-        },
-        "ubuntu": {
-          "$ref": "#/definitions/OSFamilyUbuntu"
-        },
-        "debian": {
-          "$ref": "#/definitions/OSFamilyDebian"
+        "type": {
+          "$ref": "#/definitions/commonOperatingSystemType"
         },
         "windows": {
-          "$ref": "#/definitions/OSFamilyWindows"
-        }
-      }
-    },
-    "OSFamilyCentos": {
-      "type": "object",
-      "properties": {
-        "version": {
-          "type": "string"
-        }
-      }
-    },
-    "OSFamilyDebian": {
-      "type": "object",
-      "properties": {
-        "version": {
-          "type": "string"
-        }
-      }
-    },
-    "OSFamilyUbuntu": {
-      "type": "object",
-      "properties": {
-        "version": {
-          "type": "string"
-        }
-      }
-    },
-    "OSFamilyWindows": {
-      "type": "object",
-      "properties": {
-        "version": {
-          "type": "string"
+          "$ref": "#/definitions/commonOperatingSystemWindowsVersion"
+        },
+        "ubuntu": {
+          "$ref": "#/definitions/commonOperatingSystemUbuntuVersion"
+        },
+        "centos": {
+          "$ref": "#/definitions/commonOperatingSystemCentOSVersion"
+        },
+        "debian": {
+          "$ref": "#/definitions/commonOperatingSystemDebianVersion"
         }
       }
     },
@@ -298,6 +260,51 @@
           "type": "string"
         }
       }
+    },
+    "commonOperatingSystemCentOSVersion": {
+      "type": "string",
+      "enum": [
+        "CENTOS_7",
+        "CENTOS_8"
+      ],
+      "default": "CENTOS_7"
+    },
+    "commonOperatingSystemDebianVersion": {
+      "type": "string",
+      "enum": [
+        "DEBIAN_9",
+        "DEBIAN_10",
+        "DEBIAN_11"
+      ],
+      "default": "DEBIAN_9"
+    },
+    "commonOperatingSystemType": {
+      "type": "string",
+      "enum": [
+        "LINUX",
+        "WINDOWS",
+        "UBUNTU",
+        "CENTOS",
+        "DEBIAN"
+      ],
+      "default": "LINUX"
+    },
+    "commonOperatingSystemUbuntuVersion": {
+      "type": "string",
+      "enum": [
+        "UBUNTU_18_04",
+        "UBUNTU_20_04",
+        "UBUNTU_22_04"
+      ],
+      "default": "UBUNTU_18_04"
+    },
+    "commonOperatingSystemWindowsVersion": {
+      "type": "string",
+      "enum": [
+        "WINDOWS_10",
+        "WINDOWS_11"
+      ],
+      "default": "WINDOWS_10"
     },
     "protobufAny": {
       "type": "object",
@@ -356,11 +363,11 @@
     "v1alpha1DataVolumeConfig": {
       "type": "object",
       "properties": {
-        "disk": {
-          "$ref": "#/definitions/DataVolumeConfigDisk"
+        "dataVolumeType": {
+          "$ref": "#/definitions/v1alpha1DataVolumeType"
         },
-        "osFamily": {
-          "$ref": "#/definitions/DataVolumeConfigOSFamily"
+        "operatingSystem": {
+          "$ref": "#/definitions/DataVolumeConfigOperatingSystem"
         },
         "dataSource": {
           "$ref": "#/definitions/DataVolumeConfigDataSource"
@@ -369,6 +376,15 @@
           "$ref": "#/definitions/DataVolumeConfigBoundPVC"
         }
       }
+    },
+    "v1alpha1DataVolumeType": {
+      "type": "string",
+      "enum": [
+        "IMAGE",
+        "ROOT",
+        "DATA"
+      ],
+      "default": "IMAGE"
     },
     "v1alpha1DeleteDataVolumeResponse": {
       "type": "object"

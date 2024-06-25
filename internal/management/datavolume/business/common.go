@@ -2,9 +2,12 @@ package business
 
 import (
 	"errors"
-	"fmt"
+	"strconv"
+
+	"github.com/kubevm.io/vink/pkg/proto"
 
 	"github.com/kubevm.io/vink/apis/annotation"
+	"github.com/kubevm.io/vink/apis/common"
 	"github.com/kubevm.io/vink/apis/label"
 	dvv1alpha1 "github.com/kubevm.io/vink/apis/management/datavolume/v1alpha1"
 	"github.com/kubevm.io/vink/pkg/utils"
@@ -15,21 +18,8 @@ import (
 	cdiv1beta1 "kubevirt.io/containerized-data-importer-api/pkg/apis/core/v1beta1"
 )
 
-const (
-	bootDisk = "boot"
-	dataDisk = "data"
-)
-
-const (
-	centos  = "centos"
-	ubuntu  = "ubuntu"
-	debian  = "debian"
-	windows = "windows"
-)
-
 var (
-	defaultStorageClass = "local-storage"
-	defaultAccessMode   = corev1.ReadWriteOnce
+	defaultAccessMode = corev1.ReadWriteOnce
 )
 
 func crdToAPIDataVolume(dv *cdiv1beta1.DataVolume) (*dvv1alpha1.DataVolume, error) {
@@ -42,119 +32,7 @@ func crdToAPIDataVolume(dv *cdiv1beta1.DataVolume) (*dvv1alpha1.DataVolume, erro
 	return &datavolume, nil
 }
 
-// func crdToAPIDataVolume(in *cdiv1beta1.DataVolume) (*dvv1alpha1.DataVolume, error) {
-// 	config := dvv1alpha1.DataVolumeConfig{}
-
-// 	switch in.Labels[label.IoVinkDisk.Name] {
-// 	case bootDisk:
-// 		config.Disk = dvv1alpha1.DataVolumeConfig_BOOT
-// 	case dataDisk:
-// 		config.Disk = dvv1alpha1.DataVolumeConfig_DATA
-// 	}
-
-// 	var osFamily dvv1alpha1.DataVolumeConfig_OSFamily
-// 	switch in.Labels[label.IoVinkOsFamily.Name] {
-// 	case centos:
-// 		osFamily.OsFamily = &dvv1alpha1.DataVolumeConfig_OSFamily_Centos_{
-// 			Centos: &dvv1alpha1.DataVolumeConfig_OSFamily_Centos{
-// 				Version: in.Labels[label.IoVinkOsFamily.Name],
-// 			},
-// 		}
-// 	case ubuntu:
-// 		osFamily.OsFamily = &dvv1alpha1.DataVolumeConfig_OSFamily_Ubuntu_{
-// 			Ubuntu: &dvv1alpha1.DataVolumeConfig_OSFamily_Ubuntu{
-// 				Version: in.Labels[label.IoVinkOsFamily.Name],
-// 			},
-// 		}
-// 	case debian:
-// 		osFamily.OsFamily = &dvv1alpha1.DataVolumeConfig_OSFamily_Debian_{
-// 			Debian: &dvv1alpha1.DataVolumeConfig_OSFamily_Debian{
-// 				Version: in.Labels[label.IoVinkOsFamily.Name],
-// 			},
-// 		}
-// 	case windows:
-// 		osFamily.OsFamily = &dvv1alpha1.DataVolumeConfig_OSFamily_Windows_{
-// 			Windows: &dvv1alpha1.DataVolumeConfig_OSFamily_Windows{
-// 				Version: in.Labels[label.IoVinkOsFamily.Name],
-// 			},
-// 		}
-// 	}
-// 	config.OsFamily = &osFamily
-
-// 	var dataSource dvv1alpha1.DataVolumeConfig_DataSource
-// 	switch {
-// 	case in.Spec.Source.HTTP != nil:
-// 		dataSource.DataSource = &dvv1alpha1.DataVolumeConfig_DataSource_Http_{
-// 			Http: &dvv1alpha1.DataVolumeConfig_DataSource_Http{
-// 				Url: in.Spec.Source.HTTP.URL,
-// 				// FIXME:
-// 				// Headers: ,
-// 			},
-// 		}
-// 	case in.Spec.Source.S3 != nil:
-// 		dataSource.DataSource = &dvv1alpha1.DataVolumeConfig_DataSource_S3_{
-// 			S3: &dvv1alpha1.DataVolumeConfig_DataSource_S3{
-// 				Url: in.Spec.Source.S3.URL,
-// 				// Bucket: in.Spec.Source.S3.Bucket,
-// 			},
-// 		}
-// 	case in.Spec.Source.Registry != nil:
-// 		dataSource.DataSource = &dvv1alpha1.DataVolumeConfig_DataSource_Registry_{
-// 			Registry: &dvv1alpha1.DataVolumeConfig_DataSource_Registry{
-// 				Url: lo.FromPtr(in.Spec.Source.Registry.URL),
-// 			},
-// 		}
-// 	case in.Spec.Source.Upload != nil:
-// 		dataSource.DataSource = &dvv1alpha1.DataVolumeConfig_DataSource_Upload_{
-// 			Upload: &dvv1alpha1.DataVolumeConfig_DataSource_Upload{},
-// 		}
-// 	case in.Spec.Source.Blank != nil:
-// 		dataSource.DataSource = &dvv1alpha1.DataVolumeConfig_DataSource_Blank_{
-// 			Blank: &dvv1alpha1.DataVolumeConfig_DataSource_Blank{},
-// 		}
-// 	}
-// 	config.DataSource = &dataSource
-
-// 	if in.Spec.PVC != nil {
-// 		config.BoundPvc = &dvv1alpha1.DataVolumeConfig_BoundPVC{
-// 			StorageClassName: lo.FromPtr(in.Spec.PVC.StorageClassName),
-// 		}
-// 		if quantity, ok := in.Spec.PVC.Resources.Requests[corev1.ResourceStorage]; ok {
-// 			config.BoundPvc.Capacity = quantity.String()
-// 		}
-// 	}
-
-// 	pbSpec, err := utils.ConvertToProtoStruct(in.Spec)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	pbStatus, err := utils.ConvertToProtoStruct(in.Status)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	datavolume := dvv1alpha1.DataVolume{
-// 		Namespace:         in.Namespace,
-// 		Name:              in.Name,
-// 		Labels:            in.Labels,
-// 		Annotations:       in.Annotations,
-// 		Spec:              pbSpec,
-// 		Status:            pbStatus,
-// 		CreationTimestamp: timestamppb.New(in.CreationTimestamp.Time),
-// 	}
-// 	return &datavolume, nil
-// }
-
 func generateDataVolumeCRD(namespace, name string, config *dvv1alpha1.DataVolumeConfig) (*cdiv1beta1.DataVolume, error) {
-	var disk string
-	switch config.Disk {
-	case dvv1alpha1.DataVolumeConfig_BOOT:
-		disk = bootDisk
-	case dvv1alpha1.DataVolumeConfig_DATA:
-		disk = dataDisk
-	default:
-		return nil, fmt.Errorf("unsupported disk type: %v", config.Disk)
-	}
-
 	dataVolumeSource := cdiv1beta1.DataVolumeSource{}
 	switch v := config.DataSource.DataSource.(type) {
 	case *dvv1alpha1.DataVolumeConfig_DataSource_Http_:
@@ -182,10 +60,10 @@ func generateDataVolumeCRD(namespace, name string, config *dvv1alpha1.DataVolume
 			Name:      name,
 			Namespace: namespace,
 			Labels: map[string]string{
-				label.IoVinkDisk.Name: disk,
+				label.DatavolumeType.Name: proto.DataVolumeTypeFromEnum(config.DataVolumeType),
 			},
 			Annotations: map[string]string{
-				annotation.IoKubevirtCdiStorageBindImmediateRequested.Name: "true",
+				annotation.IoKubevirtCdiStorageBindImmediateRequested.Name: strconv.FormatBool(true),
 			},
 		},
 		Spec: cdiv1beta1.DataVolumeSpec{
@@ -202,24 +80,21 @@ func generateDataVolumeCRD(namespace, name string, config *dvv1alpha1.DataVolume
 		},
 	}
 
-	if disk == bootDisk {
-		var osfamily, osversion string
-		switch v := config.OsFamily.OsFamily.(type) {
-		case *dvv1alpha1.DataVolumeConfig_OSFamily_Centos_:
-			osfamily = centos
-			osversion = v.Centos.Version
-		case *dvv1alpha1.DataVolumeConfig_OSFamily_Ubuntu_:
-			osfamily = ubuntu
-			osversion = v.Ubuntu.Version
-		case *dvv1alpha1.DataVolumeConfig_OSFamily_Debian_:
-			osfamily = debian
-			osversion = v.Debian.Version
-		case *dvv1alpha1.DataVolumeConfig_OSFamily_Windows_:
-			osfamily = windows
-			osversion = v.Windows.Version
+	if config.DataVolumeType == dvv1alpha1.DataVolumeType_ROOT {
+		dvcrd.Labels[label.VirtualmachineOs.Name] = proto.OperatingSystemTypeFromEnum(config.OperatingSystem.Type)
+		var version string
+		switch config.OperatingSystem.Type {
+		case common.OperatingSystemType_WINDOWS:
+			version = proto.OperatingSystemWindowsVersionFromEnum(config.OperatingSystem.GetWindows())
+		case common.OperatingSystemType_CENTOS:
+			version = proto.OperatingSystemCentOSVersionFromEnum(config.OperatingSystem.GetCentos())
+		case common.OperatingSystemType_UBUNTU:
+			version = proto.OperatingSystemUbuntuVersionFromEnum(config.OperatingSystem.GetUbuntu())
+		case common.OperatingSystemType_DEBIAN:
+			version = proto.OperatingSystemDebianVersionFromEnum(config.OperatingSystem.GetDebian())
+		default:
 		}
-		dvcrd.Labels[label.IoVinkOsFamily.Name] = osfamily
-		dvcrd.Labels[label.IoVinkOsVersion.Name] = osversion
+		dvcrd.Labels[label.VirtualmachineVersion.Name] = version
 	}
 
 	return &dvcrd, nil

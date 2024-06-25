@@ -17,6 +17,17 @@ func (this *ListOptions) UnmarshalJSON(b []byte) error {
 	return CommonUnmarshaler.Unmarshal(bytes.NewReader(b), this)
 }
 
+// MarshalJSON is a custom marshaler for NamespaceName
+func (this *NamespaceName) MarshalJSON() ([]byte, error) {
+	str, err := CommonMarshaler.MarshalToString(this)
+	return []byte(str), err
+}
+
+// UnmarshalJSON is a custom unmarshaler for NamespaceName
+func (this *NamespaceName) UnmarshalJSON(b []byte) error {
+	return CommonUnmarshaler.Unmarshal(bytes.NewReader(b), this)
+}
+
 var (
 	CommonMarshaler   = &jsonpb.Marshaler{}
 	CommonUnmarshaler = &jsonpb.Unmarshaler{AllowUnknownFields: true}

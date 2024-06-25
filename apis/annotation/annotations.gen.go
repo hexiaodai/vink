@@ -28,18 +28,12 @@ type ResourceTypes int
 const (
 	Unknown ResourceTypes = iota
     DataVolume
-    Node
-    VirtualMachine
 )
 
 func (r ResourceTypes) String() string {
 	switch r {
 	case 1:
 		return "DataVolume"
-	case 2:
-		return "Node"
-	case 3:
-		return "VirtualMachine"
 	}
 	return "Unknown"
 }
@@ -78,69 +72,16 @@ var (
 		},
 	}
 
-	IoSpidernetIpamIppool = Instance {
-		Name:          "ipam.spidernet.io/ippool",
-		Description:   "Define the ippool for the virtual machine. eg "+
-                        "'{`ipv4`:[`ippool-v4`]}'",
-		FeatureStatus: Alpha,
-		Hidden:        true,
-		Deprecated:    false,
-		Resources: []ResourceTypes{
-			VirtualMachine,
-		},
-	}
-
-	IoSpidernetIpamSubnet = Instance {
-		Name:          "ipam.spidernet.io/subnet",
-		Description:   "Define the subnet for the virtual machine. eg "+
-                        "'{`ipv4`:[`subnet-v4`]}'",
-		FeatureStatus: Alpha,
-		Hidden:        true,
-		Deprecated:    false,
-		Resources: []ResourceTypes{
-			VirtualMachine,
-		},
-	}
-
-	IoCniMultusV1DefaultNetwork = Instance {
-		Name:          "v1.multus-cni.io/default-network",
-		Description:   "Define the default network for the virtual machine. eg "+
-                        "'namespace/name'",
-		FeatureStatus: Alpha,
-		Hidden:        true,
-		Deprecated:    false,
-		Resources: []ResourceTypes{
-			VirtualMachine,
-		},
-	}
-
-	IoVinkNodeNetworkInterface = Instance {
-		Name:          "vink.io/node-network-interface",
-		Description:   "Record information of node network interfaces.",
-		FeatureStatus: Alpha,
-		Hidden:        true,
-		Deprecated:    false,
-		Resources: []ResourceTypes{
-			Node,
-		},
-	}
-
 )
 
 func AllResourceAnnotations() []*Instance {
 	return []*Instance {
 		&IoKubevirtCdiStorageBindImmediateRequested,
-		&IoSpidernetIpamIppool,
-		&IoSpidernetIpamSubnet,
-		&IoCniMultusV1DefaultNetwork,
-		&IoVinkNodeNetworkInterface,
 	}
 }
 
 func AllResourceTypes() []string {
 	return []string {
 		"DataVolume",
-		"Node",
-		"VirtualMachine",
 	}
 }

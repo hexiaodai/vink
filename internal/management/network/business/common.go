@@ -1,13 +1,9 @@
 package business
 
 import (
-	"encoding/json"
-
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/kubevm.io/vink/apis/annotation"
 	nwv1alpha1 "github.com/kubevm.io/vink/apis/management/network/v1alpha1"
-	"github.com/kubevm.io/vink/internal/pkg/node"
 	"github.com/kubevm.io/vink/pkg/utils"
 	"github.com/samber/lo"
 	spv2beta1 "github.com/spidernet-io/spiderpool/pkg/k8s/apis/spiderpool.spidernet.io/v2beta1"
@@ -21,21 +17,21 @@ func crdToAPINodeNetworkInterface(in *corev1.Node) (*nwv1alpha1.NodeNetworkInter
 			Name: in.Name,
 		},
 	}
-	if value, ok := in.Annotations[annotation.IoVinkNodeNetworkInterface.Name]; ok {
-		items := []*node.NetworkInterface{}
-		if err := json.Unmarshal([]byte(value), &items); err != nil {
-			return nil, err
-		}
-		for _, item := range items {
-			inter.NetworkInterface = append(inter.NetworkInterface, &nwv1alpha1.NodeNetworkInterface_NetworkInterface{
-				Name:    item.Name,
-				State:   item.State,
-				Ip:      item.IP,
-				Subnet:  item.Subnet,
-				Gateway: item.Gateway,
-			})
-		}
-	}
+	// if value, ok := in.Annotations[annotation.IoVinkNodeNetworkInterface.Name]; ok {
+	// 	items := []*node.NetworkInterface{}
+	// 	if err := json.Unmarshal([]byte(value), &items); err != nil {
+	// 		return nil, err
+	// 	}
+	// 	for _, item := range items {
+	// 		inter.NetworkInterface = append(inter.NetworkInterface, &nwv1alpha1.NodeNetworkInterface_NetworkInterface{
+	// 			Name:    item.Name,
+	// 			State:   item.State,
+	// 			Ip:      item.IP,
+	// 			Subnet:  item.Subnet,
+	// 			Gateway: item.Gateway,
+	// 		})
+	// 	}
+	// }
 	return &inter, nil
 }
 

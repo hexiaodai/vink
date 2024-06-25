@@ -22,15 +22,13 @@ function featureStatusToString(status: FeatureStatus): string {
 
 enum ResourceTypes {
   Unknown,
-  DataVolume,VirtualMachine,
+  DataVolume,
 }
 
 function resourceTypesToString(type: ResourceTypes): string {
   switch (type) {
     case 1:
       return "DataVolume";
-    case 2:
-      return "VirtualMachine";
     
     default:
       return "Unknown";
@@ -48,12 +46,11 @@ interface Instance {
 
 const instances: { [key: string]: Instance } = {
   
-  IoVinkDisk: {
-    name: "vink.io/disk",
-    description: "Defines the boot disk and data disks of the virtual "+
-                        "machine, where 'boot' represents the boot disk of the "+
-                        "virtual machine, and 'data' represents the data disks of "+
-                        "the virtual machine.",
+  DatavolumeType: {
+    name: "datavolume.vink.io/type",
+    description: "Defines the type of datavolume, such as root for the "+
+                        "system datavolume, image for the system image, and data "+
+                        "for the data datavolume.",
     featureStatus: FeatureStatus.Alpha,
     hidden: true,
     deprecated: false,
@@ -61,39 +58,39 @@ const instances: { [key: string]: Instance } = {
       ResourceTypes.DataVolume,
     ]
   },
-  IoVinkOsFamily: {
-    name: "vink.io/os-family",
-    description: "Defines the operating system family of the virtual "+
-                        "machine, for example, 'windows', 'centos', 'ubuntu', "+
-                        "'debian'.",
+  VirtualmachineOs: {
+    name: "virtualmachine.vink.io/os",
+    description: "Defines the operating system of the virtual machine, "+
+                        "where 'windows' represents the Windows operating system, "+
+                        "and 'linux' represents the Linux operating system.",
     featureStatus: FeatureStatus.Alpha,
     hidden: true,
     deprecated: false,
     resources: [
-      ResourceTypes.DataVolume,ResourceTypes.VirtualMachine,
+      ResourceTypes.DataVolume,
     ]
   },
-  IoVinkOsVersion: {
-    name: "vink.io/os-version",
+  VirtualmachineVersion: {
+    name: "virtualmachine.vink.io/version",
     description: "Defines the operating system version of the virtual "+
                         "machine.",
     featureStatus: FeatureStatus.Alpha,
     hidden: true,
     deprecated: false,
     resources: [
-      ResourceTypes.DataVolume,ResourceTypes.VirtualMachine,
+      ResourceTypes.DataVolume,
     ]
   },
 };
 
 function allResourceLabels(): Instance[] {
   return [
-    instances.IoVinkDisk,instances.IoVinkOsFamily,instances.IoVinkOsVersion,
+    instances.DatavolumeType,instances.VirtualmachineOs,instances.VirtualmachineVersion,
   ];
 }
 
 function allResourceTypes(): string[] {
   return [
-    "DataVolume","VirtualMachine",
+    "DataVolume",
   ];
 }

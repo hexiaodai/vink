@@ -17,6 +17,8 @@ import (
 	"unicode/utf8"
 
 	"google.golang.org/protobuf/types/known/anypb"
+
+	common "github.com/kubevm.io/vink/apis/common"
 )
 
 // ensure the imports are used
@@ -33,7 +35,250 @@ var (
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
 	_ = sort.Sort
+
+	_ = common.OperatingSystemType(0)
 )
+
+// Validate checks the field values on CreateDataVolumeRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CreateDataVolumeRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CreateDataVolumeRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CreateDataVolumeRequestMultiError, or nil if none found.
+func (m *CreateDataVolumeRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CreateDataVolumeRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Namespace
+
+	// no validation rules for Name
+
+	if all {
+		switch v := interface{}(m.GetConfig()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, CreateDataVolumeRequestValidationError{
+					field:  "Config",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, CreateDataVolumeRequestValidationError{
+					field:  "Config",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetConfig()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return CreateDataVolumeRequestValidationError{
+				field:  "Config",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return CreateDataVolumeRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// CreateDataVolumeRequestMultiError is an error wrapping multiple validation
+// errors returned by CreateDataVolumeRequest.ValidateAll() if the designated
+// constraints aren't met.
+type CreateDataVolumeRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CreateDataVolumeRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CreateDataVolumeRequestMultiError) AllErrors() []error { return m }
+
+// CreateDataVolumeRequestValidationError is the validation error returned by
+// CreateDataVolumeRequest.Validate if the designated constraints aren't met.
+type CreateDataVolumeRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CreateDataVolumeRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CreateDataVolumeRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CreateDataVolumeRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CreateDataVolumeRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CreateDataVolumeRequestValidationError) ErrorName() string {
+	return "CreateDataVolumeRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CreateDataVolumeRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCreateDataVolumeRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CreateDataVolumeRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CreateDataVolumeRequestValidationError{}
+
+// Validate checks the field values on DeleteDataVolumeRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *DeleteDataVolumeRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on DeleteDataVolumeRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// DeleteDataVolumeRequestMultiError, or nil if none found.
+func (m *DeleteDataVolumeRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *DeleteDataVolumeRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Namespace
+
+	// no validation rules for Name
+
+	if len(errors) > 0 {
+		return DeleteDataVolumeRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// DeleteDataVolumeRequestMultiError is an error wrapping multiple validation
+// errors returned by DeleteDataVolumeRequest.ValidateAll() if the designated
+// constraints aren't met.
+type DeleteDataVolumeRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m DeleteDataVolumeRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m DeleteDataVolumeRequestMultiError) AllErrors() []error { return m }
+
+// DeleteDataVolumeRequestValidationError is the validation error returned by
+// DeleteDataVolumeRequest.Validate if the designated constraints aren't met.
+type DeleteDataVolumeRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e DeleteDataVolumeRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e DeleteDataVolumeRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e DeleteDataVolumeRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e DeleteDataVolumeRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e DeleteDataVolumeRequestValidationError) ErrorName() string {
+	return "DeleteDataVolumeRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e DeleteDataVolumeRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sDeleteDataVolumeRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = DeleteDataVolumeRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = DeleteDataVolumeRequestValidationError{}
 
 // Validate checks the field values on DataVolumeConfig with the rules defined
 // in the proto definition for this message. If any rules are violated, the
@@ -57,14 +302,14 @@ func (m *DataVolumeConfig) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Disk
+	// no validation rules for DataVolumeType
 
 	if all {
-		switch v := interface{}(m.GetOsFamily()).(type) {
+		switch v := interface{}(m.GetOperatingSystem()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, DataVolumeConfigValidationError{
-					field:  "OsFamily",
+					field:  "OperatingSystem",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -72,16 +317,16 @@ func (m *DataVolumeConfig) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, DataVolumeConfigValidationError{
-					field:  "OsFamily",
+					field:  "OperatingSystem",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetOsFamily()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetOperatingSystem()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return DataVolumeConfigValidationError{
-				field:  "OsFamily",
+				field:  "OperatingSystem",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -384,247 +629,6 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = DataVolumeValidationError{}
-
-// Validate checks the field values on CreateDataVolumeRequest with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *CreateDataVolumeRequest) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on CreateDataVolumeRequest with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// CreateDataVolumeRequestMultiError, or nil if none found.
-func (m *CreateDataVolumeRequest) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *CreateDataVolumeRequest) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for Namespace
-
-	// no validation rules for Name
-
-	if all {
-		switch v := interface{}(m.GetConfig()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, CreateDataVolumeRequestValidationError{
-					field:  "Config",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, CreateDataVolumeRequestValidationError{
-					field:  "Config",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetConfig()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return CreateDataVolumeRequestValidationError{
-				field:  "Config",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return CreateDataVolumeRequestMultiError(errors)
-	}
-
-	return nil
-}
-
-// CreateDataVolumeRequestMultiError is an error wrapping multiple validation
-// errors returned by CreateDataVolumeRequest.ValidateAll() if the designated
-// constraints aren't met.
-type CreateDataVolumeRequestMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m CreateDataVolumeRequestMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m CreateDataVolumeRequestMultiError) AllErrors() []error { return m }
-
-// CreateDataVolumeRequestValidationError is the validation error returned by
-// CreateDataVolumeRequest.Validate if the designated constraints aren't met.
-type CreateDataVolumeRequestValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e CreateDataVolumeRequestValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e CreateDataVolumeRequestValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e CreateDataVolumeRequestValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e CreateDataVolumeRequestValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e CreateDataVolumeRequestValidationError) ErrorName() string {
-	return "CreateDataVolumeRequestValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e CreateDataVolumeRequestValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sCreateDataVolumeRequest.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = CreateDataVolumeRequestValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = CreateDataVolumeRequestValidationError{}
-
-// Validate checks the field values on DeleteDataVolumeRequest with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *DeleteDataVolumeRequest) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on DeleteDataVolumeRequest with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// DeleteDataVolumeRequestMultiError, or nil if none found.
-func (m *DeleteDataVolumeRequest) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *DeleteDataVolumeRequest) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for Namespace
-
-	// no validation rules for Name
-
-	if len(errors) > 0 {
-		return DeleteDataVolumeRequestMultiError(errors)
-	}
-
-	return nil
-}
-
-// DeleteDataVolumeRequestMultiError is an error wrapping multiple validation
-// errors returned by DeleteDataVolumeRequest.ValidateAll() if the designated
-// constraints aren't met.
-type DeleteDataVolumeRequestMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m DeleteDataVolumeRequestMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m DeleteDataVolumeRequestMultiError) AllErrors() []error { return m }
-
-// DeleteDataVolumeRequestValidationError is the validation error returned by
-// DeleteDataVolumeRequest.Validate if the designated constraints aren't met.
-type DeleteDataVolumeRequestValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e DeleteDataVolumeRequestValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e DeleteDataVolumeRequestValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e DeleteDataVolumeRequestValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e DeleteDataVolumeRequestValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e DeleteDataVolumeRequestValidationError) ErrorName() string {
-	return "DeleteDataVolumeRequestValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e DeleteDataVolumeRequestValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sDeleteDataVolumeRequest.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = DeleteDataVolumeRequestValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = DeleteDataVolumeRequestValidationError{}
 
 // Validate checks the field values on DeleteDataVolumeResponse with the rules
 // defined in the proto definition for this message. If any rules are
@@ -1394,170 +1398,62 @@ var _ interface {
 	ErrorName() string
 } = DataVolumeConfig_BoundPVCValidationError{}
 
-// Validate checks the field values on DataVolumeConfig_OSFamily with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *DataVolumeConfig_OSFamily) Validate() error {
+// Validate checks the field values on DataVolumeConfig_OperatingSystem with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *DataVolumeConfig_OperatingSystem) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on DataVolumeConfig_OSFamily with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// DataVolumeConfig_OSFamilyMultiError, or nil if none found.
-func (m *DataVolumeConfig_OSFamily) ValidateAll() error {
+// ValidateAll checks the field values on DataVolumeConfig_OperatingSystem with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// DataVolumeConfig_OperatingSystemMultiError, or nil if none found.
+func (m *DataVolumeConfig_OperatingSystem) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *DataVolumeConfig_OSFamily) validate(all bool) error {
+func (m *DataVolumeConfig_OperatingSystem) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
-	switch m.OsFamily.(type) {
+	// no validation rules for Type
 
-	case *DataVolumeConfig_OSFamily_Centos_:
+	switch m.Version.(type) {
 
-		if all {
-			switch v := interface{}(m.GetCentos()).(type) {
-			case interface{ ValidateAll() error }:
-				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, DataVolumeConfig_OSFamilyValidationError{
-						field:  "Centos",
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			case interface{ Validate() error }:
-				if err := v.Validate(); err != nil {
-					errors = append(errors, DataVolumeConfig_OSFamilyValidationError{
-						field:  "Centos",
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			}
-		} else if v, ok := interface{}(m.GetCentos()).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return DataVolumeConfig_OSFamilyValidationError{
-					field:  "Centos",
-					reason: "embedded message failed validation",
-					cause:  err,
-				}
-			}
-		}
+	case *DataVolumeConfig_OperatingSystem_Windows:
+		// no validation rules for Windows
 
-	case *DataVolumeConfig_OSFamily_Ubuntu_:
+	case *DataVolumeConfig_OperatingSystem_Ubuntu:
+		// no validation rules for Ubuntu
 
-		if all {
-			switch v := interface{}(m.GetUbuntu()).(type) {
-			case interface{ ValidateAll() error }:
-				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, DataVolumeConfig_OSFamilyValidationError{
-						field:  "Ubuntu",
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			case interface{ Validate() error }:
-				if err := v.Validate(); err != nil {
-					errors = append(errors, DataVolumeConfig_OSFamilyValidationError{
-						field:  "Ubuntu",
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			}
-		} else if v, ok := interface{}(m.GetUbuntu()).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return DataVolumeConfig_OSFamilyValidationError{
-					field:  "Ubuntu",
-					reason: "embedded message failed validation",
-					cause:  err,
-				}
-			}
-		}
+	case *DataVolumeConfig_OperatingSystem_Centos:
+		// no validation rules for Centos
 
-	case *DataVolumeConfig_OSFamily_Debian_:
-
-		if all {
-			switch v := interface{}(m.GetDebian()).(type) {
-			case interface{ ValidateAll() error }:
-				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, DataVolumeConfig_OSFamilyValidationError{
-						field:  "Debian",
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			case interface{ Validate() error }:
-				if err := v.Validate(); err != nil {
-					errors = append(errors, DataVolumeConfig_OSFamilyValidationError{
-						field:  "Debian",
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			}
-		} else if v, ok := interface{}(m.GetDebian()).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return DataVolumeConfig_OSFamilyValidationError{
-					field:  "Debian",
-					reason: "embedded message failed validation",
-					cause:  err,
-				}
-			}
-		}
-
-	case *DataVolumeConfig_OSFamily_Windows_:
-
-		if all {
-			switch v := interface{}(m.GetWindows()).(type) {
-			case interface{ ValidateAll() error }:
-				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, DataVolumeConfig_OSFamilyValidationError{
-						field:  "Windows",
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			case interface{ Validate() error }:
-				if err := v.Validate(); err != nil {
-					errors = append(errors, DataVolumeConfig_OSFamilyValidationError{
-						field:  "Windows",
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			}
-		} else if v, ok := interface{}(m.GetWindows()).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return DataVolumeConfig_OSFamilyValidationError{
-					field:  "Windows",
-					reason: "embedded message failed validation",
-					cause:  err,
-				}
-			}
-		}
+	case *DataVolumeConfig_OperatingSystem_Debian:
+		// no validation rules for Debian
 
 	}
 
 	if len(errors) > 0 {
-		return DataVolumeConfig_OSFamilyMultiError(errors)
+		return DataVolumeConfig_OperatingSystemMultiError(errors)
 	}
 
 	return nil
 }
 
-// DataVolumeConfig_OSFamilyMultiError is an error wrapping multiple validation
-// errors returned by DataVolumeConfig_OSFamily.ValidateAll() if the
-// designated constraints aren't met.
-type DataVolumeConfig_OSFamilyMultiError []error
+// DataVolumeConfig_OperatingSystemMultiError is an error wrapping multiple
+// validation errors returned by
+// DataVolumeConfig_OperatingSystem.ValidateAll() if the designated
+// constraints aren't met.
+type DataVolumeConfig_OperatingSystemMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m DataVolumeConfig_OSFamilyMultiError) Error() string {
+func (m DataVolumeConfig_OperatingSystemMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1566,11 +1462,12 @@ func (m DataVolumeConfig_OSFamilyMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m DataVolumeConfig_OSFamilyMultiError) AllErrors() []error { return m }
+func (m DataVolumeConfig_OperatingSystemMultiError) AllErrors() []error { return m }
 
-// DataVolumeConfig_OSFamilyValidationError is the validation error returned by
-// DataVolumeConfig_OSFamily.Validate if the designated constraints aren't met.
-type DataVolumeConfig_OSFamilyValidationError struct {
+// DataVolumeConfig_OperatingSystemValidationError is the validation error
+// returned by DataVolumeConfig_OperatingSystem.Validate if the designated
+// constraints aren't met.
+type DataVolumeConfig_OperatingSystemValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1578,24 +1475,24 @@ type DataVolumeConfig_OSFamilyValidationError struct {
 }
 
 // Field function returns field value.
-func (e DataVolumeConfig_OSFamilyValidationError) Field() string { return e.field }
+func (e DataVolumeConfig_OperatingSystemValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e DataVolumeConfig_OSFamilyValidationError) Reason() string { return e.reason }
+func (e DataVolumeConfig_OperatingSystemValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e DataVolumeConfig_OSFamilyValidationError) Cause() error { return e.cause }
+func (e DataVolumeConfig_OperatingSystemValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e DataVolumeConfig_OSFamilyValidationError) Key() bool { return e.key }
+func (e DataVolumeConfig_OperatingSystemValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e DataVolumeConfig_OSFamilyValidationError) ErrorName() string {
-	return "DataVolumeConfig_OSFamilyValidationError"
+func (e DataVolumeConfig_OperatingSystemValidationError) ErrorName() string {
+	return "DataVolumeConfig_OperatingSystemValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e DataVolumeConfig_OSFamilyValidationError) Error() string {
+func (e DataVolumeConfig_OperatingSystemValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1607,14 +1504,14 @@ func (e DataVolumeConfig_OSFamilyValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sDataVolumeConfig_OSFamily.%s: %s%s",
+		"invalid %sDataVolumeConfig_OperatingSystem.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = DataVolumeConfig_OSFamilyValidationError{}
+var _ error = DataVolumeConfig_OperatingSystemValidationError{}
 
 var _ interface {
 	Field() string
@@ -1622,7 +1519,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = DataVolumeConfig_OSFamilyValidationError{}
+} = DataVolumeConfig_OperatingSystemValidationError{}
 
 // Validate checks the field values on DataVolumeConfig_DataSource_Blank with
 // the rules defined in the proto definition for this message. If any rules
@@ -2154,431 +2051,3 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = DataVolumeConfig_DataSource_S3ValidationError{}
-
-// Validate checks the field values on DataVolumeConfig_OSFamily_Centos with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the first error encountered is returned, or nil if there are
-// no violations.
-func (m *DataVolumeConfig_OSFamily_Centos) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on DataVolumeConfig_OSFamily_Centos with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the result is a list of violation errors wrapped in
-// DataVolumeConfig_OSFamily_CentosMultiError, or nil if none found.
-func (m *DataVolumeConfig_OSFamily_Centos) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *DataVolumeConfig_OSFamily_Centos) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for Version
-
-	if len(errors) > 0 {
-		return DataVolumeConfig_OSFamily_CentosMultiError(errors)
-	}
-
-	return nil
-}
-
-// DataVolumeConfig_OSFamily_CentosMultiError is an error wrapping multiple
-// validation errors returned by
-// DataVolumeConfig_OSFamily_Centos.ValidateAll() if the designated
-// constraints aren't met.
-type DataVolumeConfig_OSFamily_CentosMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m DataVolumeConfig_OSFamily_CentosMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m DataVolumeConfig_OSFamily_CentosMultiError) AllErrors() []error { return m }
-
-// DataVolumeConfig_OSFamily_CentosValidationError is the validation error
-// returned by DataVolumeConfig_OSFamily_Centos.Validate if the designated
-// constraints aren't met.
-type DataVolumeConfig_OSFamily_CentosValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e DataVolumeConfig_OSFamily_CentosValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e DataVolumeConfig_OSFamily_CentosValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e DataVolumeConfig_OSFamily_CentosValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e DataVolumeConfig_OSFamily_CentosValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e DataVolumeConfig_OSFamily_CentosValidationError) ErrorName() string {
-	return "DataVolumeConfig_OSFamily_CentosValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e DataVolumeConfig_OSFamily_CentosValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sDataVolumeConfig_OSFamily_Centos.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = DataVolumeConfig_OSFamily_CentosValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = DataVolumeConfig_OSFamily_CentosValidationError{}
-
-// Validate checks the field values on DataVolumeConfig_OSFamily_Ubuntu with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the first error encountered is returned, or nil if there are
-// no violations.
-func (m *DataVolumeConfig_OSFamily_Ubuntu) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on DataVolumeConfig_OSFamily_Ubuntu with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the result is a list of violation errors wrapped in
-// DataVolumeConfig_OSFamily_UbuntuMultiError, or nil if none found.
-func (m *DataVolumeConfig_OSFamily_Ubuntu) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *DataVolumeConfig_OSFamily_Ubuntu) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for Version
-
-	if len(errors) > 0 {
-		return DataVolumeConfig_OSFamily_UbuntuMultiError(errors)
-	}
-
-	return nil
-}
-
-// DataVolumeConfig_OSFamily_UbuntuMultiError is an error wrapping multiple
-// validation errors returned by
-// DataVolumeConfig_OSFamily_Ubuntu.ValidateAll() if the designated
-// constraints aren't met.
-type DataVolumeConfig_OSFamily_UbuntuMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m DataVolumeConfig_OSFamily_UbuntuMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m DataVolumeConfig_OSFamily_UbuntuMultiError) AllErrors() []error { return m }
-
-// DataVolumeConfig_OSFamily_UbuntuValidationError is the validation error
-// returned by DataVolumeConfig_OSFamily_Ubuntu.Validate if the designated
-// constraints aren't met.
-type DataVolumeConfig_OSFamily_UbuntuValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e DataVolumeConfig_OSFamily_UbuntuValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e DataVolumeConfig_OSFamily_UbuntuValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e DataVolumeConfig_OSFamily_UbuntuValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e DataVolumeConfig_OSFamily_UbuntuValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e DataVolumeConfig_OSFamily_UbuntuValidationError) ErrorName() string {
-	return "DataVolumeConfig_OSFamily_UbuntuValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e DataVolumeConfig_OSFamily_UbuntuValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sDataVolumeConfig_OSFamily_Ubuntu.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = DataVolumeConfig_OSFamily_UbuntuValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = DataVolumeConfig_OSFamily_UbuntuValidationError{}
-
-// Validate checks the field values on DataVolumeConfig_OSFamily_Debian with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the first error encountered is returned, or nil if there are
-// no violations.
-func (m *DataVolumeConfig_OSFamily_Debian) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on DataVolumeConfig_OSFamily_Debian with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the result is a list of violation errors wrapped in
-// DataVolumeConfig_OSFamily_DebianMultiError, or nil if none found.
-func (m *DataVolumeConfig_OSFamily_Debian) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *DataVolumeConfig_OSFamily_Debian) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for Version
-
-	if len(errors) > 0 {
-		return DataVolumeConfig_OSFamily_DebianMultiError(errors)
-	}
-
-	return nil
-}
-
-// DataVolumeConfig_OSFamily_DebianMultiError is an error wrapping multiple
-// validation errors returned by
-// DataVolumeConfig_OSFamily_Debian.ValidateAll() if the designated
-// constraints aren't met.
-type DataVolumeConfig_OSFamily_DebianMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m DataVolumeConfig_OSFamily_DebianMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m DataVolumeConfig_OSFamily_DebianMultiError) AllErrors() []error { return m }
-
-// DataVolumeConfig_OSFamily_DebianValidationError is the validation error
-// returned by DataVolumeConfig_OSFamily_Debian.Validate if the designated
-// constraints aren't met.
-type DataVolumeConfig_OSFamily_DebianValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e DataVolumeConfig_OSFamily_DebianValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e DataVolumeConfig_OSFamily_DebianValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e DataVolumeConfig_OSFamily_DebianValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e DataVolumeConfig_OSFamily_DebianValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e DataVolumeConfig_OSFamily_DebianValidationError) ErrorName() string {
-	return "DataVolumeConfig_OSFamily_DebianValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e DataVolumeConfig_OSFamily_DebianValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sDataVolumeConfig_OSFamily_Debian.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = DataVolumeConfig_OSFamily_DebianValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = DataVolumeConfig_OSFamily_DebianValidationError{}
-
-// Validate checks the field values on DataVolumeConfig_OSFamily_Windows with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the first error encountered is returned, or nil if there are
-// no violations.
-func (m *DataVolumeConfig_OSFamily_Windows) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on DataVolumeConfig_OSFamily_Windows
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the result is a list of violation errors wrapped in
-// DataVolumeConfig_OSFamily_WindowsMultiError, or nil if none found.
-func (m *DataVolumeConfig_OSFamily_Windows) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *DataVolumeConfig_OSFamily_Windows) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for Version
-
-	if len(errors) > 0 {
-		return DataVolumeConfig_OSFamily_WindowsMultiError(errors)
-	}
-
-	return nil
-}
-
-// DataVolumeConfig_OSFamily_WindowsMultiError is an error wrapping multiple
-// validation errors returned by
-// DataVolumeConfig_OSFamily_Windows.ValidateAll() if the designated
-// constraints aren't met.
-type DataVolumeConfig_OSFamily_WindowsMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m DataVolumeConfig_OSFamily_WindowsMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m DataVolumeConfig_OSFamily_WindowsMultiError) AllErrors() []error { return m }
-
-// DataVolumeConfig_OSFamily_WindowsValidationError is the validation error
-// returned by DataVolumeConfig_OSFamily_Windows.Validate if the designated
-// constraints aren't met.
-type DataVolumeConfig_OSFamily_WindowsValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e DataVolumeConfig_OSFamily_WindowsValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e DataVolumeConfig_OSFamily_WindowsValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e DataVolumeConfig_OSFamily_WindowsValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e DataVolumeConfig_OSFamily_WindowsValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e DataVolumeConfig_OSFamily_WindowsValidationError) ErrorName() string {
-	return "DataVolumeConfig_OSFamily_WindowsValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e DataVolumeConfig_OSFamily_WindowsValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sDataVolumeConfig_OSFamily_Windows.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = DataVolumeConfig_OSFamily_WindowsValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = DataVolumeConfig_OSFamily_WindowsValidationError{}

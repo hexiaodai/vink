@@ -15,7 +15,7 @@ export enum ManageVirtualMachinePowerStateRequestPowerState {
   OFF = "OFF",
 }
 
-export type VirtualMachineDisk = {
+export type VirtualMachineDataVolume = {
   root?: GoogleProtobufStruct.Struct
   data?: GoogleProtobufStruct.Struct[]
 }
@@ -25,43 +25,25 @@ export type VirtualMachine = {
   name?: string
   virtualMachine?: GoogleProtobufStruct.Struct
   virtualMachineInstance?: GoogleProtobufStruct.Struct
-  virtualMachineDisk?: VirtualMachineDisk
+  virtualMachineDataVolume?: VirtualMachineDataVolume
   creationTimestamp?: GoogleProtobufTimestamp.Timestamp
 }
 
-export type VirtualMachineInstance = {
-  namespace?: string
-  name?: string
-  spec?: GoogleProtobufStruct.Struct
-  status?: GoogleProtobufStruct.Struct
-}
-
-export type VirtualMachineConfigNamespaceNamed = {
-  namespace?: string
-  name?: string
-}
-
-export type VirtualMachineConfigStorageBootDisk = {
-  dataVolumeRef?: VirtualMachineConfigNamespaceNamed
+export type VirtualMachineConfigStorageDataVolume = {
+  ref?: VinkCommonCommon.NamespaceName
   capacity?: string
   storageClassName?: string
 }
 
-export type VirtualMachineConfigStorageDataDisk = {
-  dataVolumeRef?: string
-}
-
 export type VirtualMachineConfigStorage = {
-  bootDisk?: VirtualMachineConfigStorageBootDisk
-  dataDisks?: VirtualMachineConfigStorageDataDisk[]
+  root?: VirtualMachineConfigStorageDataVolume
+  data?: VirtualMachineConfigStorageDataVolume[]
 }
 
 export type VirtualMachineConfigNetwork = {
-  multusConfigRef?: string
-  ippoolRef?: string
 }
 
-export type VirtualMachineConfigResources = {
+export type VirtualMachineConfigCompute = {
   cpuCores?: number
   memory?: string
 }
@@ -74,7 +56,7 @@ export type VirtualMachineConfigUserConfig = {
 export type VirtualMachineConfig = {
   storage?: VirtualMachineConfigStorage
   network?: VirtualMachineConfigNetwork
-  resources?: VirtualMachineConfigResources
+  compute?: VirtualMachineConfigCompute
   userConfig?: VirtualMachineConfigUserConfig
 }
 

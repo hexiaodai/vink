@@ -5,6 +5,7 @@
 */
 
 import * as VinkCommonCommon from "../../../common/common.pb"
+import * as VinkCommonOperating_system from "../../../common/operating_system.pb"
 import * as fm from "../../../fetch.pb"
 import * as GoogleProtobufStruct from "../../../google/protobuf/struct.pb"
 import * as GoogleProtobufTimestamp from "../../../google/protobuf/timestamp.pb"
@@ -18,9 +19,21 @@ type OneOf<T> =
         : never)
     : never);
 
-export enum DataVolumeConfigDisk {
+export enum DataVolumeType {
+  IMAGE = "IMAGE",
+  ROOT = "ROOT",
   DATA = "DATA",
-  BOOT = "BOOT",
+}
+
+export type CreateDataVolumeRequest = {
+  namespace?: string
+  name?: string
+  config?: DataVolumeConfig
+}
+
+export type DeleteDataVolumeRequest = {
+  namespace?: string
+  name?: string
 }
 
 export type DataVolumeConfigDataSourceBlank = {
@@ -54,32 +67,17 @@ export type DataVolumeConfigBoundPVC = {
   capacity?: string
 }
 
-export type DataVolumeConfigOSFamilyCentos = {
-  version?: string
+
+/* vink modified */ export type BaseDataVolumeConfigOperatingSystem = {
+  type?: VinkCommonOperating_system.OperatingSystemType
 }
 
-export type DataVolumeConfigOSFamilyUbuntu = {
-  version?: string
-}
-
-export type DataVolumeConfigOSFamilyDebian = {
-  version?: string
-}
-
-export type DataVolumeConfigOSFamilyWindows = {
-  version?: string
-}
-
-
-/* vink modified */ export type BaseDataVolumeConfigOSFamily = {
-}
-
-export type DataVolumeConfigOSFamily = BaseDataVolumeConfigOSFamily
-  & OneOf<{ centos: DataVolumeConfigOSFamilyCentos; ubuntu: DataVolumeConfigOSFamilyUbuntu; debian: DataVolumeConfigOSFamilyDebian; windows: DataVolumeConfigOSFamilyWindows }>
+export type DataVolumeConfigOperatingSystem = BaseDataVolumeConfigOperatingSystem
+  & OneOf<{ windows: VinkCommonOperating_system.OperatingSystemWindowsVersion; ubuntu: VinkCommonOperating_system.OperatingSystemUbuntuVersion; centos: VinkCommonOperating_system.OperatingSystemCentOSVersion; debian: VinkCommonOperating_system.OperatingSystemDebianVersion }>
 
 export type DataVolumeConfig = {
-  disk?: DataVolumeConfigDisk
-  osFamily?: DataVolumeConfigOSFamily
+  dataVolumeType?: DataVolumeType
+  operatingSystem?: DataVolumeConfigOperatingSystem
   dataSource?: DataVolumeConfigDataSource
   boundPvc?: DataVolumeConfigBoundPVC
 }
@@ -89,17 +87,6 @@ export type DataVolume = {
   name?: string
   dataVolume?: GoogleProtobufStruct.Struct
   creationTimestamp?: GoogleProtobufTimestamp.Timestamp
-}
-
-export type CreateDataVolumeRequest = {
-  namespace?: string
-  name?: string
-  config?: DataVolumeConfig
-}
-
-export type DeleteDataVolumeRequest = {
-  namespace?: string
-  name?: string
 }
 
 export type DeleteDataVolumeResponse = {
