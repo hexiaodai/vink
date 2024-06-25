@@ -9,3 +9,8 @@ export type ListOptions = {
   labelsSelector?: string
   fieldSelector?: string
 }
+
+export type NamespaceName = {
+  namespace?: string
+  name?: string
+}

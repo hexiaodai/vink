@@ -28,15 +28,12 @@ type ResourceTypes int
 const (
 	Unknown ResourceTypes = iota
     DataVolume
-    VirtualMachine
 )
 
 func (r ResourceTypes) String() string {
 	switch r {
 	case 1:
 		return "DataVolume"
-	case 2:
-		return "VirtualMachine"
 	}
 	return "Unknown"
 }
@@ -64,12 +61,11 @@ type Instance struct {
 
 var (
 
-	IoVinkDisk = Instance {
-		Name:          "vink.io/disk",
-		Description:   "Defines the boot disk and data disks of the virtual "+
-                        "machine, where 'boot' represents the boot disk of the "+
-                        "virtual machine, and 'data' represents the data disks of "+
-                        "the virtual machine.",
+	DatavolumeType = Instance {
+		Name:          "datavolume.vink.io/type",
+		Description:   "Defines the type of datavolume, such as root for the "+
+                        "system datavolume, image for the system image, and data "+
+                        "for the data datavolume.",
 		FeatureStatus: Alpha,
 		Hidden:        true,
 		Deprecated:    false,
@@ -78,22 +74,21 @@ var (
 		},
 	}
 
-	IoVinkOsFamily = Instance {
-		Name:          "vink.io/os-family",
-		Description:   "Defines the operating system family of the virtual "+
-                        "machine, for example, 'windows', 'centos', 'ubuntu', "+
-                        "'debian'.",
+	VirtualmachineOs = Instance {
+		Name:          "virtualmachine.vink.io/os",
+		Description:   "Defines the operating system of the virtual machine, "+
+                        "where 'windows' represents the Windows operating system, "+
+                        "and 'linux' represents the Linux operating system.",
 		FeatureStatus: Alpha,
 		Hidden:        true,
 		Deprecated:    false,
 		Resources: []ResourceTypes{
 			DataVolume,
-			VirtualMachine,
 		},
 	}
 
-	IoVinkOsVersion = Instance {
-		Name:          "vink.io/os-version",
+	VirtualmachineVersion = Instance {
+		Name:          "virtualmachine.vink.io/version",
 		Description:   "Defines the operating system version of the virtual "+
                         "machine.",
 		FeatureStatus: Alpha,
@@ -101,7 +96,6 @@ var (
 		Deprecated:    false,
 		Resources: []ResourceTypes{
 			DataVolume,
-			VirtualMachine,
 		},
 	}
 
@@ -109,15 +103,14 @@ var (
 
 func AllResourceLabels() []*Instance {
 	return []*Instance {
-		&IoVinkDisk,
-		&IoVinkOsFamily,
-		&IoVinkOsVersion,
+		&DatavolumeType,
+		&VirtualmachineOs,
+		&VirtualmachineVersion,
 	}
 }
 
 func AllResourceTypes() []string {
 	return []string {
 		"DataVolume",
-		"VirtualMachine",
 	}
 }

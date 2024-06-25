@@ -214,51 +214,7 @@
       ],
       "default": "UNSPECIFIED"
     },
-    "StorageBootDisk": {
-      "type": "object",
-      "properties": {
-        "dataVolumeRef": {
-          "$ref": "#/definitions/VirtualMachineConfigNamespaceNamed"
-        },
-        "capacity": {
-          "type": "string"
-        },
-        "storageClassName": {
-          "type": "string"
-        }
-      }
-    },
-    "StorageDataDisk": {
-      "type": "object",
-      "properties": {
-        "dataVolumeRef": {
-          "type": "string"
-        }
-      }
-    },
-    "VirtualMachineConfigNamespaceNamed": {
-      "type": "object",
-      "properties": {
-        "namespace": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        }
-      }
-    },
-    "VirtualMachineConfigNetwork": {
-      "type": "object",
-      "properties": {
-        "multusConfigRef": {
-          "type": "string"
-        },
-        "ippoolRef": {
-          "type": "string"
-        }
-      }
-    },
-    "VirtualMachineConfigResources": {
+    "VirtualMachineConfigCompute": {
       "type": "object",
       "properties": {
         "cpuCores": {
@@ -270,20 +226,38 @@
         }
       }
     },
+    "VirtualMachineConfigNetwork": {
+      "type": "object"
+    },
     "VirtualMachineConfigStorage": {
       "type": "object",
       "properties": {
-        "bootDisk": {
-          "$ref": "#/definitions/StorageBootDisk"
+        "root": {
+          "$ref": "#/definitions/VirtualMachineConfigStorageDataVolume"
         },
-        "dataDisks": {
+        "data": {
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/StorageDataDisk"
+            "$ref": "#/definitions/VirtualMachineConfigStorageDataVolume"
           }
         }
       }
+    },
+    "VirtualMachineConfigStorageDataVolume": {
+      "type": "object",
+      "properties": {
+        "ref": {
+          "$ref": "#/definitions/commonNamespaceName"
+        },
+        "capacity": {
+          "type": "string"
+        },
+        "storageClassName": {
+          "type": "string"
+        }
+      },
+      "title": "message RootVolume {\n    common.NamespaceNamed data_volume_ref = 1;\n    string capacity = 2;\n    string storage_class_name = 3;\n}\nmessage DataVolume {\n    oneof data_volume {\n        common.NamespaceName ref = 1;\n        string capacity = 2;\n    }\n    string storage_class_name = 3;\n}"
     },
     "VirtualMachineConfigUserConfig": {
       "type": "object",
@@ -295,20 +269,6 @@
           "type": "array",
           "items": {
             "type": "string"
-          }
-        }
-      }
-    },
-    "VirtualMachineDisk": {
-      "type": "object",
-      "properties": {
-        "root": {
-          "type": "object"
-        },
-        "data": {
-          "type": "array",
-          "items": {
-            "type": "object"
           }
         }
       }
@@ -327,6 +287,17 @@
           "type": "string"
         },
         "fieldSelector": {
+          "type": "string"
+        }
+      }
+    },
+    "commonNamespaceName": {
+      "type": "object",
+      "properties": {
+        "namespace": {
+          "type": "string"
+        },
+        "name": {
           "type": "string"
         }
       }
@@ -400,8 +371,8 @@
         "virtualMachineInstance": {
           "type": "object"
         },
-        "virtualMachineDisk": {
-          "$ref": "#/definitions/VirtualMachineDisk",
+        "virtualMachineDataVolume": {
+          "$ref": "#/definitions/v1alpha1VirtualMachineDataVolume",
           "title": "google.protobuf.Struct virtual_machine_network = 5;"
         },
         "creationTimestamp": {
@@ -419,11 +390,25 @@
         "network": {
           "$ref": "#/definitions/VirtualMachineConfigNetwork"
         },
-        "resources": {
-          "$ref": "#/definitions/VirtualMachineConfigResources"
+        "compute": {
+          "$ref": "#/definitions/VirtualMachineConfigCompute"
         },
         "userConfig": {
           "$ref": "#/definitions/VirtualMachineConfigUserConfig"
+        }
+      }
+    },
+    "v1alpha1VirtualMachineDataVolume": {
+      "type": "object",
+      "properties": {
+        "root": {
+          "type": "object"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
         }
       }
     }

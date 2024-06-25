@@ -17,25 +17,14 @@ func (this *VirtualMachine) UnmarshalJSON(b []byte) error {
 	return VirtualmachineUnmarshaler.Unmarshal(bytes.NewReader(b), this)
 }
 
-// MarshalJSON is a custom marshaler for VirtualMachine_Disk
-func (this *VirtualMachine_Disk) MarshalJSON() ([]byte, error) {
+// MarshalJSON is a custom marshaler for VirtualMachine_DataVolume
+func (this *VirtualMachine_DataVolume) MarshalJSON() ([]byte, error) {
 	str, err := VirtualmachineMarshaler.MarshalToString(this)
 	return []byte(str), err
 }
 
-// UnmarshalJSON is a custom unmarshaler for VirtualMachine_Disk
-func (this *VirtualMachine_Disk) UnmarshalJSON(b []byte) error {
-	return VirtualmachineUnmarshaler.Unmarshal(bytes.NewReader(b), this)
-}
-
-// MarshalJSON is a custom marshaler for VirtualMachineInstance
-func (this *VirtualMachineInstance) MarshalJSON() ([]byte, error) {
-	str, err := VirtualmachineMarshaler.MarshalToString(this)
-	return []byte(str), err
-}
-
-// UnmarshalJSON is a custom unmarshaler for VirtualMachineInstance
-func (this *VirtualMachineInstance) UnmarshalJSON(b []byte) error {
+// UnmarshalJSON is a custom unmarshaler for VirtualMachine_DataVolume
+func (this *VirtualMachine_DataVolume) UnmarshalJSON(b []byte) error {
 	return VirtualmachineUnmarshaler.Unmarshal(bytes.NewReader(b), this)
 }
 
@@ -50,17 +39,6 @@ func (this *VirtualMachineConfig) UnmarshalJSON(b []byte) error {
 	return VirtualmachineUnmarshaler.Unmarshal(bytes.NewReader(b), this)
 }
 
-// MarshalJSON is a custom marshaler for VirtualMachineConfig_NamespaceNamed
-func (this *VirtualMachineConfig_NamespaceNamed) MarshalJSON() ([]byte, error) {
-	str, err := VirtualmachineMarshaler.MarshalToString(this)
-	return []byte(str), err
-}
-
-// UnmarshalJSON is a custom unmarshaler for VirtualMachineConfig_NamespaceNamed
-func (this *VirtualMachineConfig_NamespaceNamed) UnmarshalJSON(b []byte) error {
-	return VirtualmachineUnmarshaler.Unmarshal(bytes.NewReader(b), this)
-}
-
 // MarshalJSON is a custom marshaler for VirtualMachineConfig_Storage
 func (this *VirtualMachineConfig_Storage) MarshalJSON() ([]byte, error) {
 	str, err := VirtualmachineMarshaler.MarshalToString(this)
@@ -72,25 +50,14 @@ func (this *VirtualMachineConfig_Storage) UnmarshalJSON(b []byte) error {
 	return VirtualmachineUnmarshaler.Unmarshal(bytes.NewReader(b), this)
 }
 
-// MarshalJSON is a custom marshaler for VirtualMachineConfig_Storage_BootDisk
-func (this *VirtualMachineConfig_Storage_BootDisk) MarshalJSON() ([]byte, error) {
+// MarshalJSON is a custom marshaler for VirtualMachineConfig_Storage_DataVolume
+func (this *VirtualMachineConfig_Storage_DataVolume) MarshalJSON() ([]byte, error) {
 	str, err := VirtualmachineMarshaler.MarshalToString(this)
 	return []byte(str), err
 }
 
-// UnmarshalJSON is a custom unmarshaler for VirtualMachineConfig_Storage_BootDisk
-func (this *VirtualMachineConfig_Storage_BootDisk) UnmarshalJSON(b []byte) error {
-	return VirtualmachineUnmarshaler.Unmarshal(bytes.NewReader(b), this)
-}
-
-// MarshalJSON is a custom marshaler for VirtualMachineConfig_Storage_DataDisk
-func (this *VirtualMachineConfig_Storage_DataDisk) MarshalJSON() ([]byte, error) {
-	str, err := VirtualmachineMarshaler.MarshalToString(this)
-	return []byte(str), err
-}
-
-// UnmarshalJSON is a custom unmarshaler for VirtualMachineConfig_Storage_DataDisk
-func (this *VirtualMachineConfig_Storage_DataDisk) UnmarshalJSON(b []byte) error {
+// UnmarshalJSON is a custom unmarshaler for VirtualMachineConfig_Storage_DataVolume
+func (this *VirtualMachineConfig_Storage_DataVolume) UnmarshalJSON(b []byte) error {
 	return VirtualmachineUnmarshaler.Unmarshal(bytes.NewReader(b), this)
 }
 
@@ -105,14 +72,14 @@ func (this *VirtualMachineConfig_Network) UnmarshalJSON(b []byte) error {
 	return VirtualmachineUnmarshaler.Unmarshal(bytes.NewReader(b), this)
 }
 
-// MarshalJSON is a custom marshaler for VirtualMachineConfig_Resources
-func (this *VirtualMachineConfig_Resources) MarshalJSON() ([]byte, error) {
+// MarshalJSON is a custom marshaler for VirtualMachineConfig_Compute
+func (this *VirtualMachineConfig_Compute) MarshalJSON() ([]byte, error) {
 	str, err := VirtualmachineMarshaler.MarshalToString(this)
 	return []byte(str), err
 }
 
-// UnmarshalJSON is a custom unmarshaler for VirtualMachineConfig_Resources
-func (this *VirtualMachineConfig_Resources) UnmarshalJSON(b []byte) error {
+// UnmarshalJSON is a custom unmarshaler for VirtualMachineConfig_Compute
+func (this *VirtualMachineConfig_Compute) UnmarshalJSON(b []byte) error {
 	return VirtualmachineUnmarshaler.Unmarshal(bytes.NewReader(b), this)
 }
 

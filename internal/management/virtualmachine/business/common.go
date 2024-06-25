@@ -2,17 +2,15 @@ package business
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"sync"
 
-	spv2beta1 "github.com/spidernet-io/spiderpool/pkg/k8s/apis/spiderpool.spidernet.io/v2beta1"
+	dvv1alpha1 "github.com/kubevm.io/vink/apis/management/datavolume/v1alpha1"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/kubevm.io/vink/apis/annotation"
 	"github.com/kubevm.io/vink/apis/label"
 	vmv1alpha1 "github.com/kubevm.io/vink/apis/management/virtualmachine/v1alpha1"
-	"github.com/kubevm.io/vink/internal/pkg/virtualmachine"
+	"github.com/kubevm.io/vink/pkg/proto"
 	"github.com/kubevm.io/vink/pkg/clients"
 	"github.com/kubevm.io/vink/pkg/clients/gvr"
 	"github.com/kubevm.io/vink/pkg/utils"
@@ -26,16 +24,6 @@ import (
 	cdiv1beta1 "kubevirt.io/containerized-data-importer-api/pkg/apis/core/v1beta1"
 )
 
-func getVirtualMachine(ctx context.Context, namespace, name string) (*virtv1.VirtualMachine, error) {
-	dcli := clients.GetClients().GetDynamicKubeClient()
-
-	unobj, err := dcli.Resource(gvr.From(virtv1.VirtualMachine{})).Namespace(namespace).Get(ctx, name, metav1.GetOptions{})
-	if err != nil {
-		return nil, err
-	}
-	return clients.FromUnstructured[virtv1.VirtualMachine](unobj)
-}
-
 func getVirtualMachineInstance(ctx context.Context, namespace, name string) (*virtv1.VirtualMachineInstance, error) {
 	dcli := clients.GetClients().GetDynamicKubeClient()
 
@@ -44,16 +32,6 @@ func getVirtualMachineInstance(ctx context.Context, namespace, name string) (*vi
 		return nil, err
 	}
 	return clients.FromUnstructured[virtv1.VirtualMachineInstance](unobj)
-}
-
-func getVirtualMachineNetwork(ctx context.Context, namespace, name string) (*spv2beta1.SpiderEndpoint, error) {
-	dcli := clients.GetClients().GetDynamicKubeClient()
-
-	unobj, err := dcli.Resource(gvr.From(spv2beta1.SpiderEndpoint{})).Namespace(namespace).Get(ctx, name, metav1.GetOptions{})
-	if err != nil {
-		return nil, err
-	}
-	return clients.FromUnstructured[spv2beta1.SpiderEndpoint](unobj)
 }
 
 func getDataVolume(ctx context.Context, namespace, name string) (*cdiv1beta1.DataVolume, error) {
@@ -66,7 +44,7 @@ func getDataVolume(ctx context.Context, namespace, name string) (*cdiv1beta1.Dat
 	return clients.FromUnstructured[cdiv1beta1.DataVolume](unobj)
 }
 
-func getVirtualMachineDisks(ctx context.Context, vm *virtv1.VirtualMachine) (boot *cdiv1beta1.DataVolume, data []*cdiv1beta1.DataVolume, err error) {
+func getVirtualMachineDataVolumes(ctx context.Context, vm *virtv1.VirtualMachine) (root *cdiv1beta1.DataVolume, data []*cdiv1beta1.DataVolume, err error) {
 	eg := errgroup.Group{}
 	eg.SetLimit(10)
 	dvs := make([]*cdiv1beta1.DataVolume, 0, len(vm.Spec.Template.Spec.Volumes))
@@ -94,8 +72,8 @@ func getVirtualMachineDisks(ctx context.Context, vm *virtv1.VirtualMachine) (boo
 	}
 
 	for _, dv := range dvs {
-		if dv.Labels[label.IoVinkDisk.Name] == "boot" {
-			boot = dv
+		if proto.DataVolumeTypeEqual(dv.Labels[label.DatavolumeType.Name], dvv1alpha1.DataVolumeType_ROOT) {
+			root = dv
 		} else {
 			data = append(data, dv)
 		}
@@ -119,23 +97,11 @@ func crdToAPIVirtualMachine(ctx context.Context, vm *virtv1.VirtualMachine) (*vm
 		return nil
 	})
 
-	// var net *spv2beta1.SpiderEndpoint
-	// eg.Go(func() error {
-	// 	result, err := getVirtualMachineNetwork(ctx, vm.Namespace, vm.Name)
-	// 	if errors.IsNotFound(err) {
-	// 		return nil
-	// 	} else if err != nil {
-	// 		return err
-	// 	}
-	// 	net = result
-	// 	return nil
-	// })
-
 	datadisk := make([]*cdiv1beta1.DataVolume, 0, len(vm.Spec.Template.Spec.Volumes)-2)
 	var rootdisk *cdiv1beta1.DataVolume
 	eg.Go(func() error {
 		var err error
-		rootdisk, datadisk, err = getVirtualMachineDisks(ctx, vm)
+		rootdisk, datadisk, err = getVirtualMachineDataVolumes(ctx, vm)
 		return err
 	})
 	if err := eg.Wait(); err != nil {
@@ -152,47 +118,10 @@ func crdToAPIVirtualMachine(ctx context.Context, vm *virtv1.VirtualMachine) (*vm
 		CreationTimestamp:      timestamppb.New(vm.CreationTimestamp.Time),
 		VirtualMachine:         utils.MustConvertToProtoStruct(vm),
 		VirtualMachineInstance: utils.MustConvertToProtoStruct(vmi),
-		// VirtualMachineNetwork:  utils.MustConvertToProtoStruct(net),
-		VirtualMachineDisk: &vmv1alpha1.VirtualMachine_Disk{
+		VirtualMachineDataVolume: &vmv1alpha1.VirtualMachine_DataVolume{
 			Root: utils.MustConvertToProtoStruct(rootdisk),
 			Data: utils.MustConvertToProtoStructs(diskinters),
 		},
-	}, nil
-}
-
-func crdsToAPIVirtualMachine(vm *virtv1.VirtualMachine, vmi *virtv1.VirtualMachineInstance, net *spv2beta1.SpiderEndpoint, bootdisk *cdiv1beta1.DataVolume, datadisks []*cdiv1beta1.DataVolume) (*vmv1alpha1.VirtualMachine, error) {
-	var interfaces []interface{}
-	for _, disk := range datadisks {
-		interfaces = append(interfaces, disk)
-	}
-	return &vmv1alpha1.VirtualMachine{
-		Namespace:              vm.Namespace,
-		Name:                   vm.Name,
-		CreationTimestamp:      timestamppb.New(vm.CreationTimestamp.Time),
-		VirtualMachine:         utils.MustConvertToProtoStruct(vm),
-		VirtualMachineInstance: utils.MustConvertToProtoStruct(vmi),
-		// VirtualMachineNetwork:  utils.MustConvertToProtoStruct(net),
-		VirtualMachineDisk: &vmv1alpha1.VirtualMachine_Disk{
-			// Boot: utils.MustConvertToProtoStruct(bootdisk),
-			Data: utils.MustConvertToProtoStructs(interfaces),
-		},
-	}, nil
-}
-
-func crdToAPIVirtualMachineInstance(in *virtv1.VirtualMachineInstance) (*vmv1alpha1.VirtualMachineInstance, error) {
-	pbSpec, err := utils.ConvertToProtoStruct(in.Spec)
-	if err != nil {
-		return nil, err
-	}
-	pbStatus, err := utils.ConvertToProtoStruct(in.Status)
-	if err != nil {
-		return nil, err
-	}
-	return &vmv1alpha1.VirtualMachineInstance{
-		Name:      in.Name,
-		Namespace: in.Namespace,
-		Spec:      pbSpec,
-		Status:    pbStatus,
 	}, nil
 }
 
@@ -214,11 +143,11 @@ func newSampleVirtualMachine(namespace, name string, config *vmv1alpha1.VirtualM
 				Spec: virtv1.VirtualMachineInstanceSpec{
 					Domain: virtv1.DomainSpec{
 						CPU: &virtv1.CPU{
-							Cores: config.Resources.CpuCores,
+							Cores: config.Compute.CpuCores,
 						},
 						Resources: virtv1.ResourceRequirements{
 							Requests: corev1.ResourceList{
-								corev1.ResourceMemory: resource.MustParse(config.Resources.Memory),
+								corev1.ResourceMemory: resource.MustParse(config.Compute.Memory),
 							},
 						},
 						Devices: virtv1.Devices{},
@@ -229,13 +158,16 @@ func newSampleVirtualMachine(namespace, name string, config *vmv1alpha1.VirtualM
 	}
 }
 
-func setupVirtualMachineDataDisks(vm *virtv1.VirtualMachine, dataDisksCfg []*vmv1alpha1.VirtualMachineConfig_Storage_DataDisk) error {
+func setupVirtualMachineDataVolumes(vm *virtv1.VirtualMachine, cfg []*vmv1alpha1.VirtualMachineConfig_Storage_DataVolume) error {
 	ctx := context.Background()
 	dcli := clients.GetClients().GetDynamicKubeClient()
 
-	datadisks := make([]*cdiv1beta1.DataVolume, 0, len(dataDisksCfg))
-	for _, item := range dataDisksCfg {
-		unboot, err := dcli.Resource(gvr.From(cdiv1beta1.DataVolume{})).Namespace(vm.Namespace).Get(ctx, item.DataVolumeRef, metav1.GetOptions{})
+	datadisks := make([]*cdiv1beta1.DataVolume, 0, len(cfg))
+	for _, item := range cfg {
+		if len(item.Capacity) > 0 {
+			return fmt.Errorf("not implemented")
+		}
+		unboot, err := dcli.Resource(gvr.From(cdiv1beta1.DataVolume{})).Namespace(item.Ref.Namespace).Get(ctx, item.Ref.Name, metav1.GetOptions{})
 		if err != nil {
 			return err
 		}
@@ -265,7 +197,7 @@ func setupVirtualMachineDataDisks(vm *virtv1.VirtualMachine, dataDisksCfg []*vmv
 			Name: volume.Name,
 			DiskDevice: virtv1.DiskDevice{
 				Disk: &virtv1.DiskTarget{
-					Bus: "virtio",
+					Bus: virtv1.DiskBusVirtio,
 				},
 			},
 		})
@@ -277,79 +209,15 @@ func setupVirtualMachineDataDisks(vm *virtv1.VirtualMachine, dataDisksCfg []*vmv
 	return nil
 }
 
-// func setupVirtualMachineDataDisks(vm *virtv1.VirtualMachine, dataDisksCfg []*vmv1alpha1.VirtualMachineConfig_Storage_DataDisk) error {
-// 	ctx := context.Background()
-// 	dcli := clients.GetClients().GetDynamicKubeClient()
-
-// 	datadisks := make([]*cdiv1beta1.DataVolume, 0, len(dataDisksCfg))
-// 	for _, item := range dataDisksCfg {
-// 		unboot, err := dcli.Resource(gvr.From(cdiv1beta1.DataVolume{})).Namespace(vm.Namespace).Get(ctx, item.DataVolumeRef, metav1.GetOptions{})
-// 		if err != nil {
-// 			return err
-// 		}
-// 		data, err := clients.FromUnstructured[cdiv1beta1.DataVolume](unboot)
-// 		if err != nil {
-// 			return err
-// 		}
-// 		datadisks = append(datadisks, data)
-// 	}
-
-// 	volumes := make([]virtv1.Volume, 0, len(datadisks))
-// 	disks := make([]virtv1.Disk, 0, len(datadisks))
-
-// 	for _, datadisk := range datadisks {
-// 		volumes = append(volumes, virtv1.Volume{
-// 			Name: datadisk.Name,
-// 			VolumeSource: virtv1.VolumeSource{
-// 				DataVolume: &virtv1.DataVolumeSource{
-// 					Name: datadisk.Status.ClaimName,
-// 				},
-// 			},
-// 		})
-// 	}
-
-// 	for _, volume := range volumes {
-// 		disks = append(disks, virtv1.Disk{
-// 			Name: volume.Name,
-// 			DiskDevice: virtv1.DiskDevice{
-// 				Disk: &virtv1.DiskTarget{
-// 					Bus: "virtio",
-// 				},
-// 			},
-// 		})
-// 	}
-
-// 	vm.Spec.Template.Spec.Volumes = append(vm.Spec.Template.Spec.Volumes, volumes...)
-// 	vm.Spec.Template.Spec.Domain.Devices.Disks = append(vm.Spec.Template.Spec.Domain.Devices.Disks, disks...)
-
-// 	for _, datadisk := range datadisks {
-// 		owner := metav1.OwnerReference{
-// 			APIVersion:         vm.APIVersion,
-// 			Kind:               vm.Kind,
-// 			Name:               vm.Name,
-// 			UID:                vm.UID,
-// 			BlockOwnerDeletion: lo.ToPtr(true),
-// 		}
-// 		datadisk.SetOwnerReferences([]metav1.OwnerReference{owner})
-
-// 		un, _ := clients.Unstructured(datadisk)
-// 		if _, err := dcli.Resource(gvr.From(cdiv1beta1.DataVolume{})).Update(ctx, un, metav1.UpdateOptions{}); err != nil {
-// 			return err
-// 		}
-// 	}
-
-// 	return nil
-// }
-
-func getBootDiskName(vmName string) string {
-	return fmt.Sprintf("%s-boot", vmName)
+func getRootDiskName(vmName string) string {
+	return fmt.Sprintf("%s-root", vmName)
 }
 
-func setupVirtualMachineBootDisk(vm *virtv1.VirtualMachine, cfg *vmv1alpha1.VirtualMachineConfig_Storage_BootDisk) error {
+func setupVirtualMachineRootVolume(vm *virtv1.VirtualMachine, cfg *vmv1alpha1.VirtualMachineConfig_Storage_DataVolume) error {
 	ctx := context.Background()
 	dcli := clients.GetClients().GetDynamicKubeClient()
 
-	unboot, err := dcli.Resource(gvr.From(cdiv1beta1.DataVolume{})).Namespace(cfg.DataVolumeRef.Namespace).Get(ctx, cfg.DataVolumeRef.Name, metav1.GetOptions{})
+	unboot, err := dcli.Resource(gvr.From(cdiv1beta1.DataVolume{})).Namespace(cfg.Ref.Namespace).Get(ctx, cfg.Ref.Name, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
@@ -360,18 +228,18 @@ func setupVirtualMachineBootDisk(vm *virtv1.VirtualMachine, cfg *vmv1alpha1.Virt
 
 	vm.Spec.DataVolumeTemplates = append(vm.Spec.DataVolumeTemplates, virtv1.DataVolumeTemplateSpec{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      getBootDiskName(vm.Name),
+			Name:      getRootDiskName(vm.Name),
 			Namespace: vm.Namespace,
 			Labels: map[string]string{
-				label.IoVinkOsVersion.Name: bootobj.Labels[label.IoVinkOsVersion.Name],
-				label.IoVinkOsFamily.Name:  bootobj.Labels[label.IoVinkOsFamily.Name],
+				label.VirtualmachineVersion.Name: bootobj.Labels[label.VirtualmachineVersion.Name],
+				label.VirtualmachineOs.Name:      bootobj.Labels[label.VirtualmachineOs.Name],
 			},
 		},
 		Spec: cdiv1beta1.DataVolumeSpec{
 			Source: &cdiv1beta1.DataVolumeSource{
 				PVC: &cdiv1beta1.DataVolumeSourcePVC{
-					Namespace: cfg.DataVolumeRef.Namespace,
-					Name:      cfg.DataVolumeRef.Name,
+					Namespace: cfg.Ref.Namespace,
+					Name:      cfg.Ref.Name,
 				},
 			},
 			PVC: &corev1.PersistentVolumeClaimSpec{
@@ -389,55 +257,28 @@ func setupVirtualMachineBootDisk(vm *virtv1.VirtualMachine, cfg *vmv1alpha1.Virt
 	})
 
 	vm.Spec.Template.Spec.Volumes = append(vm.Spec.Template.Spec.Volumes, virtv1.Volume{
-		Name: "boot",
+		Name: proto.DataVolumeTypeFromEnum(dvv1alpha1.DataVolumeType_ROOT),
 		VolumeSource: virtv1.VolumeSource{
 			DataVolume: &virtv1.DataVolumeSource{
-				Name: getBootDiskName(vm.Name),
+				Name: getRootDiskName(vm.Name),
 			},
 		},
 	})
 
 	vm.Spec.Template.Spec.Domain.Devices.Disks = append(vm.Spec.Template.Spec.Domain.Devices.Disks, virtv1.Disk{
-		Name: "boot",
+		Name: proto.DataVolumeTypeFromEnum(dvv1alpha1.DataVolumeType_ROOT),
 		DiskDevice: virtv1.DiskDevice{
 			Disk: &virtv1.DiskTarget{
-				Bus: "virtio",
+				Bus: virtv1.DiskBusVirtio,
 			},
 		},
 		BootOrder: lo.ToPtr[uint](1),
 	})
 
-	// vm.Labels[label.IoVinkOsVersion.Name] = bootobj.Labels[label.IoVinkOsVersion.Name]
-	// vm.Labels[label.IoVinkOsFamily.Name] = bootobj.Labels[label.IoVinkOsFamily.Name]
-
 	return nil
 }
 
 func setupVirtualMachineNetwork(vm *virtv1.VirtualMachine, cfg *vmv1alpha1.VirtualMachineConfig_Network) error {
-	if cfg == nil {
-		return nil
-	}
-
-	ippoolCfg := virtualmachine.SubnetConfiguration{
-		Interface: "eth0",
-		IPv4:      []string{cfg.IppoolRef},
-	}
-	ippoolStr, err := json.Marshal(ippoolCfg)
-	if err != nil {
-		return err
-	}
-
-	vm.Spec.Template.ObjectMeta.Annotations[annotation.IoCniMultusV1DefaultNetwork.Name] = fmt.Sprintf("%v/%v", metav1.NamespaceSystem, cfg.MultusConfigRef)
-	vm.Spec.Template.ObjectMeta.Annotations[annotation.IoSpidernetIpamIppool.Name] = string(ippoolStr)
-
-	vm.Spec.Template.Spec.Networks = []virtv1.Network{lo.FromPtr(virtv1.DefaultPodNetwork())}
-	vm.Spec.Template.Spec.Domain.Devices.Interfaces = []virtv1.Interface{lo.FromPtr(virtv1.DefaultMasqueradeNetworkInterface())}
-	// vm.Spec.Template.Spec.Domain.Devices.Interfaces = []virtv1.Interface{{
-	// 	Name: "default",
-	// 	InterfaceBindingMethod: virtv1.InterfaceBindingMethod{
-	// 		Passt: &virtv1.InterfacePasst{},
-	// 	},
-	// }}
 	return nil
 }
 
@@ -451,7 +292,6 @@ func setupVirtualMachineUserConfig(vm *virtv1.VirtualMachine, cfg *vmv1alpha1.Vi
 		Name: "cloudinit",
 		VolumeSource: virtv1.VolumeSource{
 			CloudInitNoCloud: &virtv1.CloudInitNoCloudSource{
-				// UserDataBase64: base64.StdEncoding.EncodeToString([]byte(cfg.CloudInit)),
 				UserDataBase64: cfg.CloudInitBase64,
 			},
 		},
@@ -461,7 +301,7 @@ func setupVirtualMachineUserConfig(vm *virtv1.VirtualMachine, cfg *vmv1alpha1.Vi
 		Name: "cloudinit",
 		DiskDevice: virtv1.DiskDevice{
 			Disk: &virtv1.DiskTarget{
-				Bus: "virtio",
+				Bus: virtv1.DiskBusVirtio,
 			},
 		},
 	})

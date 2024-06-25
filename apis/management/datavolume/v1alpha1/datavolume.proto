@@ -5,6 +5,7 @@ option go_package = "github.com/kubevm.io/vink/apis/management/datavolume/v1alph
 package vink.management.datavolume.v1alpha1;
 
 import "common/common.proto";
+import "common/operating_system.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
@@ -29,11 +30,24 @@ service DataVolumeManagement {
     }
 }
 
+enum DataVolumeType {
+    IMAGE = 0;
+    ROOT = 1;
+    DATA = 2;
+}
+
+message CreateDataVolumeRequest {
+    string namespace = 1;
+    string name = 2;
+    DataVolumeConfig config = 3;
+}
+
+message DeleteDataVolumeRequest {
+    string namespace = 1;
+    string name = 2;
+}
+
 message DataVolumeConfig {
-    enum Disk {
-        DATA = 0;
-        BOOT = 1;
-    }
     message DataSource {
         message Blank {}
         message Upload {}
@@ -57,37 +71,26 @@ message DataVolumeConfig {
     }
     message BoundPVC {
         string storage_class_name = 1;
-        // enum AccessMode {
-        //     ACCESS_MODE_UNSPECIFIED = 0;
-        //     READ_ONLY_MANY          = 1;
-        //     READ_WRITE_ONCE         = 2;
-        //     READ_WRITE_MANY         = 3;
-        // }
-        // AccessMode accessMode       = 3;
         string capacity = 2;
     }
-    message OSFamily {
-        message Centos {
-            string version = 1;
-        }
-        message Ubuntu {
-            string version = 1;
-        }
-        message Debian {
-            string version = 1;
-        }
-        message Windows {
-            string version = 1;
-        }
-        oneof os_family {
-            Centos centos = 1;
-            Ubuntu ubuntu = 2;
-            Debian debian = 3;
-            Windows windows = 4;
+    message OperatingSystem {
+        common.OperatingSystemType type = 1;
+        // oneof operating_system_type {
+        //     common.OperatingSystemType windows = 1;
+        //     common.OperatingSystemType linux = 2;
+        //     common.OperatingSystemType ubuntu = 3;
+        //     common.OperatingSystemType centos = 4;
+        //     common.OperatingSystemType debian = 5;
+        // }
+        oneof version {
+            common.OperatingSystemWindowsVersion windows = 6;
+            common.OperatingSystemUbuntuVersion ubuntu = 7;
+            common.OperatingSystemCentOSVersion centos = 8;
+            common.OperatingSystemDebianVersion debian = 9;
         }
     }
-    Disk disk = 1;
-    OSFamily os_family = 2;
+    DataVolumeType data_volume_type = 1;
+    OperatingSystem operating_system = 2;
     DataSource data_source = 3;
     BoundPVC bound_pvc = 4;
 }
@@ -97,17 +100,6 @@ message DataVolume {
     string name = 2;
     google.protobuf.Struct data_volume = 3;
     google.protobuf.Timestamp creation_timestamp = 4;
-}
-
-message CreateDataVolumeRequest {
-    string namespace = 1;
-    string name = 2;
-    DataVolumeConfig config = 3;
-}
-
-message DeleteDataVolumeRequest {
-    string namespace = 1;
-    string name = 2;
 }
 
 message DeleteDataVolumeResponse {}

@@ -58,21 +58,6 @@ func CreateDataVolumes(ctx context.Context, namespace, name string, config *dvv1
 func DeleteDataVolume(ctx context.Context, namespace, name string) error {
 	dcli := clients.GetClients().GetDynamicKubeClient()
 
-	// unobj, err := dcli.Resource(gvr.From(cdiv1beta1.DataVolume{})).Namespace(namespace).Get(ctx, name, metav1.GetOptions{})
-	// if err != nil {
-	// 	return err
-	// }
-	// obj, err := clients.FromUnstructured[cdiv1beta1.DataVolume](unobj)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// if len(obj.OwnerReferences) > 0 && lo.ContainsBy(obj.OwnerReferences, func(item metav1.OwnerReference) bool {
-	// 	return item.Kind == "VirtualMachine"
-	// }) {
-	// 	return fmt.Errorf("cannot delete DataVolume %s/%s because it is owned by a VirtualMachine", namespace, name)
-	// }
-
 	err := dcli.Resource(gvr.From(cdiv1beta1.DataVolume{})).Namespace(namespace).Delete(ctx, name, metav1.DeleteOptions{})
 	if errors.IsNotFound(err) {
 		return nil

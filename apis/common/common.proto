@@ -13,3 +13,8 @@ message ListOptions {
     string labelsSelector = 3;
     string fieldSelector = 4;
 }
+
+message NamespaceName {
+    string namespace = 1;
+    string name = 2;
+}

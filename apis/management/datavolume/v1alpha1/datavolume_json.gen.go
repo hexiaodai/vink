@@ -6,6 +6,28 @@ import (
 	jsonpb "github.com/golang/protobuf/jsonpb"
 )
 
+// MarshalJSON is a custom marshaler for CreateDataVolumeRequest
+func (this *CreateDataVolumeRequest) MarshalJSON() ([]byte, error) {
+	str, err := DatavolumeMarshaler.MarshalToString(this)
+	return []byte(str), err
+}
+
+// UnmarshalJSON is a custom unmarshaler for CreateDataVolumeRequest
+func (this *CreateDataVolumeRequest) UnmarshalJSON(b []byte) error {
+	return DatavolumeUnmarshaler.Unmarshal(bytes.NewReader(b), this)
+}
+
+// MarshalJSON is a custom marshaler for DeleteDataVolumeRequest
+func (this *DeleteDataVolumeRequest) MarshalJSON() ([]byte, error) {
+	str, err := DatavolumeMarshaler.MarshalToString(this)
+	return []byte(str), err
+}
+
+// UnmarshalJSON is a custom unmarshaler for DeleteDataVolumeRequest
+func (this *DeleteDataVolumeRequest) UnmarshalJSON(b []byte) error {
+	return DatavolumeUnmarshaler.Unmarshal(bytes.NewReader(b), this)
+}
+
 // MarshalJSON is a custom marshaler for DataVolumeConfig
 func (this *DataVolumeConfig) MarshalJSON() ([]byte, error) {
 	str, err := DatavolumeMarshaler.MarshalToString(this)
@@ -94,58 +116,14 @@ func (this *DataVolumeConfig_BoundPVC) UnmarshalJSON(b []byte) error {
 	return DatavolumeUnmarshaler.Unmarshal(bytes.NewReader(b), this)
 }
 
-// MarshalJSON is a custom marshaler for DataVolumeConfig_OSFamily
-func (this *DataVolumeConfig_OSFamily) MarshalJSON() ([]byte, error) {
+// MarshalJSON is a custom marshaler for DataVolumeConfig_OperatingSystem
+func (this *DataVolumeConfig_OperatingSystem) MarshalJSON() ([]byte, error) {
 	str, err := DatavolumeMarshaler.MarshalToString(this)
 	return []byte(str), err
 }
 
-// UnmarshalJSON is a custom unmarshaler for DataVolumeConfig_OSFamily
-func (this *DataVolumeConfig_OSFamily) UnmarshalJSON(b []byte) error {
-	return DatavolumeUnmarshaler.Unmarshal(bytes.NewReader(b), this)
-}
-
-// MarshalJSON is a custom marshaler for DataVolumeConfig_OSFamily_Centos
-func (this *DataVolumeConfig_OSFamily_Centos) MarshalJSON() ([]byte, error) {
-	str, err := DatavolumeMarshaler.MarshalToString(this)
-	return []byte(str), err
-}
-
-// UnmarshalJSON is a custom unmarshaler for DataVolumeConfig_OSFamily_Centos
-func (this *DataVolumeConfig_OSFamily_Centos) UnmarshalJSON(b []byte) error {
-	return DatavolumeUnmarshaler.Unmarshal(bytes.NewReader(b), this)
-}
-
-// MarshalJSON is a custom marshaler for DataVolumeConfig_OSFamily_Ubuntu
-func (this *DataVolumeConfig_OSFamily_Ubuntu) MarshalJSON() ([]byte, error) {
-	str, err := DatavolumeMarshaler.MarshalToString(this)
-	return []byte(str), err
-}
-
-// UnmarshalJSON is a custom unmarshaler for DataVolumeConfig_OSFamily_Ubuntu
-func (this *DataVolumeConfig_OSFamily_Ubuntu) UnmarshalJSON(b []byte) error {
-	return DatavolumeUnmarshaler.Unmarshal(bytes.NewReader(b), this)
-}
-
-// MarshalJSON is a custom marshaler for DataVolumeConfig_OSFamily_Debian
-func (this *DataVolumeConfig_OSFamily_Debian) MarshalJSON() ([]byte, error) {
-	str, err := DatavolumeMarshaler.MarshalToString(this)
-	return []byte(str), err
-}
-
-// UnmarshalJSON is a custom unmarshaler for DataVolumeConfig_OSFamily_Debian
-func (this *DataVolumeConfig_OSFamily_Debian) UnmarshalJSON(b []byte) error {
-	return DatavolumeUnmarshaler.Unmarshal(bytes.NewReader(b), this)
-}
-
-// MarshalJSON is a custom marshaler for DataVolumeConfig_OSFamily_Windows
-func (this *DataVolumeConfig_OSFamily_Windows) MarshalJSON() ([]byte, error) {
-	str, err := DatavolumeMarshaler.MarshalToString(this)
-	return []byte(str), err
-}
-
-// UnmarshalJSON is a custom unmarshaler for DataVolumeConfig_OSFamily_Windows
-func (this *DataVolumeConfig_OSFamily_Windows) UnmarshalJSON(b []byte) error {
+// UnmarshalJSON is a custom unmarshaler for DataVolumeConfig_OperatingSystem
+func (this *DataVolumeConfig_OperatingSystem) UnmarshalJSON(b []byte) error {
 	return DatavolumeUnmarshaler.Unmarshal(bytes.NewReader(b), this)
 }
 
@@ -157,28 +135,6 @@ func (this *DataVolume) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON is a custom unmarshaler for DataVolume
 func (this *DataVolume) UnmarshalJSON(b []byte) error {
-	return DatavolumeUnmarshaler.Unmarshal(bytes.NewReader(b), this)
-}
-
-// MarshalJSON is a custom marshaler for CreateDataVolumeRequest
-func (this *CreateDataVolumeRequest) MarshalJSON() ([]byte, error) {
-	str, err := DatavolumeMarshaler.MarshalToString(this)
-	return []byte(str), err
-}
-
-// UnmarshalJSON is a custom unmarshaler for CreateDataVolumeRequest
-func (this *CreateDataVolumeRequest) UnmarshalJSON(b []byte) error {
-	return DatavolumeUnmarshaler.Unmarshal(bytes.NewReader(b), this)
-}
-
-// MarshalJSON is a custom marshaler for DeleteDataVolumeRequest
-func (this *DeleteDataVolumeRequest) MarshalJSON() ([]byte, error) {
-	str, err := DatavolumeMarshaler.MarshalToString(this)
-	return []byte(str), err
-}
-
-// UnmarshalJSON is a custom unmarshaler for DeleteDataVolumeRequest
-func (this *DeleteDataVolumeRequest) UnmarshalJSON(b []byte) error {
 	return DatavolumeUnmarshaler.Unmarshal(bytes.NewReader(b), this)
 }
 

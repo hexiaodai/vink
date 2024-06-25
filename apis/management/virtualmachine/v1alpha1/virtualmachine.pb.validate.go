@@ -120,11 +120,11 @@ func (m *VirtualMachine) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetVirtualMachineDisk()).(type) {
+		switch v := interface{}(m.GetVirtualMachineDataVolume()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, VirtualMachineValidationError{
-					field:  "VirtualMachineDisk",
+					field:  "VirtualMachineDataVolume",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -132,16 +132,16 @@ func (m *VirtualMachine) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, VirtualMachineValidationError{
-					field:  "VirtualMachineDisk",
+					field:  "VirtualMachineDataVolume",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetVirtualMachineDisk()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetVirtualMachineDataVolume()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return VirtualMachineValidationError{
-				field:  "VirtualMachineDisk",
+				field:  "VirtualMachineDataVolume",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -255,170 +255,6 @@ var _ interface {
 	ErrorName() string
 } = VirtualMachineValidationError{}
 
-// Validate checks the field values on VirtualMachineInstance with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *VirtualMachineInstance) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on VirtualMachineInstance with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// VirtualMachineInstanceMultiError, or nil if none found.
-func (m *VirtualMachineInstance) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *VirtualMachineInstance) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for Namespace
-
-	// no validation rules for Name
-
-	if all {
-		switch v := interface{}(m.GetSpec()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, VirtualMachineInstanceValidationError{
-					field:  "Spec",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, VirtualMachineInstanceValidationError{
-					field:  "Spec",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetSpec()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return VirtualMachineInstanceValidationError{
-				field:  "Spec",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetStatus()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, VirtualMachineInstanceValidationError{
-					field:  "Status",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, VirtualMachineInstanceValidationError{
-					field:  "Status",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetStatus()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return VirtualMachineInstanceValidationError{
-				field:  "Status",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return VirtualMachineInstanceMultiError(errors)
-	}
-
-	return nil
-}
-
-// VirtualMachineInstanceMultiError is an error wrapping multiple validation
-// errors returned by VirtualMachineInstance.ValidateAll() if the designated
-// constraints aren't met.
-type VirtualMachineInstanceMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m VirtualMachineInstanceMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m VirtualMachineInstanceMultiError) AllErrors() []error { return m }
-
-// VirtualMachineInstanceValidationError is the validation error returned by
-// VirtualMachineInstance.Validate if the designated constraints aren't met.
-type VirtualMachineInstanceValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e VirtualMachineInstanceValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e VirtualMachineInstanceValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e VirtualMachineInstanceValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e VirtualMachineInstanceValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e VirtualMachineInstanceValidationError) ErrorName() string {
-	return "VirtualMachineInstanceValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e VirtualMachineInstanceValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sVirtualMachineInstance.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = VirtualMachineInstanceValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = VirtualMachineInstanceValidationError{}
-
 // Validate checks the field values on VirtualMachineConfig with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -500,11 +336,11 @@ func (m *VirtualMachineConfig) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetResources()).(type) {
+		switch v := interface{}(m.GetCompute()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, VirtualMachineConfigValidationError{
-					field:  "Resources",
+					field:  "Compute",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -512,16 +348,16 @@ func (m *VirtualMachineConfig) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, VirtualMachineConfigValidationError{
-					field:  "Resources",
+					field:  "Compute",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetResources()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetCompute()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return VirtualMachineConfigValidationError{
-				field:  "Resources",
+				field:  "Compute",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -1393,22 +1229,22 @@ var _ interface {
 	ErrorName() string
 } = ManageVirtualMachinePowerStateRequestValidationError{}
 
-// Validate checks the field values on VirtualMachine_Disk with the rules
+// Validate checks the field values on VirtualMachine_DataVolume with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *VirtualMachine_Disk) Validate() error {
+func (m *VirtualMachine_DataVolume) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on VirtualMachine_Disk with the rules
-// defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on VirtualMachine_DataVolume with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// VirtualMachine_DiskMultiError, or nil if none found.
-func (m *VirtualMachine_Disk) ValidateAll() error {
+// VirtualMachine_DataVolumeMultiError, or nil if none found.
+func (m *VirtualMachine_DataVolume) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *VirtualMachine_Disk) validate(all bool) error {
+func (m *VirtualMachine_DataVolume) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -1419,7 +1255,7 @@ func (m *VirtualMachine_Disk) validate(all bool) error {
 		switch v := interface{}(m.GetRoot()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, VirtualMachine_DiskValidationError{
+				errors = append(errors, VirtualMachine_DataVolumeValidationError{
 					field:  "Root",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -1427,7 +1263,7 @@ func (m *VirtualMachine_Disk) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, VirtualMachine_DiskValidationError{
+				errors = append(errors, VirtualMachine_DataVolumeValidationError{
 					field:  "Root",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -1436,7 +1272,7 @@ func (m *VirtualMachine_Disk) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetRoot()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return VirtualMachine_DiskValidationError{
+			return VirtualMachine_DataVolumeValidationError{
 				field:  "Root",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -1451,7 +1287,7 @@ func (m *VirtualMachine_Disk) validate(all bool) error {
 			switch v := interface{}(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, VirtualMachine_DiskValidationError{
+					errors = append(errors, VirtualMachine_DataVolumeValidationError{
 						field:  fmt.Sprintf("Data[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -1459,7 +1295,7 @@ func (m *VirtualMachine_Disk) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, VirtualMachine_DiskValidationError{
+					errors = append(errors, VirtualMachine_DataVolumeValidationError{
 						field:  fmt.Sprintf("Data[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -1468,7 +1304,7 @@ func (m *VirtualMachine_Disk) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return VirtualMachine_DiskValidationError{
+				return VirtualMachine_DataVolumeValidationError{
 					field:  fmt.Sprintf("Data[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -1479,19 +1315,19 @@ func (m *VirtualMachine_Disk) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return VirtualMachine_DiskMultiError(errors)
+		return VirtualMachine_DataVolumeMultiError(errors)
 	}
 
 	return nil
 }
 
-// VirtualMachine_DiskMultiError is an error wrapping multiple validation
-// errors returned by VirtualMachine_Disk.ValidateAll() if the designated
-// constraints aren't met.
-type VirtualMachine_DiskMultiError []error
+// VirtualMachine_DataVolumeMultiError is an error wrapping multiple validation
+// errors returned by VirtualMachine_DataVolume.ValidateAll() if the
+// designated constraints aren't met.
+type VirtualMachine_DataVolumeMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m VirtualMachine_DiskMultiError) Error() string {
+func (m VirtualMachine_DataVolumeMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1500,11 +1336,11 @@ func (m VirtualMachine_DiskMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m VirtualMachine_DiskMultiError) AllErrors() []error { return m }
+func (m VirtualMachine_DataVolumeMultiError) AllErrors() []error { return m }
 
-// VirtualMachine_DiskValidationError is the validation error returned by
-// VirtualMachine_Disk.Validate if the designated constraints aren't met.
-type VirtualMachine_DiskValidationError struct {
+// VirtualMachine_DataVolumeValidationError is the validation error returned by
+// VirtualMachine_DataVolume.Validate if the designated constraints aren't met.
+type VirtualMachine_DataVolumeValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1512,24 +1348,24 @@ type VirtualMachine_DiskValidationError struct {
 }
 
 // Field function returns field value.
-func (e VirtualMachine_DiskValidationError) Field() string { return e.field }
+func (e VirtualMachine_DataVolumeValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e VirtualMachine_DiskValidationError) Reason() string { return e.reason }
+func (e VirtualMachine_DataVolumeValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e VirtualMachine_DiskValidationError) Cause() error { return e.cause }
+func (e VirtualMachine_DataVolumeValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e VirtualMachine_DiskValidationError) Key() bool { return e.key }
+func (e VirtualMachine_DataVolumeValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e VirtualMachine_DiskValidationError) ErrorName() string {
-	return "VirtualMachine_DiskValidationError"
+func (e VirtualMachine_DataVolumeValidationError) ErrorName() string {
+	return "VirtualMachine_DataVolumeValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e VirtualMachine_DiskValidationError) Error() string {
+func (e VirtualMachine_DataVolumeValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1541,14 +1377,14 @@ func (e VirtualMachine_DiskValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sVirtualMachine_Disk.%s: %s%s",
+		"invalid %sVirtualMachine_DataVolume.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = VirtualMachine_DiskValidationError{}
+var _ error = VirtualMachine_DataVolumeValidationError{}
 
 var _ interface {
 	Field() string
@@ -1556,116 +1392,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = VirtualMachine_DiskValidationError{}
-
-// Validate checks the field values on VirtualMachineConfig_NamespaceNamed with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the first error encountered is returned, or nil if there are
-// no violations.
-func (m *VirtualMachineConfig_NamespaceNamed) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on VirtualMachineConfig_NamespaceNamed
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the result is a list of violation errors wrapped in
-// VirtualMachineConfig_NamespaceNamedMultiError, or nil if none found.
-func (m *VirtualMachineConfig_NamespaceNamed) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *VirtualMachineConfig_NamespaceNamed) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for Namespace
-
-	// no validation rules for Name
-
-	if len(errors) > 0 {
-		return VirtualMachineConfig_NamespaceNamedMultiError(errors)
-	}
-
-	return nil
-}
-
-// VirtualMachineConfig_NamespaceNamedMultiError is an error wrapping multiple
-// validation errors returned by
-// VirtualMachineConfig_NamespaceNamed.ValidateAll() if the designated
-// constraints aren't met.
-type VirtualMachineConfig_NamespaceNamedMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m VirtualMachineConfig_NamespaceNamedMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m VirtualMachineConfig_NamespaceNamedMultiError) AllErrors() []error { return m }
-
-// VirtualMachineConfig_NamespaceNamedValidationError is the validation error
-// returned by VirtualMachineConfig_NamespaceNamed.Validate if the designated
-// constraints aren't met.
-type VirtualMachineConfig_NamespaceNamedValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e VirtualMachineConfig_NamespaceNamedValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e VirtualMachineConfig_NamespaceNamedValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e VirtualMachineConfig_NamespaceNamedValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e VirtualMachineConfig_NamespaceNamedValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e VirtualMachineConfig_NamespaceNamedValidationError) ErrorName() string {
-	return "VirtualMachineConfig_NamespaceNamedValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e VirtualMachineConfig_NamespaceNamedValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sVirtualMachineConfig_NamespaceNamed.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = VirtualMachineConfig_NamespaceNamedValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = VirtualMachineConfig_NamespaceNamedValidationError{}
+} = VirtualMachine_DataVolumeValidationError{}
 
 // Validate checks the field values on VirtualMachineConfig_Storage with the
 // rules defined in the proto definition for this message. If any rules are
@@ -1690,11 +1417,11 @@ func (m *VirtualMachineConfig_Storage) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetBootDisk()).(type) {
+		switch v := interface{}(m.GetRoot()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, VirtualMachineConfig_StorageValidationError{
-					field:  "BootDisk",
+					field:  "Root",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -1702,23 +1429,23 @@ func (m *VirtualMachineConfig_Storage) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, VirtualMachineConfig_StorageValidationError{
-					field:  "BootDisk",
+					field:  "Root",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetBootDisk()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetRoot()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return VirtualMachineConfig_StorageValidationError{
-				field:  "BootDisk",
+				field:  "Root",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
 		}
 	}
 
-	for idx, item := range m.GetDataDisks() {
+	for idx, item := range m.GetData() {
 		_, _ = idx, item
 
 		if all {
@@ -1726,7 +1453,7 @@ func (m *VirtualMachineConfig_Storage) validate(all bool) error {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, VirtualMachineConfig_StorageValidationError{
-						field:  fmt.Sprintf("DataDisks[%v]", idx),
+						field:  fmt.Sprintf("Data[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -1734,7 +1461,7 @@ func (m *VirtualMachineConfig_Storage) validate(all bool) error {
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
 					errors = append(errors, VirtualMachineConfig_StorageValidationError{
-						field:  fmt.Sprintf("DataDisks[%v]", idx),
+						field:  fmt.Sprintf("Data[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -1743,7 +1470,7 @@ func (m *VirtualMachineConfig_Storage) validate(all bool) error {
 		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return VirtualMachineConfig_StorageValidationError{
-					field:  fmt.Sprintf("DataDisks[%v]", idx),
+					field:  fmt.Sprintf("Data[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -1855,10 +1582,6 @@ func (m *VirtualMachineConfig_Network) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for MultusConfigRef
-
-	// no validation rules for IppoolRef
-
 	if len(errors) > 0 {
 		return VirtualMachineConfig_NetworkMultiError(errors)
 	}
@@ -1940,22 +1663,22 @@ var _ interface {
 	ErrorName() string
 } = VirtualMachineConfig_NetworkValidationError{}
 
-// Validate checks the field values on VirtualMachineConfig_Resources with the
+// Validate checks the field values on VirtualMachineConfig_Compute with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *VirtualMachineConfig_Resources) Validate() error {
+func (m *VirtualMachineConfig_Compute) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on VirtualMachineConfig_Resources with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the result is a list of violation errors wrapped in
-// VirtualMachineConfig_ResourcesMultiError, or nil if none found.
-func (m *VirtualMachineConfig_Resources) ValidateAll() error {
+// ValidateAll checks the field values on VirtualMachineConfig_Compute with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// VirtualMachineConfig_ComputeMultiError, or nil if none found.
+func (m *VirtualMachineConfig_Compute) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *VirtualMachineConfig_Resources) validate(all bool) error {
+func (m *VirtualMachineConfig_Compute) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -1967,19 +1690,19 @@ func (m *VirtualMachineConfig_Resources) validate(all bool) error {
 	// no validation rules for Memory
 
 	if len(errors) > 0 {
-		return VirtualMachineConfig_ResourcesMultiError(errors)
+		return VirtualMachineConfig_ComputeMultiError(errors)
 	}
 
 	return nil
 }
 
-// VirtualMachineConfig_ResourcesMultiError is an error wrapping multiple
-// validation errors returned by VirtualMachineConfig_Resources.ValidateAll()
-// if the designated constraints aren't met.
-type VirtualMachineConfig_ResourcesMultiError []error
+// VirtualMachineConfig_ComputeMultiError is an error wrapping multiple
+// validation errors returned by VirtualMachineConfig_Compute.ValidateAll() if
+// the designated constraints aren't met.
+type VirtualMachineConfig_ComputeMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m VirtualMachineConfig_ResourcesMultiError) Error() string {
+func (m VirtualMachineConfig_ComputeMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1988,12 +1711,12 @@ func (m VirtualMachineConfig_ResourcesMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m VirtualMachineConfig_ResourcesMultiError) AllErrors() []error { return m }
+func (m VirtualMachineConfig_ComputeMultiError) AllErrors() []error { return m }
 
-// VirtualMachineConfig_ResourcesValidationError is the validation error
-// returned by VirtualMachineConfig_Resources.Validate if the designated
-// constraints aren't met.
-type VirtualMachineConfig_ResourcesValidationError struct {
+// VirtualMachineConfig_ComputeValidationError is the validation error returned
+// by VirtualMachineConfig_Compute.Validate if the designated constraints
+// aren't met.
+type VirtualMachineConfig_ComputeValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -2001,24 +1724,24 @@ type VirtualMachineConfig_ResourcesValidationError struct {
 }
 
 // Field function returns field value.
-func (e VirtualMachineConfig_ResourcesValidationError) Field() string { return e.field }
+func (e VirtualMachineConfig_ComputeValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e VirtualMachineConfig_ResourcesValidationError) Reason() string { return e.reason }
+func (e VirtualMachineConfig_ComputeValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e VirtualMachineConfig_ResourcesValidationError) Cause() error { return e.cause }
+func (e VirtualMachineConfig_ComputeValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e VirtualMachineConfig_ResourcesValidationError) Key() bool { return e.key }
+func (e VirtualMachineConfig_ComputeValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e VirtualMachineConfig_ResourcesValidationError) ErrorName() string {
-	return "VirtualMachineConfig_ResourcesValidationError"
+func (e VirtualMachineConfig_ComputeValidationError) ErrorName() string {
+	return "VirtualMachineConfig_ComputeValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e VirtualMachineConfig_ResourcesValidationError) Error() string {
+func (e VirtualMachineConfig_ComputeValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -2030,14 +1753,14 @@ func (e VirtualMachineConfig_ResourcesValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sVirtualMachineConfig_Resources.%s: %s%s",
+		"invalid %sVirtualMachineConfig_Compute.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = VirtualMachineConfig_ResourcesValidationError{}
+var _ error = VirtualMachineConfig_ComputeValidationError{}
 
 var _ interface {
 	Field() string
@@ -2045,7 +1768,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = VirtualMachineConfig_ResourcesValidationError{}
+} = VirtualMachineConfig_ComputeValidationError{}
 
 // Validate checks the field values on VirtualMachineConfig_UserConfig with the
 // rules defined in the proto definition for this message. If any rules are
@@ -2152,23 +1875,24 @@ var _ interface {
 	ErrorName() string
 } = VirtualMachineConfig_UserConfigValidationError{}
 
-// Validate checks the field values on VirtualMachineConfig_Storage_BootDisk
+// Validate checks the field values on VirtualMachineConfig_Storage_DataVolume
 // with the rules defined in the proto definition for this message. If any
 // rules are violated, the first error encountered is returned, or nil if
 // there are no violations.
-func (m *VirtualMachineConfig_Storage_BootDisk) Validate() error {
+func (m *VirtualMachineConfig_Storage_DataVolume) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on VirtualMachineConfig_Storage_BootDisk
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the result is a list of violation errors wrapped in
-// VirtualMachineConfig_Storage_BootDiskMultiError, or nil if none found.
-func (m *VirtualMachineConfig_Storage_BootDisk) ValidateAll() error {
+// ValidateAll checks the field values on
+// VirtualMachineConfig_Storage_DataVolume with the rules defined in the proto
+// definition for this message. If any rules are violated, the result is a
+// list of violation errors wrapped in
+// VirtualMachineConfig_Storage_DataVolumeMultiError, or nil if none found.
+func (m *VirtualMachineConfig_Storage_DataVolume) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *VirtualMachineConfig_Storage_BootDisk) validate(all bool) error {
+func (m *VirtualMachineConfig_Storage_DataVolume) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -2176,28 +1900,28 @@ func (m *VirtualMachineConfig_Storage_BootDisk) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetDataVolumeRef()).(type) {
+		switch v := interface{}(m.GetRef()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, VirtualMachineConfig_Storage_BootDiskValidationError{
-					field:  "DataVolumeRef",
+				errors = append(errors, VirtualMachineConfig_Storage_DataVolumeValidationError{
+					field:  "Ref",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, VirtualMachineConfig_Storage_BootDiskValidationError{
-					field:  "DataVolumeRef",
+				errors = append(errors, VirtualMachineConfig_Storage_DataVolumeValidationError{
+					field:  "Ref",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetDataVolumeRef()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetRef()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return VirtualMachineConfig_Storage_BootDiskValidationError{
-				field:  "DataVolumeRef",
+			return VirtualMachineConfig_Storage_DataVolumeValidationError{
+				field:  "Ref",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -2209,20 +1933,20 @@ func (m *VirtualMachineConfig_Storage_BootDisk) validate(all bool) error {
 	// no validation rules for StorageClassName
 
 	if len(errors) > 0 {
-		return VirtualMachineConfig_Storage_BootDiskMultiError(errors)
+		return VirtualMachineConfig_Storage_DataVolumeMultiError(errors)
 	}
 
 	return nil
 }
 
-// VirtualMachineConfig_Storage_BootDiskMultiError is an error wrapping
+// VirtualMachineConfig_Storage_DataVolumeMultiError is an error wrapping
 // multiple validation errors returned by
-// VirtualMachineConfig_Storage_BootDisk.ValidateAll() if the designated
+// VirtualMachineConfig_Storage_DataVolume.ValidateAll() if the designated
 // constraints aren't met.
-type VirtualMachineConfig_Storage_BootDiskMultiError []error
+type VirtualMachineConfig_Storage_DataVolumeMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m VirtualMachineConfig_Storage_BootDiskMultiError) Error() string {
+func (m VirtualMachineConfig_Storage_DataVolumeMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -2231,12 +1955,12 @@ func (m VirtualMachineConfig_Storage_BootDiskMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m VirtualMachineConfig_Storage_BootDiskMultiError) AllErrors() []error { return m }
+func (m VirtualMachineConfig_Storage_DataVolumeMultiError) AllErrors() []error { return m }
 
-// VirtualMachineConfig_Storage_BootDiskValidationError is the validation error
-// returned by VirtualMachineConfig_Storage_BootDisk.Validate if the
+// VirtualMachineConfig_Storage_DataVolumeValidationError is the validation
+// error returned by VirtualMachineConfig_Storage_DataVolume.Validate if the
 // designated constraints aren't met.
-type VirtualMachineConfig_Storage_BootDiskValidationError struct {
+type VirtualMachineConfig_Storage_DataVolumeValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -2244,24 +1968,24 @@ type VirtualMachineConfig_Storage_BootDiskValidationError struct {
 }
 
 // Field function returns field value.
-func (e VirtualMachineConfig_Storage_BootDiskValidationError) Field() string { return e.field }
+func (e VirtualMachineConfig_Storage_DataVolumeValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e VirtualMachineConfig_Storage_BootDiskValidationError) Reason() string { return e.reason }
+func (e VirtualMachineConfig_Storage_DataVolumeValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e VirtualMachineConfig_Storage_BootDiskValidationError) Cause() error { return e.cause }
+func (e VirtualMachineConfig_Storage_DataVolumeValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e VirtualMachineConfig_Storage_BootDiskValidationError) Key() bool { return e.key }
+func (e VirtualMachineConfig_Storage_DataVolumeValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e VirtualMachineConfig_Storage_BootDiskValidationError) ErrorName() string {
-	return "VirtualMachineConfig_Storage_BootDiskValidationError"
+func (e VirtualMachineConfig_Storage_DataVolumeValidationError) ErrorName() string {
+	return "VirtualMachineConfig_Storage_DataVolumeValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e VirtualMachineConfig_Storage_BootDiskValidationError) Error() string {
+func (e VirtualMachineConfig_Storage_DataVolumeValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -2273,14 +1997,14 @@ func (e VirtualMachineConfig_Storage_BootDiskValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sVirtualMachineConfig_Storage_BootDisk.%s: %s%s",
+		"invalid %sVirtualMachineConfig_Storage_DataVolume.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = VirtualMachineConfig_Storage_BootDiskValidationError{}
+var _ error = VirtualMachineConfig_Storage_DataVolumeValidationError{}
 
 var _ interface {
 	Field() string
@@ -2288,111 +2012,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = VirtualMachineConfig_Storage_BootDiskValidationError{}
-
-// Validate checks the field values on VirtualMachineConfig_Storage_DataDisk
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the first error encountered is returned, or nil if
-// there are no violations.
-func (m *VirtualMachineConfig_Storage_DataDisk) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on VirtualMachineConfig_Storage_DataDisk
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the result is a list of violation errors wrapped in
-// VirtualMachineConfig_Storage_DataDiskMultiError, or nil if none found.
-func (m *VirtualMachineConfig_Storage_DataDisk) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *VirtualMachineConfig_Storage_DataDisk) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for DataVolumeRef
-
-	if len(errors) > 0 {
-		return VirtualMachineConfig_Storage_DataDiskMultiError(errors)
-	}
-
-	return nil
-}
-
-// VirtualMachineConfig_Storage_DataDiskMultiError is an error wrapping
-// multiple validation errors returned by
-// VirtualMachineConfig_Storage_DataDisk.ValidateAll() if the designated
-// constraints aren't met.
-type VirtualMachineConfig_Storage_DataDiskMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m VirtualMachineConfig_Storage_DataDiskMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m VirtualMachineConfig_Storage_DataDiskMultiError) AllErrors() []error { return m }
-
-// VirtualMachineConfig_Storage_DataDiskValidationError is the validation error
-// returned by VirtualMachineConfig_Storage_DataDisk.Validate if the
-// designated constraints aren't met.
-type VirtualMachineConfig_Storage_DataDiskValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e VirtualMachineConfig_Storage_DataDiskValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e VirtualMachineConfig_Storage_DataDiskValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e VirtualMachineConfig_Storage_DataDiskValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e VirtualMachineConfig_Storage_DataDiskValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e VirtualMachineConfig_Storage_DataDiskValidationError) ErrorName() string {
-	return "VirtualMachineConfig_Storage_DataDiskValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e VirtualMachineConfig_Storage_DataDiskValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sVirtualMachineConfig_Storage_DataDisk.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = VirtualMachineConfig_Storage_DataDiskValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = VirtualMachineConfig_Storage_DataDiskValidationError{}
+} = VirtualMachineConfig_Storage_DataVolumeValidationError{}

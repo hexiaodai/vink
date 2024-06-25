@@ -36,7 +36,7 @@ service VirtualMachineManagement {
 }
 
 message VirtualMachine {
-    message Disk {
+    message DataVolume {
         google.protobuf.Struct root = 1;
         repeated google.protobuf.Struct data = 2;
     }
@@ -46,40 +46,35 @@ message VirtualMachine {
     google.protobuf.Struct virtual_machine = 3;
     google.protobuf.Struct virtual_machine_instance = 4;
     // google.protobuf.Struct virtual_machine_network = 5;
-    Disk virtual_machine_disk = 6;
+    DataVolume virtual_machine_data_volume = 6;
 
     google.protobuf.Timestamp creation_timestamp = 7;
 }
 
-message VirtualMachineInstance {
-    string namespace                                 = 1;
-    string name                                      = 2;
-    google.protobuf.Struct spec           = 3;
-    google.protobuf.Struct status         = 4;
-}
-
 message VirtualMachineConfig {
-    message NamespaceNamed {
-        string namespace = 1;
-        string name = 2;
-    }
     message Storage {
-        message BootDisk {
-            NamespaceNamed data_volume_ref = 1;
+        // message RootVolume {
+        //     common.NamespaceNamed data_volume_ref = 1;
+        //     string capacity = 2;
+        //     string storage_class_name = 3;
+        // }
+        // message DataVolume {
+        //     oneof data_volume {
+        //         common.NamespaceName ref = 1;
+        //         string capacity = 2;
+        //     }
+        //     string storage_class_name = 3;
+        // }
+        message DataVolume {
+            common.NamespaceName ref = 1;
             string capacity = 2;
             string storage_class_name = 3;
         }
-        message DataDisk {
-            string data_volume_ref = 1;
-        }
-        BootDisk boot_disk = 1;
-        repeated DataDisk data_disks = 2;
+        DataVolume root = 1;
+        repeated DataVolume data = 2;
     }
-    message Network {
-        string multus_config_ref = 1;
-        string ippool_ref = 2;
-    }
-    message Resources {
+    message Network {}
+    message Compute {
         uint32 cpu_cores = 1;
         string memory = 2;
     }
@@ -89,7 +84,7 @@ message VirtualMachineConfig {
     }
     Storage storage = 1;
     Network network = 2;
-    Resources resources = 3;
+    Compute compute = 3;
     UserConfig user_config = 4;
 }
 
