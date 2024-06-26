@@ -61,8 +61,8 @@ type Instance struct {
 
 var (
 
-	DatavolumeType = Instance {
-		Name:          "datavolume.vink.io/type",
+	VinkDatavolumeType = Instance {
+		Name:          "vink.kubevm.io/datavolume.type",
 		Description:   "Defines the type of datavolume, such as root for the "+
                         "system datavolume, image for the system image, and data "+
                         "for the data datavolume.",
@@ -74,8 +74,8 @@ var (
 		},
 	}
 
-	VirtualmachineOs = Instance {
-		Name:          "virtualmachine.vink.io/os",
+	VinkVirtualmachineOs = Instance {
+		Name:          "vink.kubevm.io/virtualmachine.os",
 		Description:   "Defines the operating system of the virtual machine, "+
                         "where 'windows' represents the Windows operating system, "+
                         "and 'linux' represents the Linux operating system.",
@@ -87,8 +87,8 @@ var (
 		},
 	}
 
-	VirtualmachineVersion = Instance {
-		Name:          "virtualmachine.vink.io/version",
+	VinkVirtualmachineVersion = Instance {
+		Name:          "vink.kubevm.io/virtualmachine.version",
 		Description:   "Defines the operating system version of the virtual "+
                         "machine.",
 		FeatureStatus: Alpha,
@@ -103,9 +103,9 @@ var (
 
 func AllResourceLabels() []*Instance {
 	return []*Instance {
-		&DatavolumeType,
-		&VirtualmachineOs,
-		&VirtualmachineVersion,
+		&VinkDatavolumeType,
+		&VinkVirtualmachineOs,
+		&VinkVirtualmachineVersion,
 	}
 }
 

@@ -46,8 +46,8 @@ interface Instance {
 
 const instances: { [key: string]: Instance } = {
   
-  DatavolumeType: {
-    name: "datavolume.vink.io/type",
+  VinkDatavolumeType: {
+    name: "vink.kubevm.io/datavolume.type",
     description: "Defines the type of datavolume, such as root for the "+
                         "system datavolume, image for the system image, and data "+
                         "for the data datavolume.",
@@ -58,8 +58,8 @@ const instances: { [key: string]: Instance } = {
       ResourceTypes.DataVolume,
     ]
   },
-  VirtualmachineOs: {
-    name: "virtualmachine.vink.io/os",
+  VinkVirtualmachineOs: {
+    name: "vink.kubevm.io/virtualmachine.os",
     description: "Defines the operating system of the virtual machine, "+
                         "where 'windows' represents the Windows operating system, "+
                         "and 'linux' represents the Linux operating system.",
@@ -70,8 +70,8 @@ const instances: { [key: string]: Instance } = {
       ResourceTypes.DataVolume,
     ]
   },
-  VirtualmachineVersion: {
-    name: "virtualmachine.vink.io/version",
+  VinkVirtualmachineVersion: {
+    name: "vink.kubevm.io/virtualmachine.version",
     description: "Defines the operating system version of the virtual "+
                         "machine.",
     featureStatus: FeatureStatus.Alpha,
@@ -85,7 +85,7 @@ const instances: { [key: string]: Instance } = {
 
 function allResourceLabels(): Instance[] {
   return [
-    instances.DatavolumeType,instances.VirtualmachineOs,instances.VirtualmachineVersion,
+    instances.VinkDatavolumeType,instances.VinkVirtualmachineOs,instances.VinkVirtualmachineVersion,
   ];
 }
 

@@ -14,7 +14,7 @@
 
 // A simple program that consumes a YAML file describing Kubernetes resource annotations and produces as output
 // a Go source file providing references to those annotations, and an HTML documentation file describing those
-// annotations (for use on vink.io)
+// annotations (for use on kubevm.io)
 
 package main
 
@@ -221,7 +221,7 @@ type Collection struct {
 	NamePlural          string
 	NameLowercase       string
 	NameLowercasePlural string
-	// Link is the location of the generated page on vink.io.
+	// Link is the location of the generated page on kubevm.io.
 	Link string
 	// ConceptLink is the link to the concept page for the collection type.
 	ConceptLink string
@@ -436,8 +436,8 @@ func generateVariableName(v Variable) string {
 
 	// First, process the namespace portion ...
 
-	// Strip .vink.io from the namespace portion of the annotation name.
-	ns = strings.TrimSuffix(ns, ".vink.io")
+	// Strip .kubevm.io from the namespace portion of the annotation name.
+	ns = strings.TrimSuffix(ns, ".kubevm.io")
 
 	// Separate the words by spaces and capitalize each word.
 	ns = strings.ReplaceAll(strings.ReplaceAll(ns, ".", " "), "-", " ")

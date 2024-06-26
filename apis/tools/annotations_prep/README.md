@@ -3,8 +3,8 @@
 添加生成 label 与 annotation 工具，保留部分 istio 定义，参考 istio/api  与 istio/tools
 
 ## 规范
-* name 必须是 **.vink.io/** 
-* vink 中自定义 annotation 或 label 必须带 `.vink.io`
+* name 必须是 **.kubevm.io/** 
+* vink 中自定义 annotation 或 label 必须带 `.kubevm.io`
 
 
 ## 指令介绍
@@ -34,7 +34,7 @@ annotations_prep --input ./apis/annotation/annotations.yaml --output ./apis/anno
 
 ## YAML 模板
 ```yaml
-  - name: makvink.io/managed
+  - name: makkubevm.io/managed
     featureStatus: Alpha
     description: Set to `vink` if the vink Controller will reconcile the resource.
     hidden: true

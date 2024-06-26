@@ -60,7 +60,7 @@ func generateDataVolumeCRD(namespace, name string, config *dvv1alpha1.DataVolume
 			Name:      name,
 			Namespace: namespace,
 			Labels: map[string]string{
-				label.DatavolumeType.Name: proto.DataVolumeTypeFromEnum(config.DataVolumeType),
+				label.VinkDatavolumeType.Name: proto.DataVolumeTypeFromEnum(config.DataVolumeType),
 			},
 			Annotations: map[string]string{
 				annotation.IoKubevirtCdiStorageBindImmediateRequested.Name: strconv.FormatBool(true),
@@ -81,7 +81,7 @@ func generateDataVolumeCRD(namespace, name string, config *dvv1alpha1.DataVolume
 	}
 
 	if config.DataVolumeType == dvv1alpha1.DataVolumeType_ROOT {
-		dvcrd.Labels[label.VirtualmachineOs.Name] = proto.OperatingSystemTypeFromEnum(config.OperatingSystem.Type)
+		dvcrd.Labels[label.VinkVirtualmachineOs.Name] = proto.OperatingSystemTypeFromEnum(config.OperatingSystem.Type)
 		var version string
 		switch config.OperatingSystem.Type {
 		case common.OperatingSystemType_WINDOWS:
@@ -94,7 +94,7 @@ func generateDataVolumeCRD(namespace, name string, config *dvv1alpha1.DataVolume
 			version = proto.OperatingSystemDebianVersionFromEnum(config.OperatingSystem.GetDebian())
 		default:
 		}
-		dvcrd.Labels[label.VirtualmachineVersion.Name] = version
+		dvcrd.Labels[label.VinkVirtualmachineVersion.Name] = version
 	}
 
 	return &dvcrd, nil
