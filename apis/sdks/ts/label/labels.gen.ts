@@ -1,13 +1,13 @@
 
 // GENERATED FILE -- DO NOT EDIT
 
-enum FeatureStatus {
+export enum FeatureStatus {
   Alpha,
   Beta,
   Stable
 }
 
-function featureStatusToString(status: FeatureStatus): string {
+export function featureStatusToString(status: FeatureStatus): string {
   switch (status) {
     case FeatureStatus.Alpha:
       return "Alpha";
@@ -20,12 +20,12 @@ function featureStatusToString(status: FeatureStatus): string {
   }
 }
 
-enum ResourceTypes {
+export enum ResourceTypes {
   Unknown,
   DataVolume,
 }
 
-function resourceTypesToString(type: ResourceTypes): string {
+export function resourceTypesToString(type: ResourceTypes): string {
   switch (type) {
     case 1:
       return "DataVolume";
@@ -35,7 +35,7 @@ function resourceTypesToString(type: ResourceTypes): string {
   }
 }
 
-interface Instance {
+export interface Instance {
   name: string;
   description: string;
   featureStatus: FeatureStatus;
@@ -44,7 +44,7 @@ interface Instance {
   resources: ResourceTypes[];
 }
 
-const instances: { [key: string]: Instance } = {
+export const instances: { [key: string]: Instance } = {
   
   VinkDatavolumeType: {
     name: "vink.kubevm.io/datavolume.type",
@@ -83,13 +83,13 @@ const instances: { [key: string]: Instance } = {
   },
 };
 
-function allResourceLabels(): Instance[] {
+export function allResourceLabels(): Instance[] {
   return [
     instances.VinkDatavolumeType,instances.VinkVirtualmachineOs,instances.VinkVirtualmachineVersion,
   ];
 }
 
-function allResourceTypes(): string[] {
+export function allResourceTypes(): string[] {
   return [
     "DataVolume",
   ];
