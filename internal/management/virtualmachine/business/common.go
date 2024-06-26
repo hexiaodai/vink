@@ -72,7 +72,7 @@ func getVirtualMachineDataVolumes(ctx context.Context, vm *virtv1.VirtualMachine
 	}
 
 	for _, dv := range dvs {
-		if proto.DataVolumeTypeEqual(dv.Labels[label.DatavolumeType.Name], dvv1alpha1.DataVolumeType_ROOT) {
+		if proto.DataVolumeTypeEqual(dv.Labels[label.VinkDatavolumeType.Name], dvv1alpha1.DataVolumeType_ROOT) {
 			root = dv
 		} else {
 			data = append(data, dv)
@@ -231,8 +231,8 @@ func setupVirtualMachineRootVolume(vm *virtv1.VirtualMachine, cfg *vmv1alpha1.Vi
 			Name:      getRootDiskName(vm.Name),
 			Namespace: vm.Namespace,
 			Labels: map[string]string{
-				label.VirtualmachineVersion.Name: bootobj.Labels[label.VirtualmachineVersion.Name],
-				label.VirtualmachineOs.Name:      bootobj.Labels[label.VirtualmachineOs.Name],
+				label.VinkVirtualmachineVersion.Name: bootobj.Labels[label.VinkVirtualmachineVersion.Name],
+				label.VinkVirtualmachineOs.Name:      bootobj.Labels[label.VinkVirtualmachineOs.Name],
 			},
 		},
 		Spec: cdiv1beta1.DataVolumeSpec{
