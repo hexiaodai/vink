@@ -137,13 +137,13 @@ func AllResourceTypes() []string {
 const outputTemplateTs = `
 // GENERATED FILE -- DO NOT EDIT
 
-enum FeatureStatus {
+export enum FeatureStatus {
   Alpha,
   Beta,
   Stable
 }
 
-function featureStatusToString(status: FeatureStatus): string {
+export function featureStatusToString(status: FeatureStatus): string {
   switch (status) {
     case FeatureStatus.Alpha:
       return "Alpha";
@@ -156,12 +156,12 @@ function featureStatusToString(status: FeatureStatus): string {
   }
 }
 
-enum ResourceTypes {
+export enum ResourceTypes {
   Unknown,
   {{ range .KnownTypes }}{{ . }},{{ end }}
 }
 
-function resourceTypesToString(type: ResourceTypes): string {
+export function resourceTypesToString(type: ResourceTypes): string {
   switch (type) {
     {{ range $i, $t := .KnownTypes }}case {{ add $i 1 }}:
       return "{{ $t }}";
@@ -171,7 +171,7 @@ function resourceTypesToString(type: ResourceTypes): string {
   }
 }
 
-interface Instance {
+export interface Instance {
   name: string;
   description: string;
   featureStatus: FeatureStatus;
@@ -180,7 +180,7 @@ interface Instance {
   resources: ResourceTypes[];
 }
 
-const instances: { [key: string]: Instance } = {
+export const instances: { [key: string]: Instance } = {
   {{ range .Variables }}
   {{ .GoName }}: {
     name: "{{ .Name }}",
@@ -194,13 +194,13 @@ const instances: { [key: string]: Instance } = {
   },{{ end }}
 };
 
-function allResource{{ .Collection.NamePlural }}(): Instance[] {
+export function allResource{{ .Collection.NamePlural }}(): Instance[] {
   return [
     {{ range .Variables }}instances.{{ .GoName }},{{ end }}
   ];
 }
 
-function allResourceTypes(): string[] {
+export function allResourceTypes(): string[] {
   return [
     {{ range .KnownTypes }}"{{ . }}",{{ end }}
   ];
