@@ -227,19 +227,19 @@
       "type": "object",
       "properties": {
         "type": {
-          "$ref": "#/definitions/commonOperatingSystemType"
+          "$ref": "#/definitions/v1alpha1OperatingSystemType"
         },
         "windows": {
-          "$ref": "#/definitions/commonOperatingSystemWindowsVersion"
+          "$ref": "#/definitions/v1alpha1OperatingSystemWindowsVersion"
         },
         "ubuntu": {
-          "$ref": "#/definitions/commonOperatingSystemUbuntuVersion"
+          "$ref": "#/definitions/v1alpha1OperatingSystemUbuntuVersion"
         },
         "centos": {
-          "$ref": "#/definitions/commonOperatingSystemCentOSVersion"
+          "$ref": "#/definitions/v1alpha1OperatingSystemCentOSVersion"
         },
         "debian": {
-          "$ref": "#/definitions/commonOperatingSystemDebianVersion"
+          "$ref": "#/definitions/v1alpha1OperatingSystemDebianVersion"
         }
       }
     },
@@ -260,51 +260,6 @@
           "type": "string"
         }
       }
-    },
-    "commonOperatingSystemCentOSVersion": {
-      "type": "string",
-      "enum": [
-        "CENTOS_7",
-        "CENTOS_8"
-      ],
-      "default": "CENTOS_7"
-    },
-    "commonOperatingSystemDebianVersion": {
-      "type": "string",
-      "enum": [
-        "DEBIAN_9",
-        "DEBIAN_10",
-        "DEBIAN_11"
-      ],
-      "default": "DEBIAN_9"
-    },
-    "commonOperatingSystemType": {
-      "type": "string",
-      "enum": [
-        "LINUX",
-        "WINDOWS",
-        "UBUNTU",
-        "CENTOS",
-        "DEBIAN"
-      ],
-      "default": "LINUX"
-    },
-    "commonOperatingSystemUbuntuVersion": {
-      "type": "string",
-      "enum": [
-        "UBUNTU_18_04",
-        "UBUNTU_20_04",
-        "UBUNTU_22_04"
-      ],
-      "default": "UBUNTU_18_04"
-    },
-    "commonOperatingSystemWindowsVersion": {
-      "type": "string",
-      "enum": [
-        "WINDOWS_10",
-        "WINDOWS_11"
-      ],
-      "default": "WINDOWS_10"
     },
     "protobufAny": {
       "type": "object",
@@ -403,6 +358,51 @@
           "$ref": "#/definitions/commonListOptions"
         }
       }
+    },
+    "v1alpha1OperatingSystemCentOSVersion": {
+      "type": "string",
+      "enum": [
+        "CENTOS_7",
+        "CENTOS_8"
+      ],
+      "default": "CENTOS_7"
+    },
+    "v1alpha1OperatingSystemDebianVersion": {
+      "type": "string",
+      "enum": [
+        "DEBIAN_9",
+        "DEBIAN_10",
+        "DEBIAN_11"
+      ],
+      "default": "DEBIAN_9"
+    },
+    "v1alpha1OperatingSystemType": {
+      "type": "string",
+      "enum": [
+        "LINUX",
+        "WINDOWS",
+        "UBUNTU",
+        "CENTOS",
+        "DEBIAN"
+      ],
+      "default": "LINUX"
+    },
+    "v1alpha1OperatingSystemUbuntuVersion": {
+      "type": "string",
+      "enum": [
+        "UBUNTU_18_04",
+        "UBUNTU_20_04",
+        "UBUNTU_22_04"
+      ],
+      "default": "UBUNTU_18_04"
+    },
+    "v1alpha1OperatingSystemWindowsVersion": {
+      "type": "string",
+      "enum": [
+        "WINDOWS_10",
+        "WINDOWS_11"
+      ],
+      "default": "WINDOWS_10"
     }
   }
 }

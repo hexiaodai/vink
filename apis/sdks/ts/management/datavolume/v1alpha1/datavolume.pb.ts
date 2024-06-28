@@ -5,7 +5,6 @@
 */
 
 import * as VinkCommonCommon from "../../../common/common.pb"
-import * as VinkCommonOperating_system from "../../../common/operating_system.pb"
 import * as fm from "../../../fetch.pb"
 import * as GoogleProtobufStruct from "../../../google/protobuf/struct.pb"
 import * as GoogleProtobufTimestamp from "../../../google/protobuf/timestamp.pb"
@@ -23,6 +22,36 @@ export enum DataVolumeType {
   IMAGE = "IMAGE",
   ROOT = "ROOT",
   DATA = "DATA",
+}
+
+export enum OperatingSystemType {
+  LINUX = "LINUX",
+  WINDOWS = "WINDOWS",
+  UBUNTU = "UBUNTU",
+  CENTOS = "CENTOS",
+  DEBIAN = "DEBIAN",
+}
+
+export enum OperatingSystemWindowsVersion {
+  WINDOWS_10 = "WINDOWS_10",
+  WINDOWS_11 = "WINDOWS_11",
+}
+
+export enum OperatingSystemUbuntuVersion {
+  UBUNTU_18_04 = "UBUNTU_18_04",
+  UBUNTU_20_04 = "UBUNTU_20_04",
+  UBUNTU_22_04 = "UBUNTU_22_04",
+}
+
+export enum OperatingSystemCentOSVersion {
+  CENTOS_7 = "CENTOS_7",
+  CENTOS_8 = "CENTOS_8",
+}
+
+export enum OperatingSystemDebianVersion {
+  DEBIAN_9 = "DEBIAN_9",
+  DEBIAN_10 = "DEBIAN_10",
+  DEBIAN_11 = "DEBIAN_11",
 }
 
 export type CreateDataVolumeRequest = {
@@ -69,11 +98,11 @@ export type DataVolumeConfigBoundPVC = {
 
 
 /* vink modified */ export type BaseDataVolumeConfigOperatingSystem = {
-  type?: VinkCommonOperating_system.OperatingSystemType
+  type?: OperatingSystemType
 }
 
 export type DataVolumeConfigOperatingSystem = BaseDataVolumeConfigOperatingSystem
-  & OneOf<{ windows: VinkCommonOperating_system.OperatingSystemWindowsVersion; ubuntu: VinkCommonOperating_system.OperatingSystemUbuntuVersion; centos: VinkCommonOperating_system.OperatingSystemCentOSVersion; debian: VinkCommonOperating_system.OperatingSystemDebianVersion }>
+  & OneOf<{ windows: OperatingSystemWindowsVersion; ubuntu: OperatingSystemUbuntuVersion; centos: OperatingSystemCentOSVersion; debian: OperatingSystemDebianVersion }>
 
 export type DataVolumeConfig = {
   dataVolumeType?: DataVolumeType
