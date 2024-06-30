@@ -17,8 +17,6 @@ import (
 	"unicode/utf8"
 
 	"google.golang.org/protobuf/types/known/anypb"
-
-	common "github.com/kubevm.io/vink/apis/common"
 )
 
 // ensure the imports are used
@@ -35,8 +33,6 @@ var (
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
 	_ = sort.Sort
-
-	_ = common.OperatingSystemType(0)
 )
 
 // Validate checks the field values on CreateDataVolumeRequest with the rules

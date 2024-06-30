@@ -7,7 +7,7 @@ import (
 	"github.com/kubevm.io/vink/pkg/proto"
 
 	"github.com/kubevm.io/vink/apis/annotation"
-	"github.com/kubevm.io/vink/apis/common"
+	// "github.com/kubevm.io/vink/apis/common"
 	"github.com/kubevm.io/vink/apis/label"
 	dvv1alpha1 "github.com/kubevm.io/vink/apis/management/datavolume/v1alpha1"
 	"github.com/kubevm.io/vink/pkg/utils"
@@ -84,13 +84,13 @@ func generateDataVolumeCRD(namespace, name string, config *dvv1alpha1.DataVolume
 		dvcrd.Labels[label.VinkVirtualmachineOs.Name] = proto.OperatingSystemTypeFromEnum(config.OperatingSystem.Type)
 		var version string
 		switch config.OperatingSystem.Type {
-		case common.OperatingSystemType_WINDOWS:
+		case dvv1alpha1.OperatingSystemType_WINDOWS:
 			version = proto.OperatingSystemWindowsVersionFromEnum(config.OperatingSystem.GetWindows())
-		case common.OperatingSystemType_CENTOS:
+		case dvv1alpha1.OperatingSystemType_CENTOS:
 			version = proto.OperatingSystemCentOSVersionFromEnum(config.OperatingSystem.GetCentos())
-		case common.OperatingSystemType_UBUNTU:
+		case dvv1alpha1.OperatingSystemType_UBUNTU:
 			version = proto.OperatingSystemUbuntuVersionFromEnum(config.OperatingSystem.GetUbuntu())
-		case common.OperatingSystemType_DEBIAN:
+		case dvv1alpha1.OperatingSystemType_DEBIAN:
 			version = proto.OperatingSystemDebianVersionFromEnum(config.OperatingSystem.GetDebian())
 		default:
 		}

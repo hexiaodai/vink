@@ -10,9 +10,9 @@ import (
 
 	"github.com/kubevm.io/vink/apis/label"
 	vmv1alpha1 "github.com/kubevm.io/vink/apis/management/virtualmachine/v1alpha1"
-	"github.com/kubevm.io/vink/pkg/proto"
 	"github.com/kubevm.io/vink/pkg/clients"
 	"github.com/kubevm.io/vink/pkg/clients/gvr"
+	"github.com/kubevm.io/vink/pkg/proto"
 	"github.com/kubevm.io/vink/pkg/utils"
 	"github.com/samber/lo"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -231,6 +231,7 @@ func setupVirtualMachineRootVolume(vm *virtv1.VirtualMachine, cfg *vmv1alpha1.Vi
 			Name:      getRootDiskName(vm.Name),
 			Namespace: vm.Namespace,
 			Labels: map[string]string{
+				label.VinkDatavolumeType.Name:        proto.DataVolumeTypeFromEnum(dvv1alpha1.DataVolumeType_ROOT),
 				label.VinkVirtualmachineVersion.Name: bootobj.Labels[label.VinkVirtualmachineVersion.Name],
 				label.VinkVirtualmachineOs.Name:      bootobj.Labels[label.VinkVirtualmachineOs.Name],
 			},
