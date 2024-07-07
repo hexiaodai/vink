@@ -26,7 +26,7 @@ func main() {
 				log.SetDebug()
 			}
 
-			if err := clients.InitClients(); err != nil {
+			if err := clients.InitClients(config.Instance.KubeConfig); err != nil {
 				return err
 			}
 

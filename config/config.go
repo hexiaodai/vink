@@ -10,8 +10,9 @@ import (
 var Instance *Configuration
 
 type Configuration struct {
-	Debug     bool      `json:"debug"`
-	APIServer APIServer `json:"apiserver"`
+	Debug      bool      `json:"debug"`
+	APIServer  APIServer `json:"apiserver"`
+	KubeConfig string    `json:"kubeConfig"`
 }
 
 type APIServer struct {

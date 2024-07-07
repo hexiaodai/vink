@@ -22,10 +22,11 @@ type clients struct {
 	dynamicClient dynamic.Interface
 }
 
-func NewClients() (Clients, error) {
+func NewClients(args ...string) (Clients, error) {
 	cli := clients{}
 
-	kubeconfig := GetK8sConfigConfigWithFile()
+	kubeconfig := GetK8sConfigConfigWithFile(args...)
+
 	kubeconfig.RateLimiter = flowcontrol.NewTokenBucketRateLimiter(50, 100)
 	dcli, err := dynamic.NewForConfig(kubeconfig)
 	if err != nil {
@@ -46,8 +47,8 @@ func GetClients() Clients {
 	return cli
 }
 
-func InitClients() (err error) {
-	cli, err = NewClients()
+func InitClients(args ...string) (err error) {
+	cli, err = NewClients(args...)
 	return
 }
 
