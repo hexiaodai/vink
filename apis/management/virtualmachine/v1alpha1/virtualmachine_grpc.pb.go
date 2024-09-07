@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -22,10 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type VirtualMachineManagementClient interface {
-	CreateVirtualMachine(ctx context.Context, in *CreateVirtualMachineRequest, opts ...grpc.CallOption) (*VirtualMachine, error)
-	DeleteVirtualMachine(ctx context.Context, in *DeleteVirtualMachineRequest, opts ...grpc.CallOption) (*DeleteVirtualMachineResponse, error)
-	ListVirtualMachines(ctx context.Context, in *ListVirtualMachinesRequest, opts ...grpc.CallOption) (*ListVirtualMachinesResponse, error)
-	ManageVirtualMachinePowerState(ctx context.Context, in *ManageVirtualMachinePowerStateRequest, opts ...grpc.CallOption) (*VirtualMachine, error)
+	VirtualMachinePowerState(ctx context.Context, in *VirtualMachinePowerStateRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type virtualMachineManagementClient struct {
@@ -36,36 +34,9 @@ func NewVirtualMachineManagementClient(cc grpc.ClientConnInterface) VirtualMachi
 	return &virtualMachineManagementClient{cc}
 }
 
-func (c *virtualMachineManagementClient) CreateVirtualMachine(ctx context.Context, in *CreateVirtualMachineRequest, opts ...grpc.CallOption) (*VirtualMachine, error) {
-	out := new(VirtualMachine)
-	err := c.cc.Invoke(ctx, "/vink.management.virtualmachine.v1alpha1.VirtualMachineManagement/CreateVirtualMachine", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *virtualMachineManagementClient) DeleteVirtualMachine(ctx context.Context, in *DeleteVirtualMachineRequest, opts ...grpc.CallOption) (*DeleteVirtualMachineResponse, error) {
-	out := new(DeleteVirtualMachineResponse)
-	err := c.cc.Invoke(ctx, "/vink.management.virtualmachine.v1alpha1.VirtualMachineManagement/DeleteVirtualMachine", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *virtualMachineManagementClient) ListVirtualMachines(ctx context.Context, in *ListVirtualMachinesRequest, opts ...grpc.CallOption) (*ListVirtualMachinesResponse, error) {
-	out := new(ListVirtualMachinesResponse)
-	err := c.cc.Invoke(ctx, "/vink.management.virtualmachine.v1alpha1.VirtualMachineManagement/ListVirtualMachines", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *virtualMachineManagementClient) ManageVirtualMachinePowerState(ctx context.Context, in *ManageVirtualMachinePowerStateRequest, opts ...grpc.CallOption) (*VirtualMachine, error) {
-	out := new(VirtualMachine)
-	err := c.cc.Invoke(ctx, "/vink.management.virtualmachine.v1alpha1.VirtualMachineManagement/ManageVirtualMachinePowerState", in, out, opts...)
+func (c *virtualMachineManagementClient) VirtualMachinePowerState(ctx context.Context, in *VirtualMachinePowerStateRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/vink.kubevm.io.apis.management.virtualmachine.v1alpha1.VirtualMachineManagement/VirtualMachinePowerState", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -76,10 +47,7 @@ func (c *virtualMachineManagementClient) ManageVirtualMachinePowerState(ctx cont
 // All implementations must embed UnimplementedVirtualMachineManagementServer
 // for forward compatibility
 type VirtualMachineManagementServer interface {
-	CreateVirtualMachine(context.Context, *CreateVirtualMachineRequest) (*VirtualMachine, error)
-	DeleteVirtualMachine(context.Context, *DeleteVirtualMachineRequest) (*DeleteVirtualMachineResponse, error)
-	ListVirtualMachines(context.Context, *ListVirtualMachinesRequest) (*ListVirtualMachinesResponse, error)
-	ManageVirtualMachinePowerState(context.Context, *ManageVirtualMachinePowerStateRequest) (*VirtualMachine, error)
+	VirtualMachinePowerState(context.Context, *VirtualMachinePowerStateRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedVirtualMachineManagementServer()
 }
 
@@ -87,17 +55,8 @@ type VirtualMachineManagementServer interface {
 type UnimplementedVirtualMachineManagementServer struct {
 }
 
-func (UnimplementedVirtualMachineManagementServer) CreateVirtualMachine(context.Context, *CreateVirtualMachineRequest) (*VirtualMachine, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateVirtualMachine not implemented")
-}
-func (UnimplementedVirtualMachineManagementServer) DeleteVirtualMachine(context.Context, *DeleteVirtualMachineRequest) (*DeleteVirtualMachineResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteVirtualMachine not implemented")
-}
-func (UnimplementedVirtualMachineManagementServer) ListVirtualMachines(context.Context, *ListVirtualMachinesRequest) (*ListVirtualMachinesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListVirtualMachines not implemented")
-}
-func (UnimplementedVirtualMachineManagementServer) ManageVirtualMachinePowerState(context.Context, *ManageVirtualMachinePowerStateRequest) (*VirtualMachine, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ManageVirtualMachinePowerState not implemented")
+func (UnimplementedVirtualMachineManagementServer) VirtualMachinePowerState(context.Context, *VirtualMachinePowerStateRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VirtualMachinePowerState not implemented")
 }
 func (UnimplementedVirtualMachineManagementServer) mustEmbedUnimplementedVirtualMachineManagementServer() {
 }
@@ -113,74 +72,20 @@ func RegisterVirtualMachineManagementServer(s grpc.ServiceRegistrar, srv Virtual
 	s.RegisterService(&VirtualMachineManagement_ServiceDesc, srv)
 }
 
-func _VirtualMachineManagement_CreateVirtualMachine_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateVirtualMachineRequest)
+func _VirtualMachineManagement_VirtualMachinePowerState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VirtualMachinePowerStateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(VirtualMachineManagementServer).CreateVirtualMachine(ctx, in)
+		return srv.(VirtualMachineManagementServer).VirtualMachinePowerState(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/vink.management.virtualmachine.v1alpha1.VirtualMachineManagement/CreateVirtualMachine",
+		FullMethod: "/vink.kubevm.io.apis.management.virtualmachine.v1alpha1.VirtualMachineManagement/VirtualMachinePowerState",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(VirtualMachineManagementServer).CreateVirtualMachine(ctx, req.(*CreateVirtualMachineRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _VirtualMachineManagement_DeleteVirtualMachine_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteVirtualMachineRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(VirtualMachineManagementServer).DeleteVirtualMachine(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/vink.management.virtualmachine.v1alpha1.VirtualMachineManagement/DeleteVirtualMachine",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(VirtualMachineManagementServer).DeleteVirtualMachine(ctx, req.(*DeleteVirtualMachineRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _VirtualMachineManagement_ListVirtualMachines_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListVirtualMachinesRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(VirtualMachineManagementServer).ListVirtualMachines(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/vink.management.virtualmachine.v1alpha1.VirtualMachineManagement/ListVirtualMachines",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(VirtualMachineManagementServer).ListVirtualMachines(ctx, req.(*ListVirtualMachinesRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _VirtualMachineManagement_ManageVirtualMachinePowerState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ManageVirtualMachinePowerStateRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(VirtualMachineManagementServer).ManageVirtualMachinePowerState(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/vink.management.virtualmachine.v1alpha1.VirtualMachineManagement/ManageVirtualMachinePowerState",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(VirtualMachineManagementServer).ManageVirtualMachinePowerState(ctx, req.(*ManageVirtualMachinePowerStateRequest))
+		return srv.(VirtualMachineManagementServer).VirtualMachinePowerState(ctx, req.(*VirtualMachinePowerStateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -189,24 +94,12 @@ func _VirtualMachineManagement_ManageVirtualMachinePowerState_Handler(srv interf
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var VirtualMachineManagement_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "vink.management.virtualmachine.v1alpha1.VirtualMachineManagement",
+	ServiceName: "vink.kubevm.io.apis.management.virtualmachine.v1alpha1.VirtualMachineManagement",
 	HandlerType: (*VirtualMachineManagementServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "CreateVirtualMachine",
-			Handler:    _VirtualMachineManagement_CreateVirtualMachine_Handler,
-		},
-		{
-			MethodName: "DeleteVirtualMachine",
-			Handler:    _VirtualMachineManagement_DeleteVirtualMachine_Handler,
-		},
-		{
-			MethodName: "ListVirtualMachines",
-			Handler:    _VirtualMachineManagement_ListVirtualMachines_Handler,
-		},
-		{
-			MethodName: "ManageVirtualMachinePowerState",
-			Handler:    _VirtualMachineManagement_ManageVirtualMachinePowerState_Handler,
+			MethodName: "VirtualMachinePowerState",
+			Handler:    _VirtualMachineManagement_VirtualMachinePowerState_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

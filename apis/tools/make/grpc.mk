@@ -5,23 +5,22 @@ grpc.generate: ## Generated client and server code.
 grpc.generate: grpc.clean
 	@$(LOG_TARGET)
 	buf generate --timeout 10m -v \
-	--path common/ \
+	--path types/ \
+	--path apiextensions/ \
 	--path management/
 
-	@for d in common/ management/; do \
+	@for d in types/ apiextensions/ management/; do \
 		for f in $$(find $$d -name "*.proto"); do \
-			protoc --validate_out="paths=source_relative,lang=go:." $$f; \
+			protoc --validate_out="paths=source_relative,lang=go:." \
+			$$f; \
 		done \
 	done
 
-	@for d in sdks/ts/management; do \
-		for f in $$(find $$d -type f -name "*.ts"); do \
-    		if [ "$$(uname)" = "Darwin" ]; then \
-      			$(SEDI) -r 's#(^type Base.*)#/* vink modified */ export \1#g' $$f; \
-    		else \
-      			$(SEDI) -r 's#(^type Base.*)#/* vink modified */ export \1#g' $$f; \
-    		fi \
-  		done \
+	@for d in types/ apiextensions/ management/; do \
+		for f in $$(find $$d -name "*.proto"); do \
+			npx protoc --ts_out . \
+			$$f; \
+		done \
 	done
 
 PATTERNS := .validate.go _deepcopy.gen.go .gen.json gr.gen.go .pb.go _json.gen.go .pb.gw.go .swagger.json .deepcopy.go
@@ -56,3 +55,31 @@ grpc.release.ts-sdk: ## Release the js sdk.
 .PHONY: grpc.release
 grpc.release: ## Release the grpc code.
 grpc.release: grpc.release.ts-sdk
+
+
+	# @for d in common/ management/; do \
+	# 	for f in $$(find $$d -name "*.proto"); do \
+	# 		protoc --validate_out="paths=source_relative,lang=go:." \
+	# 		--grpc-web_out="import_style=typescript,mode=grpcwebtext:." \
+	# 		$$f; \
+	# 	done \
+	# done
+
+
+	# @for d in common/ management/; do \
+	# 	for f in $$(find $$d -name "*.proto"); do \
+	# 		protoc --validate_out="paths=source_relative,lang=go:." \
+	# 		--js_out="import_style=commonjs,binary:./test" \
+	# 		--grpc-web_out="import_style=typescript,mode=grpcwebtext:./test" \
+	# 		$$f; \
+	# 	done \
+	# done
+
+	# @for d in common/ management/; do \
+	# 	for f in $$(find $$d -name "*.proto"); do \
+	# 		npx protoc --validate_out="paths=source_relative,lang=go:." \
+	# 		--ts_out ./test \
+	# 		--grpc-web_out="import_style=typescript,mode=grpcwebtext:./test" \
+	# 		$$f; \
+	# 	done \
+	# done
