@@ -3,35 +3,25 @@ package management
 import (
 	"context"
 
-	dvv1alpha1 "github.com/kubevm.io/vink/apis/management/datavolume/v1alpha1"
-	nsv1alpha1 "github.com/kubevm.io/vink/apis/management/namespace/v1alpha1"
-	nwv1alpha1 "github.com/kubevm.io/vink/apis/management/network/v1alpha1"
-	vmv1alpha1 "github.com/kubevm.io/vink/apis/management/virtualmachine/v1alpha1"
-
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/kubevm.io/vink/internal/management/datavolume"
-	"github.com/kubevm.io/vink/internal/management/namespace"
-	"github.com/kubevm.io/vink/internal/management/network"
+	resource_v1alpha1 "github.com/kubevm.io/vink/apis/management/resource/v1alpha1"
+	vmv1alpha1 "github.com/kubevm.io/vink/apis/management/virtualmachine/v1alpha1"
+	"github.com/kubevm.io/vink/internal/management/resource"
 	"github.com/kubevm.io/vink/internal/management/virtualmachine"
+	"github.com/kubevm.io/vink/internal/pkg/cache"
+	"github.com/kubevm.io/vink/pkg/clients"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
 func RegisterHTTPRoutes() []func(ctx context.Context, serveMux *runtime.ServeMux, clientConn *grpc.ClientConn) error {
-	return []func(ctx context.Context, serveMux *runtime.ServeMux, clientConn *grpc.ClientConn) error{
-		dvv1alpha1.RegisterDataVolumeManagementHandler,
-		nwv1alpha1.RegisterNetworkManagementHandler,
-		vmv1alpha1.RegisterVirtualMachineManagementHandler,
-		nsv1alpha1.RegisterNamespaceManagementHandler,
-	}
+	return []func(ctx context.Context, serveMux *runtime.ServeMux, clientConn *grpc.ClientConn) error{}
 }
 
-func RegisterGRPCRoutes() (func(s reflection.GRPCServer), error) {
+func RegisterGRPCRoutes(cli clients.Clients, cache cache.Cache, subscribe cache.Subscribe) (func(s reflection.GRPCServer), error) {
 	return func(s reflection.GRPCServer) {
-		dvv1alpha1.RegisterDataVolumeManagementServer(s, datavolume.NewDataVolumeManagement())
-		nwv1alpha1.RegisterNetworkManagementServer(s, network.NewNetworkManagement())
-		vmv1alpha1.RegisterVirtualMachineManagementServer(s, virtualmachine.NewVirtualMachineManagement())
-		nsv1alpha1.RegisterNamespaceManagementServer(s, namespace.NewNamespaceManagement())
+		resource_v1alpha1.RegisterResourceListWatchManagementServer(s, resource.NewResourceListWatchManagement(cache, subscribe))
+		vmv1alpha1.RegisterVirtualMachineManagementServer(s, virtualmachine.NewResourceListWatchManagement(cli))
 		reflection.Register(s)
 	}, nil
 }
