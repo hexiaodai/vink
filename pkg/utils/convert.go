@@ -26,6 +26,8 @@ func ConvertGVR(gvri *types.GroupVersionResourceIdentifier) schema.GroupVersionR
 		return gvr.From(cdiv1.DataVolume{})
 	case types.GroupVersionResourceEnum_NODE:
 		return gvr.From(k8sv1.Node{})
+	case types.GroupVersionResourceEnum_NAMESPACE:
+		return gvr.From(k8sv1.Namespace{})
 	}
 
 	if custom := gvri.GetCustom(); custom != nil {
@@ -154,14 +156,14 @@ func ConvertUnstructuredToCRD(unStructObj unstructured.Unstructured) (*apiextens
 		},
 	}
 
-	spce, found, err := unstructured.NestedMap(unStructObj.Object, "spec")
-	if !found || err != nil {
+	spce, _, err := unstructured.NestedMap(unStructObj.Object, "spec")
+	if err != nil {
 		return nil, fmt.Errorf("failed to get spce: %v", err)
 	}
 
-	status, found, err := unstructured.NestedMap(unStructObj.Object, "status")
-	if !found || err != nil {
-		return nil, fmt.Errorf("failed to get spce: %v", err)
+	status, _, err := unstructured.NestedMap(unStructObj.Object, "status")
+	if err != nil {
+		return nil, fmt.Errorf("failed to get status: %v", err)
 	}
 
 	crd.Spec = StructToString(spce)

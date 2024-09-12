@@ -1,12 +1,15 @@
 package resource
 
 import (
+	"context"
 	"fmt"
 
+	"github.com/kubevm.io/vink/apis/apiextensions/v1alpha1"
 	resource_v1alpha1 "github.com/kubevm.io/vink/apis/management/resource/v1alpha1"
 	"github.com/kubevm.io/vink/internal/management/resource/business"
 	pkg_cache "github.com/kubevm.io/vink/internal/pkg/cache"
 	"github.com/kubevm.io/vink/pkg/utils"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"k8s.io/apimachinery/pkg/watch"
 )
 
@@ -78,4 +81,35 @@ func (rlw *resourceListWatchManagement) ListWatch(request *resource_v1alpha1.Lis
 			}
 		}
 	}
+}
+
+func NewResourceManagement() resource_v1alpha1.ResourceManagementServer {
+	return &resourceManagement{}
+}
+
+type resourceManagement struct {
+	resource_v1alpha1.UnsafeResourceManagementServer
+}
+
+func (r *resourceManagement) Create(ctx context.Context, request *resource_v1alpha1.CreateRequest) (*v1alpha1.CustomResourceDefinition, error) {
+	gvr := utils.ConvertGVR(request.GroupVersionResource)
+	return business.Create(ctx, gvr, request.Data)
+}
+
+// Get implements v1alpha1.ResourceManagementServer.
+func (r *resourceManagement) Get(context.Context, *resource_v1alpha1.GetRequest) (*v1alpha1.CustomResourceDefinition, error) {
+	panic("unimplemented")
+}
+
+// Update implements v1alpha1.ResourceManagementServer.
+func (r *resourceManagement) Update(context.Context, *resource_v1alpha1.UpdateRequest) (*v1alpha1.CustomResourceDefinition, error) {
+	panic("unimplemented")
+}
+
+func (r *resourceManagement) Delete(ctx context.Context, request *resource_v1alpha1.DeleteRequest) (*emptypb.Empty, error) {
+	gvr := utils.ConvertGVR(request.GroupVersionResource)
+	if err := business.Delete(ctx, gvr, request.NamespaceName); err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
 }

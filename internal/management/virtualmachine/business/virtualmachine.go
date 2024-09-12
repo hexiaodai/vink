@@ -9,6 +9,10 @@ import (
 	virtv1 "kubevirt.io/api/core/v1"
 )
 
+const (
+	SerialConsoleRequestPathTmpl = "/apis/vink.io/v1alpha1/namespaces/{namespace}/virtualmachines/{name}/console"
+)
+
 func VirtualMachinePowerState(ctx context.Context, cli clients.Clients, namespaceName *types.NamespaceName, powerState vmv1alpha1.VirtualMachinePowerStateRequest_PowerState) error {
 	vminter := cli.GetKubeVirtClient().VirtualMachine(namespaceName.Namespace)
 

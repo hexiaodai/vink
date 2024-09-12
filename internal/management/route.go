@@ -21,7 +21,8 @@ func RegisterHTTPRoutes() []func(ctx context.Context, serveMux *runtime.ServeMux
 func RegisterGRPCRoutes(cli clients.Clients, cache cache.Cache, subscribe cache.Subscribe) (func(s reflection.GRPCServer), error) {
 	return func(s reflection.GRPCServer) {
 		resource_v1alpha1.RegisterResourceListWatchManagementServer(s, resource.NewResourceListWatchManagement(cache, subscribe))
-		vmv1alpha1.RegisterVirtualMachineManagementServer(s, virtualmachine.NewResourceListWatchManagement(cli))
+		resource_v1alpha1.RegisterResourceManagementServer(s, resource.NewResourceManagement())
+		vmv1alpha1.RegisterVirtualMachineManagementServer(s, virtualmachine.NewVirtualMachineManagement(cli))
 		reflection.Register(s)
 	}, nil
 }

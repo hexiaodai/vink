@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"k8s.io/client-go/kubernetes/scheme"
-	"k8s.io/client-go/rest"
 	"k8s.io/client-go/util/flowcontrol"
 	"kubevirt.io/client-go/kubecli"
 
@@ -23,7 +22,6 @@ var _ Clients = (*clients)(nil)
 type clients struct {
 	dynamicClient  dynamic.Interface
 	kubevirtClient kubecli.KubevirtClient
-	restClient     *rest.RESTClient
 }
 
 func NewClients(args ...string) (Clients, error) {
@@ -54,8 +52,6 @@ func NewClients(args ...string) (Clients, error) {
 	}
 	cli.kubevirtClient = kubevirtClient
 
-	cli.restClient = kubevirtClient.RestClient()
-
 	return &cli, nil
 }
 
@@ -65,10 +61,6 @@ func (cli *clients) GetDynamicKubeClient() dynamic.Interface {
 
 func (cli *clients) GetKubeVirtClient() kubecli.KubevirtClient {
 	return cli.kubevirtClient
-}
-
-func (cli *clients) GetRestClient() *rest.RESTClient {
-	return cli.restClient
 }
 
 var cli Clients
