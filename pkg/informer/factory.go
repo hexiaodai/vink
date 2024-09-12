@@ -182,7 +182,7 @@ func (f *kubeInformerFactory) VirtualMachine() cache.SharedIndexInformer {
 
 func (f *kubeInformerFactory) DataVolume() cache.SharedIndexInformer {
 	return f.getInformer("datavolumes", func() cache.SharedIndexInformer {
-		lw := cache.NewListWatchFromClient(f.restClient, "datavolumes", k8sv1.NamespaceAll, fields.Everything())
+		lw := cache.NewListWatchFromClient(f.clientSet.CdiClient().CdiV1beta1().RESTClient(), "datavolumes", k8sv1.NamespaceAll, fields.Everything())
 		return cache.NewSharedIndexInformer(lw, &cdiv1.DataVolume{}, f.defaultResync, cache.Indexers{})
 	})
 }

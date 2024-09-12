@@ -11,6 +11,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	client_cache "k8s.io/client-go/tools/cache"
 	virtv1 "kubevirt.io/api/core/v1"
+	cdiv1 "kubevirt.io/containerized-data-importer-api/pkg/apis/core/v1beta1"
 )
 
 type Cache interface {
@@ -31,11 +32,12 @@ func NewCache(ctx context.Context) Cache {
 	c := cache{}
 
 	c.clients = clients.GetClients()
-	c.informerFactory = informer.NewKubeInformerFactory(c.clients.GetRestClient(), c.clients.GetKubeVirtClient())
+	c.informerFactory = informer.NewKubeInformerFactory(c.clients.GetKubeVirtClient().RestClient(), c.clients.GetKubeVirtClient())
 
 	c.informers = make(map[schema.GroupVersionResource]client_cache.SharedIndexInformer)
 	c.informers[gvr.From(virtv1.VirtualMachine{})] = c.informerFactory.VirtualMachine()
 	c.informers[gvr.From(virtv1.VirtualMachineInstance{})] = c.informerFactory.VirtualMachineInstances()
+	c.informers[gvr.From(cdiv1.DataVolume{})] = c.informerFactory.DataVolume()
 
 	c.informerFactory.Start(ctx.Done())
 	c.informerFactory.WaitForCacheSync(ctx.Done())
