@@ -2,6 +2,7 @@ package business
 
 import (
 	"context"
+	"encoding/json"
 	"sync"
 
 	"github.com/kubevm.io/vink/pkg/clients"
@@ -65,4 +66,24 @@ func List(ctx context.Context, gvr schema.GroupVersionResource, opts *types.List
 	}
 
 	return crds, metadatas, nil
+}
+
+func Delete(ctx context.Context, gvr schema.GroupVersionResource, nn *types.NamespaceName) error {
+	cli := clients.GetClients().GetDynamicKubeClient().Resource(gvr)
+	return cli.Namespace(nn.Namespace).Delete(ctx, nn.Name, metav1.DeleteOptions{})
+}
+
+func Create(ctx context.Context, gvr schema.GroupVersionResource, data string) (*apiextensions_v1alpha1.CustomResourceDefinition, error) {
+	payload := map[string]interface{}{}
+	if err := json.Unmarshal([]byte(data), &payload); err != nil {
+		return nil, err
+	}
+
+	obj := unstructured.Unstructured{Object: payload}
+
+	unStructObj, err := clients.GetClients().GetDynamicKubeClient().Resource(gvr).Namespace(obj.GetNamespace()).Create(ctx, &obj, metav1.CreateOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return utils.ConvertUnstructuredToCRD(*unStructObj)
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/kubevm.io/vink/internal/management"
+	"github.com/kubevm.io/vink/internal/management/virtualmachine"
 	"github.com/kubevm.io/vink/internal/pkg/cache"
 	"github.com/kubevm.io/vink/internal/pkg/servers"
 	"github.com/kubevm.io/vink/pkg/clients"
@@ -55,6 +56,7 @@ func main() {
 				grpcAddress,
 				[]func(router *mux.Router){
 					// router hooks
+					virtualmachine.RegisterSerialConsole,
 				},
 				management.RegisterHTTPRoutes(),
 			)
