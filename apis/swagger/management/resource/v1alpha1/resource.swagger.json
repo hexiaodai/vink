@@ -83,7 +83,14 @@
         "VIRTUAL_MACHINE_INSTANCE",
         "DATA_VOLUME",
         "NODE",
-        "NAMESPACE"
+        "NAMESPACE",
+        "MULTUS",
+        "SUBNET",
+        "VPC",
+        "IPPOOL",
+        "STORAGE_CLASS",
+        "IPS",
+        "VIRTUAL_MACHINE_INSTANCE_SUMMARY"
       ],
       "default": "UNSPECIFIED"
     },

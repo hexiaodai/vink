@@ -9,7 +9,6 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/gorilla/mux"
 	vmv1alpha1 "github.com/kubevm.io/vink/apis/management/virtualmachine/v1alpha1"
 	"github.com/kubevm.io/vink/internal/management/virtualmachine/business"
 	"github.com/kubevm.io/vink/pkg/clients"
@@ -17,23 +16,21 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/util/cert"
-	"kubevirt.io/client-go/kubecli"
+
+	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
 )
 
-func NewVirtualMachineManagement(clients clients.Clients) vmv1alpha1.VirtualMachineManagementServer {
-	return &virtualMachineManagement{
-		clients: clients,
-	}
+func NewVirtualMachineManagement() vmv1alpha1.VirtualMachineManagementServer {
+	return &virtualMachineManagement{}
 }
 
 type virtualMachineManagement struct {
-	clients clients.Clients
-
 	vmv1alpha1.UnimplementedVirtualMachineManagementServer
 }
 
 func (m *virtualMachineManagement) VirtualMachinePowerState(ctx context.Context, request *vmv1alpha1.VirtualMachinePowerStateRequest) (*emptypb.Empty, error) {
-	return &emptypb.Empty{}, business.VirtualMachinePowerState(ctx, m.clients, request.NamespaceName, request.PowerState)
+	return &emptypb.Empty{}, business.VirtualMachinePowerState(ctx, request.NamespaceName, request.PowerState)
 }
 
 func RegisterSerialConsole(router *mux.Router) {
@@ -49,37 +46,39 @@ func RegisterSerialConsole(router *mux.Router) {
 			return
 		}
 		ws := fmt.Sprintf("wss://%s/apis/subresources.kubevirt.io/v1/namespaces/%s/virtualmachineinstances/%s/console", parse.Host, namespace, name)
-		result, _, err := kubecli.Dial(ws, generateSerialConsoleTLSConfig(kv.Config()))
+
+		dialer := websocket.Dialer{
+			HandshakeTimeout: 15 * time.Second,
+			TLSClientConfig:  generateSerialConsoleTLSConfig(kv.Config()),
+		}
+
+		serverConn, _, err := dialer.Dial(ws, http.Header{})
 		if err != nil {
 			writer.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		serverConn := result.UnderlyingConn()
+		defer serverConn.Close()
 
-		upgrader := kubecli.NewUpgrader()
-		upgrader.HandshakeTimeout = 15 * time.Second
-		conn, err := upgrader.Upgrade(writer, request, nil)
+		upgrader := websocket.Upgrader{
+			HandshakeTimeout: 15 * time.Second,
+			CheckOrigin: func(r *http.Request) bool {
+				return true
+			},
+		}
+		clientConn, err := upgrader.Upgrade(writer, request, nil)
 		if err != nil {
 			writer.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		clientConn := conn.UnderlyingConn()
-
-		ctx, cancel := context.WithCancel(request.Context())
-		defer cancel()
-		go func() {
-			<-ctx.Done()
-			serverConn.Close()
-			clientConn.Close()
-		}()
+		defer clientConn.Close()
 
 		eg := errgroup.Group{}
 		eg.Go(func() error {
-			_, err := io.Copy(clientConn, serverConn)
+			_, err := io.Copy(clientConn.UnderlyingConn(), serverConn.UnderlyingConn())
 			return err
 		})
 		eg.Go(func() error {
-			_, err := io.Copy(serverConn, clientConn)
+			_, err := io.Copy(serverConn.UnderlyingConn(), clientConn.UnderlyingConn())
 			return err
 		})
 

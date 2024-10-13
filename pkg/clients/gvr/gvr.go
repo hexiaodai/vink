@@ -1,11 +1,19 @@
 package gvr
 
 import (
+	netv1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
+	kubeovn "github.com/kubeovn/kube-ovn/pkg/apis/kubeovn/v1"
+	"github.com/kubevm.io/vink/apis/types"
+	"github.com/kubevm.io/vink/pkg/clients"
+	"github.com/kubevm.io/vink/pkg/k8s/apis/vink/v1alpha1"
 	spv2beta1 "github.com/spidernet-io/spiderpool/pkg/k8s/apis/spiderpool.spidernet.io/v2beta1"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/discovery/cached/memory"
 	"k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/client-go/restmapper"
 	virtv1 "kubevirt.io/api/core/v1"
 	cdiv1beta1 "kubevirt.io/containerized-data-importer-api/pkg/apis/core/v1beta1"
 )
@@ -14,6 +22,10 @@ func init() {
 	cdiv1beta1.AddToScheme(scheme.Scheme)
 	spv2beta1.AddToScheme(scheme.Scheme)
 	virtv1.AddToScheme(scheme.Scheme)
+	netv1.AddToScheme(scheme.Scheme)
+	kubeovn.AddToScheme(scheme.Scheme)
+	storagev1.AddToScheme(scheme.Scheme)
+	v1alpha1.AddToScheme(scheme.Scheme)
 }
 
 func From[T any](o T) schema.GroupVersionResource {
@@ -54,30 +66,6 @@ func From[T any](o T) schema.GroupVersionResource {
 			Version:  corev1.SchemeGroupVersion.Version,
 			Resource: "nodes",
 		}
-	case spv2beta1.SpiderMultusConfig, *spv2beta1.SpiderMultusConfig:
-		return schema.GroupVersionResource{
-			Group:    spv2beta1.SchemeGroupVersion.Group,
-			Version:  spv2beta1.SchemeGroupVersion.Version,
-			Resource: "spidermultusconfigs",
-		}
-	case spv2beta1.SpiderSubnet, *spv2beta1.SpiderSubnet:
-		return schema.GroupVersionResource{
-			Group:    spv2beta1.SchemeGroupVersion.Group,
-			Version:  spv2beta1.SchemeGroupVersion.Version,
-			Resource: "spidersubnets",
-		}
-	case spv2beta1.SpiderIPPool, *spv2beta1.SpiderIPPool:
-		return schema.GroupVersionResource{
-			Group:    spv2beta1.SchemeGroupVersion.Group,
-			Version:  spv2beta1.SchemeGroupVersion.Version,
-			Resource: "spiderippools",
-		}
-	case spv2beta1.SpiderEndpoint, *spv2beta1.SpiderEndpoint:
-		return schema.GroupVersionResource{
-			Group:    spv2beta1.SchemeGroupVersion.Group,
-			Version:  spv2beta1.SchemeGroupVersion.Version,
-			Resource: "spiderendpoints",
-		}
 	case virtv1.VirtualMachine, *virtv1.VirtualMachine:
 		return schema.GroupVersionResource{
 			Group:    virtv1.SchemeGroupVersion.Group,
@@ -96,6 +84,77 @@ func From[T any](o T) schema.GroupVersionResource {
 			Version:  corev1.SchemeGroupVersion.Version,
 			Resource: "namespaces",
 		}
+	case netv1.NetworkAttachmentDefinition, *netv1.NetworkAttachmentDefinition:
+		return schema.GroupVersionResource{
+			Group:    netv1.SchemeGroupVersion.Group,
+			Version:  netv1.SchemeGroupVersion.Version,
+			Resource: "network-attachment-definitions",
+		}
+	case kubeovn.Subnet, *kubeovn.Subnet:
+		return kubeovn.SchemeGroupVersion.WithResource("subnets")
+	case kubeovn.Vpc, *kubeovn.Vpc:
+		return kubeovn.SchemeGroupVersion.WithResource("vpcs")
+	case kubeovn.IPPool, *kubeovn.IPPool:
+		return kubeovn.SchemeGroupVersion.WithResource("ippools")
+	case kubeovn.IP, *kubeovn.IP:
+		return kubeovn.SchemeGroupVersion.WithResource("ips")
+	case v1alpha1.VirtualMachineSummary, *v1alpha1.VirtualMachineSummary:
+		return v1alpha1.VirtualMachineSummaryGVR
 	}
+
 	return schema.GroupVersionResource{}
+}
+
+func ResolveGVR(gvri *types.GroupVersionResourceIdentifier) schema.GroupVersionResource {
+	switch gvri.GetEnum() {
+	case types.GroupVersionResourceEnum_VIRTUAL_MACHINE:
+		return From(virtv1.VirtualMachine{})
+	case types.GroupVersionResourceEnum_VIRTUAL_MACHINE_INSTANCE:
+		return From(virtv1.VirtualMachineInstance{})
+	case types.GroupVersionResourceEnum_DATA_VOLUME:
+		return From(cdiv1beta1.DataVolume{})
+	case types.GroupVersionResourceEnum_NODE:
+		return From(corev1.Node{})
+	case types.GroupVersionResourceEnum_NAMESPACE:
+		return From(corev1.Namespace{})
+	case types.GroupVersionResourceEnum_MULTUS:
+		return From(netv1.NetworkAttachmentDefinition{})
+	case types.GroupVersionResourceEnum_SUBNET:
+		return From(kubeovn.Subnet{})
+	case types.GroupVersionResourceEnum_VPC:
+		return From(kubeovn.Vpc{})
+	case types.GroupVersionResourceEnum_IPPOOL:
+		return From(kubeovn.IPPool{})
+	case types.GroupVersionResourceEnum_STORAGE_CLASS:
+		return From(storagev1.StorageClass{})
+	case types.GroupVersionResourceEnum_IPS:
+		return From(kubeovn.IP{})
+	case types.GroupVersionResourceEnum_VIRTUAL_MACHINE_INSTANCE_SUMMARY:
+		return From(v1alpha1.VirtualMachineSummary{})
+	}
+
+	if custom := gvri.GetCustom(); custom != nil {
+		return schema.GroupVersionResource{
+			Group:    custom.Group,
+			Version:  custom.Version,
+			Resource: custom.Resource,
+		}
+	}
+
+	return schema.GroupVersionResource{}
+}
+
+func GetGVRFromObjectUsingMapper(obj runtime.Object) (schema.GroupVersionResource, error) {
+	cachedDiscoveryClient := memory.NewMemCacheClient(clients.GetClients().GetDiscoveryClient())
+
+	mapper := restmapper.NewDeferredDiscoveryRESTMapper(cachedDiscoveryClient)
+
+	gvk := obj.GetObjectKind().GroupVersionKind()
+
+	mapping, err := mapper.RESTMapping(gvk.GroupKind(), gvk.Version)
+	if err != nil {
+		return schema.GroupVersionResource{}, err
+	}
+
+	return mapping.Resource, nil
 }

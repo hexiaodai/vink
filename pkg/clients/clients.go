@@ -1,18 +1,20 @@
 package clients
 
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -generate
-
 import (
 	"fmt"
 
+	kubeovnv1 "github.com/kubeovn/kube-ovn/pkg/apis/kubeovn/v1"
+	"github.com/kubevm.io/vink/pkg/k8s/apis/vink/v1alpha1"
+	"k8s.io/apimachinery/pkg/runtime/serializer"
 	"k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/util/flowcontrol"
 	"kubevirt.io/client-go/kubecli"
 
-	"k8s.io/apimachinery/pkg/runtime/schema"
-
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/discovery"
 
 	"k8s.io/client-go/dynamic"
 )
@@ -20,8 +22,12 @@ import (
 var _ Clients = (*clients)(nil)
 
 type clients struct {
-	dynamicClient  dynamic.Interface
-	kubevirtClient kubecli.KubevirtClient
+	dynamicClient     dynamic.Interface
+	kubevirtClient    kubecli.KubevirtClient
+	discoveryClient   discovery.DiscoveryInterface
+	k8sConfig         *rest.Config
+	vinkRestClient    *rest.RESTClient
+	kubeovnRestClient *rest.RESTClient
 }
 
 func NewClients(args ...string) (Clients, error) {
@@ -29,22 +35,27 @@ func NewClients(args ...string) (Clients, error) {
 
 	kubeconfig := GetK8sConfigConfigWithFile(args...)
 
-	// kubeconfig.APIPath = "/api"
-	// kubeconfig.GroupVersion = &schema.GroupVersion{Group: "", Version: "v1"}
-	// kubeconfig.NegotiatedSerializer = serializer.WithoutConversionCodecFactory{CodecFactory: scheme.Codecs}
-
 	kubeconfig.RateLimiter = flowcontrol.NewTokenBucketRateLimiter(50, 100)
+
+	cli.k8sConfig = kubeconfig
+
 	dcli, err := dynamic.NewForConfig(kubeconfig)
 	if err != nil {
 		return nil, err
 	}
 	cli.dynamicClient = dcli
 
-	// restClient, err := rest.RESTClientFor(kubeconfig)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// cli.restClient = restClient
+	vinkRestClient, err := vinkRestClientFromRESTConfig(kubeconfig)
+	if err != nil {
+		return nil, err
+	}
+	cli.vinkRestClient = vinkRestClient
+
+	kubeovnRestClient, err := kubeovnRestClientFromRESTConfig(kubeconfig)
+	if err != nil {
+		return nil, err
+	}
+	cli.kubeovnRestClient = kubeovnRestClient
 
 	kubevirtClient, err := kubecli.GetKubevirtClientFromRESTConfig(kubeconfig)
 	if err != nil {
@@ -52,7 +63,37 @@ func NewClients(args ...string) (Clients, error) {
 	}
 	cli.kubevirtClient = kubevirtClient
 
+	discoveryClient, err := discovery.NewDiscoveryClientForConfig(kubeconfig)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create discovery client: %v", err)
+	}
+	cli.discoveryClient = discoveryClient
+
 	return &cli, nil
+}
+
+func vinkRestClientFromRESTConfig(kubeconfig *rest.Config) (*rest.RESTClient, error) {
+	shallowCopy := *kubeconfig
+	shallowCopy.APIPath = "/apis"
+	shallowCopy.GroupVersion = &v1alpha1.GroupVersion
+	shallowCopy.NegotiatedSerializer = serializer.WithoutConversionCodecFactory{CodecFactory: scheme.Codecs}
+	return rest.RESTClientFor(&shallowCopy)
+}
+
+func kubeovnRestClientFromRESTConfig(kubeconfig *rest.Config) (*rest.RESTClient, error) {
+	shallowCopy := *kubeconfig
+	shallowCopy.APIPath = "/apis"
+	shallowCopy.GroupVersion = &kubeovnv1.SchemeGroupVersion
+	shallowCopy.NegotiatedSerializer = serializer.WithoutConversionCodecFactory{CodecFactory: scheme.Codecs}
+	return rest.RESTClientFor(&shallowCopy)
+}
+
+func (cli *clients) GetVinkRestClient() *rest.RESTClient {
+	return cli.vinkRestClient
+}
+
+func (cli *clients) GetKubeovnRestClient() *rest.RESTClient {
+	return cli.kubeovnRestClient
 }
 
 func (cli *clients) GetDynamicKubeClient() dynamic.Interface {
@@ -61,6 +102,14 @@ func (cli *clients) GetDynamicKubeClient() dynamic.Interface {
 
 func (cli *clients) GetKubeVirtClient() kubecli.KubevirtClient {
 	return cli.kubevirtClient
+}
+
+func (cli *clients) GetDiscoveryClient() discovery.DiscoveryInterface {
+	return cli.discoveryClient
+}
+
+func (cli *clients) GetKubeConfig() *rest.Config {
+	return cli.k8sConfig
 }
 
 var cli Clients

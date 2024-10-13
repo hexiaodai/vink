@@ -8,8 +8,8 @@ import (
 	vmv1alpha1 "github.com/kubevm.io/vink/apis/management/virtualmachine/v1alpha1"
 	"github.com/kubevm.io/vink/internal/management/resource"
 	"github.com/kubevm.io/vink/internal/management/virtualmachine"
-	"github.com/kubevm.io/vink/internal/pkg/cache"
-	"github.com/kubevm.io/vink/pkg/clients"
+	resource_event_listener "github.com/kubevm.io/vink/internal/pkg/resource-event-listener"
+	"github.com/kubevm.io/vink/pkg/informer"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -18,11 +18,11 @@ func RegisterHTTPRoutes() []func(ctx context.Context, serveMux *runtime.ServeMux
 	return []func(ctx context.Context, serveMux *runtime.ServeMux, clientConn *grpc.ClientConn) error{}
 }
 
-func RegisterGRPCRoutes(cli clients.Clients, cache cache.Cache, subscribe cache.Subscribe) (func(s reflection.GRPCServer), error) {
+func RegisterGRPCRoutes(kubeInformerFactory informer.KubeInformerFactory, resourceEventListener resource_event_listener.ResourceEventListener) (func(s reflection.GRPCServer), error) {
 	return func(s reflection.GRPCServer) {
-		resource_v1alpha1.RegisterResourceListWatchManagementServer(s, resource.NewResourceListWatchManagement(cache, subscribe))
+		resource_v1alpha1.RegisterResourceListWatchManagementServer(s, resource.NewResourceListWatchManagement(kubeInformerFactory, resourceEventListener))
 		resource_v1alpha1.RegisterResourceManagementServer(s, resource.NewResourceManagement())
-		vmv1alpha1.RegisterVirtualMachineManagementServer(s, virtualmachine.NewVirtualMachineManagement(cli))
+		vmv1alpha1.RegisterVirtualMachineManagementServer(s, virtualmachine.NewVirtualMachineManagement())
 		reflection.Register(s)
 	}, nil
 }

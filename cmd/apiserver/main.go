@@ -8,11 +8,16 @@ import (
 	"github.com/kubevm.io/vink/config"
 	"github.com/spf13/cobra"
 
+	interalcmd "github.com/kubevm.io/vink/internal/cmd"
+	ctrlvm "github.com/kubevm.io/vink/internal/controller/virtualmachine"
 	"github.com/kubevm.io/vink/internal/management"
 	"github.com/kubevm.io/vink/internal/management/virtualmachine"
-	"github.com/kubevm.io/vink/internal/pkg/cache"
+
+	resource_event_listener "github.com/kubevm.io/vink/internal/pkg/resource-event-listener"
 	"github.com/kubevm.io/vink/internal/pkg/servers"
 	"github.com/kubevm.io/vink/pkg/clients"
+
+	"github.com/kubevm.io/vink/pkg/informer"
 	"github.com/kubevm.io/vink/pkg/log"
 )
 
@@ -24,6 +29,8 @@ func main() {
 		Aliases: []string{"api"},
 		Short:   "Virtual Machines in Kubernetes",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := context.TODO()
+
 			config.ParseConfigFromFile(configFile)
 			if config.Instance.Debug {
 				log.SetDebug()
@@ -33,12 +40,37 @@ func main() {
 				return err
 			}
 
-			cacheInstance := cache.NewCache(context.TODO())
+			kubeInformerFactory := informer.NewKubeInformerFactory(clients.GetClients().GetVinkRestClient(), clients.GetClients().GetKubeVirtClient().RestClient(), clients.GetClients().GetKubeovnRestClient(), clients.GetClients().GetKubeVirtClient())
 
-			subscribe := cache.NewSubscribe(cacheInstance)
-			go subscribe.Run(cmd.Context())
+			kubeInformerFactory.VirtualMachine()
+			kubeInformerFactory.VirtualMachineInstances()
+			kubeInformerFactory.DataVolume()
+			kubeInformerFactory.VirtualMachineSummary()
+			kubeInformerFactory.Subnet()
 
-			register, err := management.RegisterGRPCRoutes(clients.GetClients(), cacheInstance, subscribe)
+			kubeInformerFactory.Start(ctx.Done())
+			kubeInformerFactory.WaitForCacheSync(ctx.Done())
+
+			resourceEventListener := resource_event_listener.NewResourceEventListener(kubeInformerFactory)
+			go resourceEventListener.StartListening(ctx)
+
+			vmCtl := ctrlvm.New(kubeInformerFactory.VirtualMachine())
+			go vmCtl.Run(context.TODO())
+
+			mgr, err := interalcmd.NewCRDManager()
+			if err != nil {
+				return err
+			}
+			if err := interalcmd.Register(mgr); err != nil {
+				return err
+			}
+			go func() {
+				if err := mgr.Start(ctx); err != nil {
+					panic(err)
+				}
+			}()
+
+			register, err := management.RegisterGRPCRoutes(kubeInformerFactory, resourceEventListener)
 			if err != nil {
 				return err
 			}

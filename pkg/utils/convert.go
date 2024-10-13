@@ -3,43 +3,55 @@ package utils
 import (
 	"fmt"
 
+	kubeovn "github.com/kubeovn/kube-ovn/pkg/apis/kubeovn/v1"
 	apiextensions_v1alpha1 "github.com/kubevm.io/vink/apis/apiextensions/v1alpha1"
 	"github.com/kubevm.io/vink/apis/types"
-	"github.com/kubevm.io/vink/pkg/clients/gvr"
 	"github.com/samber/lo"
 	k8sv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/runtime"
 	pkg_types "k8s.io/apimachinery/pkg/types"
 	virtv1 "kubevirt.io/api/core/v1"
 	cdiv1 "kubevirt.io/containerized-data-importer-api/pkg/apis/core/v1beta1"
 )
 
-func ConvertGVR(gvri *types.GroupVersionResourceIdentifier) schema.GroupVersionResource {
-	switch gvri.GetEnum() {
-	case types.GroupVersionResourceEnum_VIRTUAL_MACHINE:
-		return gvr.From(virtv1.VirtualMachine{})
-	case types.GroupVersionResourceEnum_VIRTUAL_MACHINE_INSTANCE:
-		return gvr.From(virtv1.VirtualMachineInstance{})
-	case types.GroupVersionResourceEnum_DATA_VOLUME:
-		return gvr.From(cdiv1.DataVolume{})
-	case types.GroupVersionResourceEnum_NODE:
-		return gvr.From(k8sv1.Node{})
-	case types.GroupVersionResourceEnum_NAMESPACE:
-		return gvr.From(k8sv1.Namespace{})
-	}
+// func ConvertGVR(gvri *types.GroupVersionResourceIdentifier) schema.GroupVersionResource {
+// 	switch gvri.GetEnum() {
+// 	case types.GroupVersionResourceEnum_VIRTUAL_MACHINE:
+// 		return gvr.From(virtv1.VirtualMachine{})
+// 	case types.GroupVersionResourceEnum_VIRTUAL_MACHINE_INSTANCE:
+// 		return gvr.From(virtv1.VirtualMachineInstance{})
+// 	case types.GroupVersionResourceEnum_DATA_VOLUME:
+// 		return gvr.From(cdiv1.DataVolume{})
+// 	case types.GroupVersionResourceEnum_NODE:
+// 		return gvr.From(k8sv1.Node{})
+// 	case types.GroupVersionResourceEnum_NAMESPACE:
+// 		return gvr.From(k8sv1.Namespace{})
+// 	case types.GroupVersionResourceEnum_MULTUS:
+// 		return gvr.From(netv1.NetworkAttachmentDefinition{})
+// 	case types.GroupVersionResourceEnum_SUBNET:
+// 		return gvr.From(kubeovn.Subnet{})
+// 	case types.GroupVersionResourceEnum_VPC:
+// 		return gvr.From(kubeovn.Vpc{})
+// 	case types.GroupVersionResourceEnum_IPPOOL:
+// 		return gvr.From(kubeovn.IPPool{})
+// 	case types.GroupVersionResourceEnum_STORAGE_CLASS:
+// 		return gvr.From(storagev1.StorageClass{})
+// 	case types.GroupVersionResourceEnum_IPS:
+// 		return gvr.From(kubeovn.IP{})
+// 	}
 
-	if custom := gvri.GetCustom(); custom != nil {
-		return schema.GroupVersionResource{
-			Group:    custom.Group,
-			Version:  custom.Version,
-			Resource: custom.Resource,
-		}
-	}
+// 	if custom := gvri.GetCustom(); custom != nil {
+// 		return schema.GroupVersionResource{
+// 			Group:    custom.Group,
+// 			Version:  custom.Version,
+// 			Resource: custom.Resource,
+// 		}
+// 	}
 
-	return schema.GroupVersionResource{}
-}
+// 	return schema.GroupVersionResource{}
+// }
 
 func ConvertToNamespaceName(payload interface{}) (*types.NamespaceName, error) {
 	temp, ok := payload.(*pkg_types.NamespacedName)
@@ -49,7 +61,7 @@ func ConvertToNamespaceName(payload interface{}) (*types.NamespaceName, error) {
 	return &types.NamespaceName{Namespace: temp.Namespace, Name: temp.Name}, nil
 }
 
-func ConvertToCustomResourceDefinition(payload interface{}) (*apiextensions_v1alpha1.CustomResourceDefinition, error) {
+func ConvertToCustomResourceDefinition2(payload interface{}) (*apiextensions_v1alpha1.CustomResourceDefinition, error) {
 	crd := apiextensions_v1alpha1.CustomResourceDefinition{}
 
 	var metadata metav1.ObjectMeta
@@ -73,6 +85,21 @@ func ConvertToCustomResourceDefinition(payload interface{}) (*apiextensions_v1al
 		metadata = payload.ObjectMeta
 		spec = payload.Spec
 		status = payload.Status
+	case *kubeovn.Subnet:
+		metadata = payload.ObjectMeta
+		spec = payload.Spec
+		status = payload.Status
+	case *kubeovn.Vpc:
+		metadata = payload.ObjectMeta
+		spec = payload.Spec
+		status = payload.Status
+	case *kubeovn.IPPool:
+		metadata = payload.ObjectMeta
+		spec = payload.Spec
+		status = payload.Status
+	case *kubeovn.IP:
+		metadata = payload.ObjectMeta
+		spec = payload.Spec
 	default:
 		return nil, fmt.Errorf("unsupported payload type %T", payload)
 	}
@@ -119,6 +146,15 @@ func ConvertToCustomResourceDefinition(payload interface{}) (*apiextensions_v1al
 	return &crd, nil
 }
 
+func ConvertToCustomResourceDefinition(payload interface{}) (*apiextensions_v1alpha1.CustomResourceDefinition, error) {
+	payloadMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(payload)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal payload to map[string]interface{}: %v", err)
+	}
+
+	return ConvertUnstructuredToCRD(unstructured.Unstructured{Object: payloadMap})
+}
+
 func ConvertUnstructuredToCRD(unStructObj unstructured.Unstructured) (*apiextensions_v1alpha1.CustomResourceDefinition, error) {
 	ownerReferences := []*types.OwnerReference{}
 	for _, ownerReference := range unStructObj.GetOwnerReferences() {
@@ -156,12 +192,14 @@ func ConvertUnstructuredToCRD(unStructObj unstructured.Unstructured) (*apiextens
 		},
 	}
 
-	spce, _, err := unstructured.NestedMap(unStructObj.Object, "spec")
+	spce, _, err := unstructured.NestedFieldNoCopy(unStructObj.Object, "spec")
+	// spce, _, err := unstructured.NestedMap(unStructObj.Object, "spec")
 	if err != nil {
 		return nil, fmt.Errorf("failed to get spce: %v", err)
 	}
 
-	status, _, err := unstructured.NestedMap(unStructObj.Object, "status")
+	status, _, err := unstructured.NestedFieldNoCopy(unStructObj.Object, "status")
+	// status, _, err := unstructured.NestedMap(unStructObj.Object, "status")
 	if err != nil {
 		return nil, fmt.Errorf("failed to get status: %v", err)
 	}
