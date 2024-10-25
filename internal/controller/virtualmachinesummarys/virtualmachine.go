@@ -10,6 +10,7 @@ import (
 	kubeovn "github.com/kubeovn/kube-ovn/pkg/apis/kubeovn/v1"
 	"github.com/kubevm.io/vink/pkg/k8s/apis/vink/v1alpha1"
 	"github.com/kubevm.io/vink/pkg/log"
+	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
 	apierr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -29,7 +30,6 @@ func (reconciler *VirtualMachineReconciler) Reconcile(ctx context.Context, reque
 	var vm kubevirtv1.VirtualMachine
 	if err := reconciler.Client.Get(ctx, request.NamespacedName, &vm); err != nil {
 		if apierr.IsNotFound(err) {
-			log.Debug("Resource not found. ignoring since object must be deleted")
 			return ctrl.Result{}, nil
 		} else {
 			return ctrl.Result{}, fmt.Errorf("failed to get VirtualMachine: %w", err)
@@ -205,6 +205,14 @@ func generateVirtualMachineSummarySpce(vm *kubevirtv1.VirtualMachine) (*v1alpha1
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: vm.Namespace,
 			Name:      vm.Name,
+			OwnerReferences: []metav1.OwnerReference{{
+				APIVersion:         vm.APIVersion,
+				Kind:               vm.Kind,
+				Name:               vm.Name,
+				UID:                vm.UID,
+				Controller:         lo.ToPtr(true),
+				BlockOwnerDeletion: lo.ToPtr(true),
+			}},
 		},
 		Spec: v1alpha1.VirtualMachineSummarySpec{},
 	}

@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/kubevm.io/vink/apis/types"
+	"github.com/kubevm.io/vink/pkg/clients"
 	"github.com/kubevm.io/vink/pkg/informer"
 	"github.com/kubevm.io/vink/pkg/log"
-	"github.com/kubevm.io/vink/pkg/utils"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	pkg_types "k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/runtime"
@@ -156,11 +156,13 @@ func namespaceNameFilterFunc(items []*types.ObjectMeta) filterFunc {
 			return ok, nil
 		}
 
-		crd, err := utils.ConvertToCustomResourceDefinition(event.Payload)
+		// unstruct, err := clients.InterfaceToUnstructured(event.Payload)
+		objectMeta, err := clients.InterfaceToObjectMeta(event.Payload)
+		// crd, err := utils.ConvertToCustomResourceDefinition(event.Payload)
 		if err != nil {
 			return false, err
 		}
-		nn := pkg_types.NamespacedName{Namespace: crd.Metadata.Namespace, Name: crd.Metadata.Name}
+		nn := pkg_types.NamespacedName{Namespace: objectMeta.GetNamespace(), Name: objectMeta.GetName()}
 		_, ok := idx[nn.String()]
 		return ok, nil
 	}
@@ -178,17 +180,19 @@ func resourceVersionFilterFunc(items []*types.ObjectMeta) filterFunc {
 			return true, nil
 		}
 
-		crd, err := utils.ConvertToCustomResourceDefinition(event.Payload)
+		objectMeta, err := clients.InterfaceToObjectMeta(event.Payload)
+		// unstruct, err := clients.InterfaceToUnstructured(event.Payload)
+		// crd, err := utils.ConvertToCustomResourceDefinition(event.Payload)
 		if err != nil {
 			return false, err
 		}
-		ns := pkg_types.NamespacedName{Namespace: crd.Metadata.Namespace, Name: crd.Metadata.Name}
+		ns := pkg_types.NamespacedName{Namespace: objectMeta.GetNamespace(), Name: objectMeta.GetName()}
 		original, ok := idx[ns.String()]
 		if !ok {
 			return false, nil
 		}
 
-		if crd.Metadata.Uid != original.Uid {
+		if string(objectMeta.GetUID()) != original.Uid {
 			return true, err
 		}
 
@@ -196,7 +200,7 @@ func resourceVersionFilterFunc(items []*types.ObjectMeta) filterFunc {
 		if err != nil {
 			return false, err
 		}
-		version, err := strconv.Atoi(crd.Metadata.ResourceVersion)
+		version, err := strconv.Atoi(objectMeta.GetResourceVersion())
 		if err != nil {
 			return false, err
 		}

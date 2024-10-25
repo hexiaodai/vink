@@ -1,9 +1,13 @@
-package cmd
+package ctrl
 
 import (
+	"context"
+
 	netv1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
 	kubeovn "github.com/kubeovn/kube-ovn/pkg/apis/kubeovn/v1"
+	"github.com/kubevm.io/vink/config"
 	"github.com/kubevm.io/vink/internal/controller/virtualmachinesummarys"
+	"github.com/kubevm.io/vink/pkg/clients"
 	"github.com/kubevm.io/vink/pkg/k8s/apis/vink/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -27,19 +31,26 @@ func init() {
 	uruntime.Must(netv1.AddToScheme(scheme))
 }
 
-func NewCRDManager() (ctrl.Manager, error) {
+func New(config *config.Configuration, clients clients.Clients) *Daemon {
+	return &Daemon{
+		config:  config,
+		clients: clients,
+	}
+}
+
+type Daemon struct {
+	config  *config.Configuration
+	clients clients.Clients
+}
+
+func (dm *Daemon) Execute(ctx context.Context) error {
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&zap.Options{
 		Development: true,
 	})))
 
-	config := ctrl.GetConfigOrDie()
-	config.Burst = 200
-	config.QPS = 100
-
-	// mgr, err := ctrl.NewManager(clients.GetClients().GetKubeConfig(), ctrl.Options{
-	mgr, err := ctrl.NewManager(config, ctrl.Options{
+	mgr, err := ctrl.NewManager(dm.clients.GetKubeConfig(), ctrl.Options{
 		Scheme:                  scheme,
-		LeaderElectionID:        "vink.kubevm.io",
+		LeaderElectionID:        "vink.kubevm.io/ctrl",
 		LeaderElectionNamespace: "vink",
 		LeaderElection:          false,
 		Metrics: server.Options{
@@ -47,13 +58,9 @@ func NewCRDManager() (ctrl.Manager, error) {
 		},
 	})
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return mgr, nil
-}
-
-func Register(mgr ctrl.Manager) error {
 	if err := (&virtualmachinesummarys.VirtualMachineReconciler{
 		Client: mgr.GetClient(),
 		Cache:  mgr.GetCache(),
@@ -96,5 +103,9 @@ func Register(mgr ctrl.Manager) error {
 		return err
 	}
 
+	return mgr.Start(ctx)
+}
+
+func (dm *Daemon) Stop() error {
 	return nil
 }

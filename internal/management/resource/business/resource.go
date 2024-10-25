@@ -7,8 +7,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/kubevm.io/vink/pkg/clients"
-	"github.com/kubevm.io/vink/pkg/utils"
+	pkg_clients "github.com/kubevm.io/vink/pkg/clients"
 	"golang.org/x/sync/errgroup"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -16,12 +15,11 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 
-	apiextensions_v1alpha1 "github.com/kubevm.io/vink/apis/apiextensions/v1alpha1"
 	"github.com/kubevm.io/vink/apis/types"
 )
 
-func List(ctx context.Context, gvr schema.GroupVersionResource, opts *types.ListOptions) ([]*apiextensions_v1alpha1.CustomResourceDefinition, []*types.ObjectMeta, error) {
-	cli := clients.GetClients().GetDynamicKubeClient().Resource(gvr)
+func List(ctx context.Context, clients pkg_clients.Clients, gvr schema.GroupVersionResource, opts *types.ListOptions) ([]string, []*types.ObjectMeta, error) {
+	cli := clients.GetDynamicKubeClient().Resource(gvr)
 
 	items := make([]unstructured.Unstructured, 0)
 
@@ -46,15 +44,21 @@ func List(ctx context.Context, gvr schema.GroupVersionResource, opts *types.List
 		items = result
 	}
 
-	crds := make([]*apiextensions_v1alpha1.CustomResourceDefinition, 0, len(items))
+	crds := make([]string, 0, len(items))
 	metadatas := make([]*types.ObjectMeta, 0, len(items))
 	for _, item := range items {
-		crd, err := utils.ConvertUnstructuredToCRD(item)
+		crd, err := pkg_clients.UnstructuredToJSON(&item)
+		// crd, err := utils.ConvertUnstructuredToCRD(item)
 		if err != nil {
 			return nil, nil, err
 		}
 		crds = append(crds, crd)
-		metadatas = append(metadatas, crd.Metadata)
+		// FIXME: convert to ObjectMeta
+		metadatas = append(metadatas, &types.ObjectMeta{
+			Uid:       string(item.GetUID()),
+			Name:      item.GetName(),
+			Namespace: item.GetNamespace(),
+		})
 	}
 
 	return crds, metadatas, nil
@@ -145,22 +149,50 @@ func listResourcesByCustomNamespaceNames(ctx context.Context, cli dynamic.Namesp
 	return items, nil
 }
 
-func Delete(ctx context.Context, gvr schema.GroupVersionResource, nn *types.NamespaceName) error {
-	cli := clients.GetClients().GetDynamicKubeClient().Resource(gvr)
+func Delete(ctx context.Context, clients pkg_clients.Clients, gvr schema.GroupVersionResource, nn *types.NamespaceName) error {
+	cli := clients.GetDynamicKubeClient().Resource(gvr)
 	return cli.Namespace(nn.Namespace).Delete(ctx, nn.Name, metav1.DeleteOptions{})
 }
 
-func Create(ctx context.Context, gvr schema.GroupVersionResource, data string) (*apiextensions_v1alpha1.CustomResourceDefinition, error) {
+func Create(ctx context.Context, clients pkg_clients.Clients, gvr schema.GroupVersionResource, crd string) (string, error) {
+	// payload := map[string]interface{}{}
+	// if err := json.Unmarshal([]byte(lo.FromPtr(crd)), &payload); err != nil {
+	// 	return nil, err
+	// }
+
+	// obj := unstructured.Unstructured{Object: payload}
+
+	obj, err := pkg_clients.JSONToUnstructured(crd)
+
+	unStructObj, err := clients.GetDynamicKubeClient().Resource(gvr).Namespace(obj.GetNamespace()).Create(ctx, obj, metav1.CreateOptions{})
+	if err != nil {
+		return "", err
+	}
+	return pkg_clients.UnstructuredToJSON(unStructObj)
+	// return utils.ConvertUnstructuredToCRD(*unStructObj)
+}
+
+func Update(ctx context.Context, clients pkg_clients.Clients, gvr schema.GroupVersionResource, crd string) (string, error) {
+
 	payload := map[string]interface{}{}
-	if err := json.Unmarshal([]byte(data), &payload); err != nil {
-		return nil, err
+	if err := json.Unmarshal([]byte(crd), &payload); err != nil {
+		return "", err
 	}
 
 	obj := unstructured.Unstructured{Object: payload}
 
-	unStructObj, err := clients.GetClients().GetDynamicKubeClient().Resource(gvr).Namespace(obj.GetNamespace()).Create(ctx, &obj, metav1.CreateOptions{})
+	unStructObj, err := clients.GetDynamicKubeClient().Resource(gvr).Namespace(obj.GetNamespace()).Update(ctx, &obj, metav1.UpdateOptions{})
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	return utils.ConvertUnstructuredToCRD(*unStructObj)
+	return pkg_clients.UnstructuredToJSON(unStructObj)
+}
+
+func Get(ctx context.Context, clients pkg_clients.Clients, gvr schema.GroupVersionResource, namespace, name string) (string, error) {
+	cli := clients.GetDynamicKubeClient().Resource(gvr)
+	unStructObj, err := cli.Namespace(namespace).Get(ctx, name, metav1.GetOptions{})
+	if err != nil {
+		return "", err
+	}
+	return pkg_clients.UnstructuredToJSON(unStructObj)
 }

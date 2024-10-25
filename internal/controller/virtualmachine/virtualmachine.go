@@ -29,10 +29,13 @@ const (
 type Controller struct {
 	queue      workqueue.RateLimitingInterface
 	vmInformer cache.SharedIndexInformer
+
+	clients clients.Clients
 }
 
-func New(vmInformer cache.SharedIndexInformer) *Controller {
+func New(clients clients.Clients, vmInformer cache.SharedIndexInformer) *Controller {
 	return &Controller{
+		clients:    clients,
 		vmInformer: vmInformer,
 		queue:      workqueue.NewNamedRateLimitingQueue(workqueue.DefaultControllerRateLimiter(), gvr.From(kubev1.VirtualMachine{}).String()),
 	}
@@ -98,7 +101,7 @@ func (c *Controller) setupDataVolume(key interface{}) error {
 		return fmt.Errorf("failed to get '%v' vm object", key)
 	}
 
-	cli := clients.GetClients().GetDynamicKubeClient()
+	cli := c.clients.GetDynamicKubeClient()
 
 	vmCli := cli.Resource(gvr.From(kubev1.VirtualMachine{})).Namespace(vm.Namespace)
 	if vm.DeletionTimestamp == nil && !lo.Contains(vm.Finalizers, virtualmachineFinalizer) {

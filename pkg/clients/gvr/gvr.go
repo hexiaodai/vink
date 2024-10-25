@@ -4,16 +4,12 @@ import (
 	netv1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
 	kubeovn "github.com/kubeovn/kube-ovn/pkg/apis/kubeovn/v1"
 	"github.com/kubevm.io/vink/apis/types"
-	"github.com/kubevm.io/vink/pkg/clients"
 	"github.com/kubevm.io/vink/pkg/k8s/apis/vink/v1alpha1"
 	spv2beta1 "github.com/spidernet-io/spiderpool/pkg/k8s/apis/spiderpool.spidernet.io/v2beta1"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/client-go/discovery/cached/memory"
 	"k8s.io/client-go/kubernetes/scheme"
-	"k8s.io/client-go/restmapper"
 	virtv1 "kubevirt.io/api/core/v1"
 	cdiv1beta1 "kubevirt.io/containerized-data-importer-api/pkg/apis/core/v1beta1"
 )
@@ -144,17 +140,17 @@ func ResolveGVR(gvri *types.GroupVersionResourceIdentifier) schema.GroupVersionR
 	return schema.GroupVersionResource{}
 }
 
-func GetGVRFromObjectUsingMapper(obj runtime.Object) (schema.GroupVersionResource, error) {
-	cachedDiscoveryClient := memory.NewMemCacheClient(clients.GetClients().GetDiscoveryClient())
+// func GetGVRFromObjectUsingMapper(obj runtime.Object) (schema.GroupVersionResource, error) {
+// 	cachedDiscoveryClient := memory.NewMemCacheClient(clients.GetClients().GetDiscoveryClient())
 
-	mapper := restmapper.NewDeferredDiscoveryRESTMapper(cachedDiscoveryClient)
+// 	mapper := restmapper.NewDeferredDiscoveryRESTMapper(cachedDiscoveryClient)
 
-	gvk := obj.GetObjectKind().GroupVersionKind()
+// 	gvk := obj.GetObjectKind().GroupVersionKind()
 
-	mapping, err := mapper.RESTMapping(gvk.GroupKind(), gvk.Version)
-	if err != nil {
-		return schema.GroupVersionResource{}, err
-	}
+// 	mapping, err := mapper.RESTMapping(gvk.GroupKind(), gvk.Version)
+// 	if err != nil {
+// 		return schema.GroupVersionResource{}, err
+// 	}
 
-	return mapping.Resource, nil
-}
+// 	return mapping.Resource, nil
+// }

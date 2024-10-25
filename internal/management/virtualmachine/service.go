@@ -21,24 +21,28 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func NewVirtualMachineManagement() vmv1alpha1.VirtualMachineManagementServer {
-	return &virtualMachineManagement{}
+func NewVirtualMachineManagement(clients clients.Clients) vmv1alpha1.VirtualMachineManagementServer {
+	return &virtualMachineManagement{
+		clients: clients,
+	}
 }
 
 type virtualMachineManagement struct {
+	clients clients.Clients
+
 	vmv1alpha1.UnimplementedVirtualMachineManagementServer
 }
 
 func (m *virtualMachineManagement) VirtualMachinePowerState(ctx context.Context, request *vmv1alpha1.VirtualMachinePowerStateRequest) (*emptypb.Empty, error) {
-	return &emptypb.Empty{}, business.VirtualMachinePowerState(ctx, request.NamespaceName, request.PowerState)
+	return &emptypb.Empty{}, business.VirtualMachinePowerState(ctx, m.clients, request.NamespaceName, request.PowerState)
 }
 
-func RegisterSerialConsole(router *mux.Router) {
+func RegisterSerialConsole(router *mux.Router, clients clients.Clients) {
 	router.PathPrefix(business.SerialConsoleRequestPathTmpl).HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		vars := mux.Vars(request)
 		namespace, name := vars["namespace"], vars["name"]
 
-		kv := clients.GetClients().GetKubeVirtClient()
+		kv := clients.GetKubeVirtClient()
 
 		parse, err := url.Parse(kv.Config().Host)
 		if err != nil {

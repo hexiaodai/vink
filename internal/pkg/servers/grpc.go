@@ -24,8 +24,7 @@ func NewGRPCServer(listenAddr string, routes route.GRPCRouterRegister) Server {
 	ser := grpcServer{
 		ListenAddr: listenAddr,
 		routes:     routes,
-		// server:     grpc.NewServer(),
-		// TODO enable auth later
+		// TODO: enable auth later
 		server: grpc.NewServer(
 			grpc.ChainUnaryInterceptor(
 				// TODO: use StatsHandler
@@ -34,8 +33,7 @@ func NewGRPCServer(listenAddr string, routes route.GRPCRouterRegister) Server {
 					defer func() {
 						r := recover()
 						if r != nil {
-							fmt.Println(string(debug.Stack()))
-							//log.Errorf("stacktrace from(%s) panic: \n%s", info.FullMethod, string(debug.Stack()))
+							log.Errorf("stacktrace from(%s) panic: \n%s", info.FullMethod, string(debug.Stack()))
 							err = fmt.Errorf("%v", r)
 							resp = nil
 						}
