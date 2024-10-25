@@ -4,30 +4,34 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/kubevm.io/vink/apis/apiextensions/v1alpha1"
+	// "github.com/kubevm.io/vink/apis/apiextensions/v1alpha1"
 	resource_v1alpha1 "github.com/kubevm.io/vink/apis/management/resource/v1alpha1"
 	"github.com/kubevm.io/vink/internal/management/resource/business"
-	pkg_cache "github.com/kubevm.io/vink/internal/pkg/cache"
+	resource_event_listener "github.com/kubevm.io/vink/internal/pkg/resource-event-listener"
+	"github.com/kubevm.io/vink/pkg/clients"
+	"github.com/kubevm.io/vink/pkg/clients/gvr"
+	"github.com/kubevm.io/vink/pkg/informer"
 	"github.com/kubevm.io/vink/pkg/utils"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"k8s.io/apimachinery/pkg/watch"
 )
 
-func NewResourceListWatchManagement(cache pkg_cache.Cache, subscribe pkg_cache.Subscribe) resource_v1alpha1.ResourceListWatchManagementServer {
-	return &resourceListWatchManagement{cache: cache, subscribe: subscribe}
+func NewResourceListWatchManagement(clients clients.Clients, kubeInformerFactory informer.KubeInformerFactory, resourceEventListener resource_event_listener.ResourceEventListener) resource_v1alpha1.ResourceListWatchManagementServer {
+	return &resourceListWatchManagement{clients: clients, kubeInformerFactory: kubeInformerFactory, resourceEventListener: resourceEventListener}
 }
 
 type resourceListWatchManagement struct {
-	cache     pkg_cache.Cache
-	subscribe pkg_cache.Subscribe
+	clients               clients.Clients
+	resourceEventListener resource_event_listener.ResourceEventListener
+	kubeInformerFactory   informer.KubeInformerFactory
 
 	resource_v1alpha1.UnsafeResourceListWatchManagementServer
 }
 
 func (rlw *resourceListWatchManagement) ListWatch(request *resource_v1alpha1.ListWatchRequest, server resource_v1alpha1.ResourceListWatchManagement_ListWatchServer) error {
-	gvr := utils.ConvertGVR(request.GroupVersionResource)
+	gvr := gvr.ResolveGVR(request.GroupVersionResource)
 
-	crds, metadatas, err := business.List(server.Context(), gvr, request.Options)
+	crds, metadatas, err := business.List(server.Context(), rlw.clients, gvr, request.Options)
 	if err != nil {
 		return err
 	}
@@ -43,8 +47,8 @@ func (rlw *resourceListWatchManagement) ListWatch(request *resource_v1alpha1.Lis
 		return nil
 	}
 
-	event := rlw.subscribe.Subscribe(gvr, metadatas)
-	defer rlw.subscribe.Unsubscribe(gvr, event)
+	event := rlw.resourceEventListener.AddSubscription(gvr, metadatas)
+	defer rlw.resourceEventListener.RemoveSubscription(gvr, event)
 
 	for {
 		select {
@@ -60,7 +64,7 @@ func (rlw *resourceListWatchManagement) ListWatch(request *resource_v1alpha1.Lis
 
 			switch e.Type {
 			case watch.Modified:
-				crd, err := utils.ConvertToCustomResourceDefinition(e.Payload)
+				crd, err := clients.InterfaceToJSON(e.Payload)
 				if err != nil {
 					return fmt.Errorf("failed to convert payload to CustomResourceDefinition: %v", err)
 				}
@@ -83,32 +87,48 @@ func (rlw *resourceListWatchManagement) ListWatch(request *resource_v1alpha1.Lis
 	}
 }
 
-func NewResourceManagement() resource_v1alpha1.ResourceManagementServer {
-	return &resourceManagement{}
+func NewResourceManagement(clients clients.Clients) resource_v1alpha1.ResourceManagementServer {
+	return &resourceManagement{
+		clients: clients,
+	}
 }
 
 type resourceManagement struct {
+	clients clients.Clients
+
 	resource_v1alpha1.UnsafeResourceManagementServer
 }
 
-func (r *resourceManagement) Create(ctx context.Context, request *resource_v1alpha1.CreateRequest) (*v1alpha1.CustomResourceDefinition, error) {
-	gvr := utils.ConvertGVR(request.GroupVersionResource)
-	return business.Create(ctx, gvr, request.Data)
+func (r *resourceManagement) Create(ctx context.Context, request *resource_v1alpha1.CreateRequest) (*resource_v1alpha1.CustomResourceDefinitionResponse, error) {
+	gvr := gvr.ResolveGVR(request.GroupVersionResource)
+	crd, err := business.Create(ctx, r.clients, gvr, request.Data)
+	if err != nil {
+		return nil, err
+	}
+	return &resource_v1alpha1.CustomResourceDefinitionResponse{Data: crd}, nil
 }
 
-// Get implements v1alpha1.ResourceManagementServer.
-func (r *resourceManagement) Get(context.Context, *resource_v1alpha1.GetRequest) (*v1alpha1.CustomResourceDefinition, error) {
-	panic("unimplemented")
+func (r *resourceManagement) Get(ctx context.Context, request *resource_v1alpha1.GetRequest) (*resource_v1alpha1.CustomResourceDefinitionResponse, error) {
+	gvr := gvr.ResolveGVR(request.GroupVersionResource)
+	crd, err := business.Get(ctx, r.clients, gvr, request.NamespaceName.Namespace, request.NamespaceName.Name)
+	if err != nil {
+		return nil, err
+	}
+	return &resource_v1alpha1.CustomResourceDefinitionResponse{Data: crd}, nil
 }
 
-// Update implements v1alpha1.ResourceManagementServer.
-func (r *resourceManagement) Update(context.Context, *resource_v1alpha1.UpdateRequest) (*v1alpha1.CustomResourceDefinition, error) {
-	panic("unimplemented")
+func (r *resourceManagement) Update(ctx context.Context, request *resource_v1alpha1.UpdateRequest) (*resource_v1alpha1.CustomResourceDefinitionResponse, error) {
+	gvr := gvr.ResolveGVR(request.GroupVersionResource)
+	crd, err := business.Update(ctx, r.clients, gvr, request.Data)
+	if err != nil {
+		return nil, err
+	}
+	return &resource_v1alpha1.CustomResourceDefinitionResponse{Data: crd}, nil
 }
 
 func (r *resourceManagement) Delete(ctx context.Context, request *resource_v1alpha1.DeleteRequest) (*emptypb.Empty, error) {
-	gvr := utils.ConvertGVR(request.GroupVersionResource)
-	if err := business.Delete(ctx, gvr, request.NamespaceName); err != nil {
+	gvr := gvr.ResolveGVR(request.GroupVersionResource)
+	if err := business.Delete(ctx, r.clients, gvr, request.NamespaceName); err != nil {
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil

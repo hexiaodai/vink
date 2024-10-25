@@ -100,7 +100,35 @@ export enum GroupVersionResourceEnum {
     /**
      * @generated from protobuf enum value: NAMESPACE = 5;
      */
-    NAMESPACE = 5
+    NAMESPACE = 5,
+    /**
+     * @generated from protobuf enum value: MULTUS = 6;
+     */
+    MULTUS = 6,
+    /**
+     * @generated from protobuf enum value: SUBNET = 7;
+     */
+    SUBNET = 7,
+    /**
+     * @generated from protobuf enum value: VPC = 8;
+     */
+    VPC = 8,
+    /**
+     * @generated from protobuf enum value: IPPOOL = 9;
+     */
+    IPPOOL = 9,
+    /**
+     * @generated from protobuf enum value: STORAGE_CLASS = 10;
+     */
+    STORAGE_CLASS = 10,
+    /**
+     * @generated from protobuf enum value: IPS = 11;
+     */
+    IPS = 11,
+    /**
+     * @generated from protobuf enum value: VIRTUAL_MACHINE_INSTANCE_SUMMARY = 12;
+     */
+    VIRTUAL_MACHINE_INSTANCE_SUMMARY = 12
 }
 // @generated message type with reflection information, may provide speed optimized methods
 class GroupVersionResource$Type extends MessageType<GroupVersionResource> {

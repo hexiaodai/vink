@@ -1,15 +1,11 @@
 package route
 
 import (
-	"context"
-
+	"github.com/gorilla/mux"
 	"google.golang.org/grpc/reflection"
-
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"google.golang.org/grpc"
 )
 
 type (
-	HTTPRouterRegister func(ctx context.Context, serveMux *runtime.ServeMux, clientConn *grpc.ClientConn) error
+	HTTPRouterRegister func(r *mux.Router)
 	GRPCRouterRegister func(server reflection.GRPCServer)
 )

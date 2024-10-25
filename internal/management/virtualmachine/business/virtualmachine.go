@@ -13,8 +13,8 @@ const (
 	SerialConsoleRequestPathTmpl = "/apis/vink.io/v1alpha1/namespaces/{namespace}/virtualmachines/{name}/console"
 )
 
-func VirtualMachinePowerState(ctx context.Context, cli clients.Clients, namespaceName *types.NamespaceName, powerState vmv1alpha1.VirtualMachinePowerStateRequest_PowerState) error {
-	vminter := cli.GetKubeVirtClient().VirtualMachine(namespaceName.Namespace)
+func VirtualMachinePowerState(ctx context.Context, clients clients.Clients, namespaceName *types.NamespaceName, powerState vmv1alpha1.VirtualMachinePowerStateRequest_PowerState) error {
+	vminter := clients.GetKubeVirtClient().VirtualMachine(namespaceName.Namespace)
 
 	switch powerState {
 	case vmv1alpha1.VirtualMachinePowerStateRequest_ON:

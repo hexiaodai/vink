@@ -20,6 +20,13 @@ export enum GroupVersionResourceEnum {
   DATA_VOLUME = "DATA_VOLUME",
   NODE = "NODE",
   NAMESPACE = "NAMESPACE",
+  MULTUS = "MULTUS",
+  SUBNET = "SUBNET",
+  VPC = "VPC",
+  IPPOOL = "IPPOOL",
+  STORAGE_CLASS = "STORAGE_CLASS",
+  IPS = "IPS",
+  VIRTUAL_MACHINE_INSTANCE_SUMMARY = "VIRTUAL_MACHINE_INSTANCE_SUMMARY",
 }
 
 export type GroupVersionResource = {
