@@ -1,4 +1,4 @@
-package virtualmachinesummarys
+package summarys
 
 import (
 	"context"
@@ -74,6 +74,7 @@ func (reconciler *NetworkReconciler) Reconcile(ctx context.Context, request ctrl
 
 func (reconciler *NetworkReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
+		Named("summarys_ip").
 		For(&kubeovn.IP{}).
 		Complete(reconciler)
 }

@@ -34,10 +34,6 @@ func main() {
 				return err
 			}
 
-			// if err := clients.InitClients(config.KubeConfig); err != nil {
-			// 	return err
-			// }
-
 			kubeCache := cache.NewKubeCache(clients)
 			if err := kubeCache.Start(ctx); err != nil {
 				return err

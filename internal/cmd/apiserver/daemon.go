@@ -6,7 +6,6 @@ import (
 
 	"github.com/kubevm.io/vink/config"
 
-	ctrlvm "github.com/kubevm.io/vink/internal/controller/virtualmachine"
 	"github.com/kubevm.io/vink/internal/management"
 
 	"github.com/kubevm.io/vink/internal/pkg/cache"
@@ -36,19 +35,16 @@ type Daemon struct {
 }
 
 func (dm *Daemon) Execute(ctx context.Context) error {
+	httpAddress := fmt.Sprintf("%v:%v", dm.config.APIServer.Address, dm.config.APIServer.HTTP)
+	grpcAddress := fmt.Sprintf("%v:%v", dm.config.APIServer.Address, dm.config.APIServer.GRPC)
+
 	resourceEventListener := resource_event_listener.NewResourceEventListener(dm.kubeCache.InformerFactory)
 	go resourceEventListener.StartListening(ctx)
-
-	vmCtl := ctrlvm.New(dm.clients, dm.kubeCache.InformerFactory.VirtualMachine())
-	go vmCtl.Run(ctx)
 
 	register, err := management.RegisterGRPCRoutes(dm.clients, dm.kubeCache.InformerFactory, resourceEventListener)
 	if err != nil {
 		return err
 	}
-
-	httpAddress := fmt.Sprintf("%v:%v", dm.config.APIServer.Address, dm.config.APIServer.HTTP)
-	grpcAddress := fmt.Sprintf("%v:%v", dm.config.APIServer.Address, dm.config.APIServer.GRPC)
 
 	dm.grpcServer = servers.NewGRPCServer(grpcAddress, register)
 	log.Infof("Starting grpc server at: %s", grpcAddress)
