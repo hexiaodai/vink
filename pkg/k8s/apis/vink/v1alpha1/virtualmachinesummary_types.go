@@ -2,7 +2,6 @@ package v1alpha1
 
 import (
 	kubeovn "github.com/kubeovn/kube-ovn/pkg/apis/kubeovn/v1"
-	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	kubevirtcorev1 "kubevirt.io/api/core/v1"
@@ -36,17 +35,10 @@ type VirtualMachineSummary struct {
 }
 
 type VirtualMachineSummaryStatus struct {
-	// VirtualMachine         *kubevirtcorev1.VirtualMachine                        `json:"virtualMachine,omitempty"`
-	// VirtualMachineInstance *kubevirtcorev1.VirtualMachineInstance `json:"virtualMachineInstance,omitempty"`
-	// DataVolumes            []*cdiv1beta1.DataVolume               `json:"dataVolumes,omitempty"`
-	// Network                *VirtualMachineSummaryNetwork          `json:"networks,omitempty"`
-	// Host                   *corev1.Node                           `json:"host,omitempty"`
-
 	VirtualMachine         *VirtualMachine               `json:"virtualMachine,omitempty"`
 	VirtualMachineInstance *VirtualMachineInstance       `json:"virtualMachineInstance,omitempty"`
 	DataVolumes            []*DataVolume                 `json:"dataVolumes,omitempty"`
-	Network                *VirtualMachineSummaryNetwork `json:"networks,omitempty"`
-	Host                   *Node                         `json:"host,omitempty"`
+	Network                *VirtualMachineSummaryNetwork `json:"network,omitempty"`
 }
 
 func VirtualMachineFromKubeVirt(vm *kubevirtcorev1.VirtualMachine) *VirtualMachine {
@@ -71,16 +63,16 @@ func VirtualMachineInstanceFromKubeVirt(vmi *kubevirtcorev1.VirtualMachineInstan
 	copy.ObjectMeta.ManagedFields = nil
 	return &VirtualMachineInstance{
 		ObjectMeta: copy.ObjectMeta,
-		Spec:       &copy.Spec,
-		Status:     &copy.Status,
+		// Spec:       &copy.Spec,
+		Status: &copy.Status,
 	}
 }
 
 type VirtualMachineInstance struct {
 	// +kubebuilder:pruning:PreserveUnknownFields
-	ObjectMeta metav1.ObjectMeta                            `json:"metadata,omitempty"`
-	Spec       *kubevirtcorev1.VirtualMachineInstanceSpec   `json:"spec,omitempty"`
-	Status     *kubevirtcorev1.VirtualMachineInstanceStatus `json:"status,omitempty"`
+	ObjectMeta metav1.ObjectMeta `json:"metadata,omitempty"`
+	// Spec       *kubevirtcorev1.VirtualMachineInstanceSpec   `json:"spec,omitempty"`
+	Status *kubevirtcorev1.VirtualMachineInstanceStatus `json:"status,omitempty"`
 }
 
 func DataVolumeFromKubeVirt(dv *cdiv1beta1.DataVolume) *DataVolume {
@@ -113,23 +105,6 @@ type IP struct {
 	// +kubebuilder:pruning:PreserveUnknownFields
 	ObjectMeta metav1.ObjectMeta `json:"metadata,omitempty"`
 	Spec       *kubeovn.IPSpec   `json:"spec,omitempty"`
-}
-
-func NodeFromKube(node *corev1.Node) *Node {
-	copy := node.DeepCopy()
-	copy.ObjectMeta.ManagedFields = nil
-	return &Node{
-		ObjectMeta: copy.ObjectMeta,
-		Spec:       &copy.Spec,
-		Status:     &copy.Status,
-	}
-}
-
-type Node struct {
-	// +kubebuilder:pruning:PreserveUnknownFields
-	ObjectMeta metav1.ObjectMeta  `json:"metadata,omitempty"`
-	Spec       *corev1.NodeSpec   `json:"spec,omitempty"`
-	Status     *corev1.NodeStatus `json:"status,omitempty"`
 }
 
 type VirtualMachineSummaryNetwork struct {

@@ -6,7 +6,8 @@ import (
 	netv1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
 	kubeovn "github.com/kubeovn/kube-ovn/pkg/apis/kubeovn/v1"
 	"github.com/kubevm.io/vink/config"
-	"github.com/kubevm.io/vink/internal/controller/virtualmachinesummarys"
+	"github.com/kubevm.io/vink/internal/controller"
+	virtualmachinesummarys "github.com/kubevm.io/vink/internal/controller/summarys"
 	"github.com/kubevm.io/vink/pkg/clients"
 	"github.com/kubevm.io/vink/pkg/k8s/apis/vink/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
@@ -82,17 +83,17 @@ func (dm *Daemon) Execute(ctx context.Context) error {
 		return err
 	}
 
-	if err := (&virtualmachinesummarys.HostReconciler{
+	if err := (&virtualmachinesummarys.DataVolumeReconciler{
 		Client: mgr.GetClient(),
 		Cache:  mgr.GetCache(),
 	}).SetupWithManager(mgr); err != nil {
 		return err
 	}
 
-	if err := (&virtualmachinesummarys.DataVolumeReconciler{
+	if err := (&controller.DataVolumeBindingReconciler{
 		Client: mgr.GetClient(),
 		Cache:  mgr.GetCache(),
-	}).SetupWithManager(mgr); err != nil {
+	}).SetupWithManager(mgr, dm.clients.GetKubeVirtClient()); err != nil {
 		return err
 	}
 

@@ -1,4 +1,4 @@
-package virtualmachinesummarys
+package summarys
 
 import (
 	"context"
@@ -83,6 +83,7 @@ func (reconciler *DataVolumeReconciler) Reconcile(ctx context.Context, request c
 
 func (reconciler *DataVolumeReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
+		Named("summarys_datavolume").
 		For(&cdiv1beta1.DataVolume{}).
 		Complete(reconciler)
 }

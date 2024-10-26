@@ -1,4 +1,4 @@
-package virtualmachinesummarys
+package summarys
 
 import (
 	"context"
@@ -11,7 +11,6 @@ import (
 	"github.com/kubevm.io/vink/pkg/k8s/apis/vink/v1alpha1"
 	"github.com/kubevm.io/vink/pkg/log"
 	"github.com/samber/lo"
-	corev1 "k8s.io/api/core/v1"
 	apierr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kubevirtv1 "kubevirt.io/api/core/v1"
@@ -70,6 +69,7 @@ func (reconciler *VirtualMachineReconciler) Reconcile(ctx context.Context, reque
 
 func (reconciler *VirtualMachineReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
+		Named("summarys_virtualmachine").
 		For(&kubevirtv1.VirtualMachine{}).
 		Complete(reconciler)
 }
@@ -175,31 +175,6 @@ func setupSummaryNetwork(ctx context.Context, cli client.Client, vm *kubevirtv1.
 	return nil
 }
 
-func setupSummaryHost(ctx context.Context, cli client.Client, vm *kubevirtv1.VirtualMachine, summary *v1alpha1.VirtualMachineSummary) error {
-	var vmi kubevirtv1.VirtualMachineInstance
-	err := cli.Get(ctx, client.ObjectKey{Namespace: vm.Namespace, Name: vm.Name}, &vmi)
-	if err != nil && !apierr.IsNotFound(err) {
-		return fmt.Errorf("failed to get VirtualMachineInstance: %w", err)
-	}
-	if apierr.IsNotFound(err) {
-		summary.Status.Host = nil
-		return nil
-	}
-
-	var node corev1.Node
-	err = cli.Get(ctx, client.ObjectKey{Name: vmi.Status.NodeName}, &node)
-	if err != nil && !apierr.IsNotFound(err) {
-		return fmt.Errorf("failed to get Node: %w", err)
-	}
-	if apierr.IsNotFound(err) {
-		summary.Status.Host = nil
-	} else {
-		summary.Status.Host = v1alpha1.NodeFromKube(&node)
-	}
-
-	return nil
-}
-
 func generateVirtualMachineSummarySpce(vm *kubevirtv1.VirtualMachine) (*v1alpha1.VirtualMachineSummary, error) {
 	summary := v1alpha1.VirtualMachineSummary{
 		ObjectMeta: metav1.ObjectMeta{
@@ -232,10 +207,6 @@ func updateVirtualMachineSummary(ctx context.Context, cli client.Client, vm *kub
 	}
 
 	if err := setupSummaryNetwork(ctx, cli, vm, summary); err != nil {
-		return err
-	}
-
-	if err := setupSummaryHost(ctx, cli, vm, summary); err != nil {
 		return err
 	}
 

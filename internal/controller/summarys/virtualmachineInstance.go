@@ -1,4 +1,4 @@
-package virtualmachinesummarys
+package summarys
 
 import (
 	"context"
@@ -52,6 +52,7 @@ func (reconciler *VirtualMachineInstanceReconciler) Reconcile(ctx context.Contex
 
 func (reconciler *VirtualMachineInstanceReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
+		Named("summarys_virtualmachineinstance").
 		For(&kubevirtv1.VirtualMachineInstance{}).
 		Complete(reconciler)
 }
