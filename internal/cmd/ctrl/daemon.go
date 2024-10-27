@@ -97,6 +97,13 @@ func (dm *Daemon) Execute(ctx context.Context) error {
 		return err
 	}
 
+	if err := (&controller.HostBindingReconciler{
+		Client: mgr.GetClient(),
+		Cache:  mgr.GetCache(),
+	}).SetupWithManager(mgr); err != nil {
+		return err
+	}
+
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
 		return err
 	}
