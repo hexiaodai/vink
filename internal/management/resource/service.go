@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	// "github.com/kubevm.io/vink/apis/apiextensions/v1alpha1"
 	resource_v1alpha1 "github.com/kubevm.io/vink/apis/management/resource/v1alpha1"
 	"github.com/kubevm.io/vink/internal/management/resource/business"
 	resource_event_listener "github.com/kubevm.io/vink/internal/pkg/resource-event-listener"
@@ -29,7 +28,7 @@ type resourceListWatchManagement struct {
 }
 
 func (rlw *resourceListWatchManagement) ListWatch(request *resource_v1alpha1.ListWatchRequest, server resource_v1alpha1.ResourceListWatchManagement_ListWatchServer) error {
-	gvr := gvr.ResolveGVR(request.GroupVersionResource)
+	gvr := gvr.ResolveGVR(request.ResourceType)
 
 	crds, metadatas, err := business.List(server.Context(), rlw.clients, gvr, request.Options)
 	if err != nil {
@@ -100,7 +99,7 @@ type resourceManagement struct {
 }
 
 func (r *resourceManagement) Create(ctx context.Context, request *resource_v1alpha1.CreateRequest) (*resource_v1alpha1.CustomResourceDefinitionResponse, error) {
-	gvr := gvr.ResolveGVR(request.GroupVersionResource)
+	gvr := gvr.ResolveGVR(request.ResourceType)
 	crd, err := business.Create(ctx, r.clients, gvr, request.Data)
 	if err != nil {
 		return nil, err
@@ -109,7 +108,7 @@ func (r *resourceManagement) Create(ctx context.Context, request *resource_v1alp
 }
 
 func (r *resourceManagement) Get(ctx context.Context, request *resource_v1alpha1.GetRequest) (*resource_v1alpha1.CustomResourceDefinitionResponse, error) {
-	gvr := gvr.ResolveGVR(request.GroupVersionResource)
+	gvr := gvr.ResolveGVR(request.ResourceType)
 	crd, err := business.Get(ctx, r.clients, gvr, request.NamespaceName.Namespace, request.NamespaceName.Name)
 	if err != nil {
 		return nil, err
@@ -118,7 +117,7 @@ func (r *resourceManagement) Get(ctx context.Context, request *resource_v1alpha1
 }
 
 func (r *resourceManagement) Update(ctx context.Context, request *resource_v1alpha1.UpdateRequest) (*resource_v1alpha1.CustomResourceDefinitionResponse, error) {
-	gvr := gvr.ResolveGVR(request.GroupVersionResource)
+	gvr := gvr.ResolveGVR(request.ResourceType)
 	crd, err := business.Update(ctx, r.clients, gvr, request.Data)
 	if err != nil {
 		return nil, err
@@ -127,7 +126,7 @@ func (r *resourceManagement) Update(ctx context.Context, request *resource_v1alp
 }
 
 func (r *resourceManagement) Delete(ctx context.Context, request *resource_v1alpha1.DeleteRequest) (*emptypb.Empty, error) {
-	gvr := gvr.ResolveGVR(request.GroupVersionResource)
+	gvr := gvr.ResolveGVR(request.ResourceType)
 	if err := business.Delete(ctx, r.clients, gvr, request.NamespaceName); err != nil {
 		return nil, err
 	}
