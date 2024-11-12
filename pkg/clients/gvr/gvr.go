@@ -101,40 +101,32 @@ func From[T any](o T) schema.GroupVersionResource {
 	return schema.GroupVersionResource{}
 }
 
-func ResolveGVR(gvri *types.GroupVersionResourceIdentifier) schema.GroupVersionResource {
-	switch gvri.GetEnum() {
-	case types.GroupVersionResourceEnum_VIRTUAL_MACHINE:
+func ResolveGVR(rt types.ResourceType) schema.GroupVersionResource {
+	switch rt {
+	case types.ResourceType_VIRTUAL_MACHINE:
 		return From(virtv1.VirtualMachine{})
-	case types.GroupVersionResourceEnum_VIRTUAL_MACHINE_INSTANCE:
+	case types.ResourceType_VIRTUAL_MACHINE_INSTANCE:
 		return From(virtv1.VirtualMachineInstance{})
-	case types.GroupVersionResourceEnum_DATA_VOLUME:
+	case types.ResourceType_DATA_VOLUME:
 		return From(cdiv1beta1.DataVolume{})
-	case types.GroupVersionResourceEnum_NODE:
+	case types.ResourceType_NODE:
 		return From(corev1.Node{})
-	case types.GroupVersionResourceEnum_NAMESPACE:
+	case types.ResourceType_NAMESPACE:
 		return From(corev1.Namespace{})
-	case types.GroupVersionResourceEnum_MULTUS:
+	case types.ResourceType_MULTUS:
 		return From(netv1.NetworkAttachmentDefinition{})
-	case types.GroupVersionResourceEnum_SUBNET:
+	case types.ResourceType_SUBNET:
 		return From(kubeovn.Subnet{})
-	case types.GroupVersionResourceEnum_VPC:
+	case types.ResourceType_VPC:
 		return From(kubeovn.Vpc{})
-	case types.GroupVersionResourceEnum_IPPOOL:
+	case types.ResourceType_IPPOOL:
 		return From(kubeovn.IPPool{})
-	case types.GroupVersionResourceEnum_STORAGE_CLASS:
+	case types.ResourceType_STORAGE_CLASS:
 		return From(storagev1.StorageClass{})
-	case types.GroupVersionResourceEnum_IPS:
+	case types.ResourceType_IPS:
 		return From(kubeovn.IP{})
-	case types.GroupVersionResourceEnum_VIRTUAL_MACHINE_INSTANCE_SUMMARY:
+	case types.ResourceType_VIRTUAL_MACHINE_SUMMARY:
 		return From(v1alpha1.VirtualMachineSummary{})
-	}
-
-	if custom := gvri.GetCustom(); custom != nil {
-		return schema.GroupVersionResource{
-			Group:    custom.Group,
-			Version:  custom.Version,
-			Resource: custom.Resource,
-		}
 	}
 
 	return schema.GroupVersionResource{}

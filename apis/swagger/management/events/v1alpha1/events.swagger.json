@@ -1,12 +1,12 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "management/resource/v1alpha1/resource.proto",
+    "title": "management/events/v1alpha1/events.proto",
     "version": "version not set"
   },
   "tags": [
     {
-      "name": "ResourceManagement"
+      "name": "EventsManagement"
     }
   ],
   "consumes": [
@@ -45,37 +45,7 @@
         }
       }
     },
-    "typesNamespaceName": {
-      "type": "object",
-      "properties": {
-        "namespace": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        }
-      }
-    },
-    "typesResourceType": {
-      "type": "string",
-      "enum": [
-        "UNSPECIFIED",
-        "VIRTUAL_MACHINE",
-        "VIRTUAL_MACHINE_INSTANCE",
-        "DATA_VOLUME",
-        "NODE",
-        "NAMESPACE",
-        "MULTUS",
-        "SUBNET",
-        "VPC",
-        "IPPOOL",
-        "STORAGE_CLASS",
-        "IPS",
-        "VIRTUAL_MACHINE_SUMMARY"
-      ],
-      "default": "UNSPECIFIED"
-    },
-    "v1alpha1CustomResourceDefinitionResponse": {
+    "v1alpha1Events": {
       "type": "object",
       "properties": {
         "data": {
