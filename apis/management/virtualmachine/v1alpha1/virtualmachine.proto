@@ -3,10 +3,7 @@ syntax = "proto3";
 package vink.kubevm.io.apis.management.virtualmachine.v1alpha1;
 
 import "google/protobuf/empty.proto";
-import "types/group_version.proto";
-import "types/field_selector.proto";
 import "types/namespace_name.proto";
-import "apiextensions/v1alpha1/custom_resource_definition.proto";
 
 option go_package = "github.com/kubevm.io/vink/apis/management/virtualmachine/v1alpha1";
 

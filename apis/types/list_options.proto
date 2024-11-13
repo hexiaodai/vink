@@ -17,8 +17,6 @@ message ListOptions {
 	string field_selector = 2;
     int32 limit = 3 [(validate.rules).int32.gte = 0];
     string continue = 4;
-    // repeated NamespaceName namespace_names = 5;
-    // repeated string custom_field_selector = 6;
     string namespace = 5;
     bool watch = 6;
     CustomSelector custom_selector = 7;

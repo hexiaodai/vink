@@ -6,6 +6,6 @@ import (
 )
 
 var (
-	GroupVersionMarshaler   = &jsonpb.Marshaler{}
-	GroupVersionUnmarshaler = &jsonpb.Unmarshaler{AllowUnknownFields: true}
+	ResourceTypeMarshaler   = &jsonpb.Marshaler{}
+	ResourceTypeUnmarshaler = &jsonpb.Unmarshaler{AllowUnknownFields: true}
 )

@@ -13,11 +13,11 @@ import type { PartialMessage } from "@protobuf-ts/runtime";
 import { reflectionMergePartial } from "@protobuf-ts/runtime";
 import { MessageType } from "@protobuf-ts/runtime";
 import { NamespaceName } from "../../../types/namespace_name";
-import { ResourceType } from "../../../types/group_version";
+import { ResourceType } from "../../../types/resource_type";
 /**
- * @generated from protobuf message vink.kubevm.io.apis.management.resource.v1alpha1.CustomResourceDefinitionResponse
+ * @generated from protobuf message vink.kubevm.io.apis.management.resource.v1alpha1.Resource
  */
-export interface CustomResourceDefinitionResponse {
+export interface Resource {
     /**
      * @generated from protobuf field: string data = 1;
      */
@@ -47,8 +47,7 @@ export interface CreateRequest {
     /**
      * @generated from protobuf field: string data = 2;
      */
-    data: string; // google.protobuf.Struct crd = 2;
-    // vink.kubevm.io.apis.apiextensions.v1alpha1.CustomResourceDefinition crd = 2;
+    data: string;
 }
 /**
  * @generated from protobuf message vink.kubevm.io.apis.management.resource.v1alpha1.UpdateRequest
@@ -77,20 +76,20 @@ export interface DeleteRequest {
     namespaceName?: NamespaceName;
 }
 // @generated message type with reflection information, may provide speed optimized methods
-class CustomResourceDefinitionResponse$Type extends MessageType<CustomResourceDefinitionResponse> {
+class Resource$Type extends MessageType<Resource> {
     constructor() {
-        super("vink.kubevm.io.apis.management.resource.v1alpha1.CustomResourceDefinitionResponse", [
+        super("vink.kubevm.io.apis.management.resource.v1alpha1.Resource", [
             { no: 1, name: "data", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
         ]);
     }
-    create(value?: PartialMessage<CustomResourceDefinitionResponse>): CustomResourceDefinitionResponse {
+    create(value?: PartialMessage<Resource>): Resource {
         const message = globalThis.Object.create((this.messagePrototype!));
         message.data = "";
         if (value !== undefined)
-            reflectionMergePartial<CustomResourceDefinitionResponse>(this, message, value);
+            reflectionMergePartial<Resource>(this, message, value);
         return message;
     }
-    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: CustomResourceDefinitionResponse): CustomResourceDefinitionResponse {
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: Resource): Resource {
         let message = target ?? this.create(), end = reader.pos + length;
         while (reader.pos < end) {
             let [fieldNo, wireType] = reader.tag();
@@ -109,7 +108,7 @@ class CustomResourceDefinitionResponse$Type extends MessageType<CustomResourceDe
         }
         return message;
     }
-    internalBinaryWrite(message: CustomResourceDefinitionResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+    internalBinaryWrite(message: Resource, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
         /* string data = 1; */
         if (message.data !== "")
             writer.tag(1, WireType.LengthDelimited).string(message.data);
@@ -120,9 +119,9 @@ class CustomResourceDefinitionResponse$Type extends MessageType<CustomResourceDe
     }
 }
 /**
- * @generated MessageType for protobuf message vink.kubevm.io.apis.management.resource.v1alpha1.CustomResourceDefinitionResponse
+ * @generated MessageType for protobuf message vink.kubevm.io.apis.management.resource.v1alpha1.Resource
  */
-export const CustomResourceDefinitionResponse = new CustomResourceDefinitionResponse$Type();
+export const Resource = new Resource$Type();
 // @generated message type with reflection information, may provide speed optimized methods
 class GetRequest$Type extends MessageType<GetRequest> {
     constructor() {
@@ -345,8 +344,8 @@ export const DeleteRequest = new DeleteRequest$Type();
  * @generated ServiceType for protobuf service vink.kubevm.io.apis.management.resource.v1alpha1.ResourceManagement
  */
 export const ResourceManagement = new ServiceType("vink.kubevm.io.apis.management.resource.v1alpha1.ResourceManagement", [
-    { name: "Get", options: {}, I: GetRequest, O: CustomResourceDefinitionResponse },
-    { name: "Create", options: {}, I: CreateRequest, O: CustomResourceDefinitionResponse },
-    { name: "Update", options: {}, I: UpdateRequest, O: CustomResourceDefinitionResponse },
+    { name: "Get", options: {}, I: GetRequest, O: Resource },
+    { name: "Create", options: {}, I: CreateRequest, O: Resource },
+    { name: "Update", options: {}, I: UpdateRequest, O: Resource },
     { name: "Delete", options: {}, I: DeleteRequest, O: Empty }
 ]);

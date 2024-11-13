@@ -6,24 +6,23 @@ grpc.generate: grpc.clean
 	@$(LOG_TARGET)
 	buf generate --timeout 10m -v \
 	--path types/ \
-	--path apiextensions/ \
 	--path management/
 
-	@for d in types/ apiextensions/ management/; do \
+	@for d in types/ management/; do \
 		for f in $$(find $$d -name "*.proto"); do \
 			protoc --validate_out="paths=source_relative,lang=go:." \
 			$$f; \
 		done \
 	done
 
-	@for d in types/ apiextensions/ management/; do \
+	@for d in types/ management/; do \
 		for f in $$(find $$d -name "*.proto"); do \
-			npx protoc --ts_out . \
+			npx protoc --ts_out $(ROOT_DIR)/sdks/ts \
 			$$f; \
 		done \
 	done
 
-PATTERNS := .validate.go _deepcopy.gen.go .gen.json gr.gen.go .pb.go _json.gen.go .pb.gw.go .swagger.json .deepcopy.go
+PATTERNS := .validate.go _deepcopy.gen.go _grpc.pb.go .gen.json gr.gen.go .pb.go _json.gen.go .pb.gw.go .swagger.json .deepcopy.go
 
 .PHONY: grpc.clean
 grpc.clean: ## Clean generated code.
@@ -55,31 +54,3 @@ grpc.release.ts-sdk: ## Release the js sdk.
 .PHONY: grpc.release
 grpc.release: ## Release the grpc code.
 grpc.release: grpc.release.ts-sdk
-
-
-	# @for d in common/ management/; do \
-	# 	for f in $$(find $$d -name "*.proto"); do \
-	# 		protoc --validate_out="paths=source_relative,lang=go:." \
-	# 		--grpc-web_out="import_style=typescript,mode=grpcwebtext:." \
-	# 		$$f; \
-	# 	done \
-	# done
-
-
-	# @for d in common/ management/; do \
-	# 	for f in $$(find $$d -name "*.proto"); do \
-	# 		protoc --validate_out="paths=source_relative,lang=go:." \
-	# 		--js_out="import_style=commonjs,binary:./test" \
-	# 		--grpc-web_out="import_style=typescript,mode=grpcwebtext:./test" \
-	# 		$$f; \
-	# 	done \
-	# done
-
-	# @for d in common/ management/; do \
-	# 	for f in $$(find $$d -name "*.proto"); do \
-	# 		npx protoc --validate_out="paths=source_relative,lang=go:." \
-	# 		--ts_out ./test \
-	# 		--grpc-web_out="import_style=typescript,mode=grpcwebtext:./test" \
-	# 		$$f; \
-	# 	done \
-	# done
