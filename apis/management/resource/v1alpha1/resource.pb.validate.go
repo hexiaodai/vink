@@ -39,23 +39,22 @@ var (
 	_ = types.ResourceType(0)
 )
 
-// Validate checks the field values on CustomResourceDefinitionResponse with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the first error encountered is returned, or nil if there are
-// no violations.
-func (m *CustomResourceDefinitionResponse) Validate() error {
+// Validate checks the field values on Resource with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *Resource) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on CustomResourceDefinitionResponse with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the result is a list of violation errors wrapped in
-// CustomResourceDefinitionResponseMultiError, or nil if none found.
-func (m *CustomResourceDefinitionResponse) ValidateAll() error {
+// ValidateAll checks the field values on Resource with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in ResourceMultiError, or nil
+// if none found.
+func (m *Resource) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *CustomResourceDefinitionResponse) validate(all bool) error {
+func (m *Resource) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -65,20 +64,18 @@ func (m *CustomResourceDefinitionResponse) validate(all bool) error {
 	// no validation rules for Data
 
 	if len(errors) > 0 {
-		return CustomResourceDefinitionResponseMultiError(errors)
+		return ResourceMultiError(errors)
 	}
 
 	return nil
 }
 
-// CustomResourceDefinitionResponseMultiError is an error wrapping multiple
-// validation errors returned by
-// CustomResourceDefinitionResponse.ValidateAll() if the designated
-// constraints aren't met.
-type CustomResourceDefinitionResponseMultiError []error
+// ResourceMultiError is an error wrapping multiple validation errors returned
+// by Resource.ValidateAll() if the designated constraints aren't met.
+type ResourceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m CustomResourceDefinitionResponseMultiError) Error() string {
+func (m ResourceMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -87,12 +84,11 @@ func (m CustomResourceDefinitionResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m CustomResourceDefinitionResponseMultiError) AllErrors() []error { return m }
+func (m ResourceMultiError) AllErrors() []error { return m }
 
-// CustomResourceDefinitionResponseValidationError is the validation error
-// returned by CustomResourceDefinitionResponse.Validate if the designated
-// constraints aren't met.
-type CustomResourceDefinitionResponseValidationError struct {
+// ResourceValidationError is the validation error returned by
+// Resource.Validate if the designated constraints aren't met.
+type ResourceValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -100,24 +96,22 @@ type CustomResourceDefinitionResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e CustomResourceDefinitionResponseValidationError) Field() string { return e.field }
+func (e ResourceValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e CustomResourceDefinitionResponseValidationError) Reason() string { return e.reason }
+func (e ResourceValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e CustomResourceDefinitionResponseValidationError) Cause() error { return e.cause }
+func (e ResourceValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e CustomResourceDefinitionResponseValidationError) Key() bool { return e.key }
+func (e ResourceValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e CustomResourceDefinitionResponseValidationError) ErrorName() string {
-	return "CustomResourceDefinitionResponseValidationError"
-}
+func (e ResourceValidationError) ErrorName() string { return "ResourceValidationError" }
 
 // Error satisfies the builtin error interface
-func (e CustomResourceDefinitionResponseValidationError) Error() string {
+func (e ResourceValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -129,14 +123,14 @@ func (e CustomResourceDefinitionResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sCustomResourceDefinitionResponse.%s: %s%s",
+		"invalid %sResource.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = CustomResourceDefinitionResponseValidationError{}
+var _ error = ResourceValidationError{}
 
 var _ interface {
 	Field() string
@@ -144,7 +138,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = CustomResourceDefinitionResponseValidationError{}
+} = ResourceValidationError{}
 
 // Validate checks the field values on GetRequest with the rules defined in the
 // proto definition for this message. If any rules are violated, the first

@@ -6,14 +6,14 @@ import (
 	jsonpb "github.com/golang/protobuf/jsonpb"
 )
 
-// MarshalJSON is a custom marshaler for CustomResourceDefinitionResponse
-func (this *CustomResourceDefinitionResponse) MarshalJSON() ([]byte, error) {
+// MarshalJSON is a custom marshaler for Resource
+func (this *Resource) MarshalJSON() ([]byte, error) {
 	str, err := ResourceMarshaler.MarshalToString(this)
 	return []byte(str), err
 }
 
-// UnmarshalJSON is a custom unmarshaler for CustomResourceDefinitionResponse
-func (this *CustomResourceDefinitionResponse) UnmarshalJSON(b []byte) error {
+// UnmarshalJSON is a custom unmarshaler for Resource
+func (this *Resource) UnmarshalJSON(b []byte) error {
 	return ResourceUnmarshaler.Unmarshal(bytes.NewReader(b), this)
 }
 

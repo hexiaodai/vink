@@ -13,7 +13,7 @@ import { reflectionMergePartial } from "@protobuf-ts/runtime";
 import { MessageType } from "@protobuf-ts/runtime";
 import { NamespaceName } from "../../../types/namespace_name";
 import { ListOptions } from "../../../types/list_options";
-import { ResourceType } from "../../../types/group_version";
+import { ResourceType } from "../../../types/resource_type";
 /**
  * @generated from protobuf message vink.kubevm.io.apis.management.resource.v1alpha1.ListWatchRequest
  */
@@ -36,8 +36,6 @@ export interface ListWatchResponse {
      */
     eventType: EventType;
     /**
-     * repeated vink.kubevm.io.apis.apiextensions.v1alpha1.CustomResourceDefinition items = 2;
-     *
      * @generated from protobuf field: repeated string items = 2;
      */
     items: string[];

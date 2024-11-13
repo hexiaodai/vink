@@ -81,12 +81,10 @@ type ListOptions struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	LabelSelector string `protobuf:"bytes,1,opt,name=label_selector,json=labelSelector,proto3" json:"label_selector,omitempty"`
-	FieldSelector string `protobuf:"bytes,2,opt,name=field_selector,json=fieldSelector,proto3" json:"field_selector,omitempty"`
-	Limit         int32  `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
-	Continue      string `protobuf:"bytes,4,opt,name=continue,proto3" json:"continue,omitempty"`
-	// repeated NamespaceName namespace_names = 5;
-	// repeated string custom_field_selector = 6;
+	LabelSelector  string          `protobuf:"bytes,1,opt,name=label_selector,json=labelSelector,proto3" json:"label_selector,omitempty"`
+	FieldSelector  string          `protobuf:"bytes,2,opt,name=field_selector,json=fieldSelector,proto3" json:"field_selector,omitempty"`
+	Limit          int32           `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
+	Continue       string          `protobuf:"bytes,4,opt,name=continue,proto3" json:"continue,omitempty"`
 	Namespace      string          `protobuf:"bytes,5,opt,name=namespace,proto3" json:"namespace,omitempty"`
 	Watch          bool            `protobuf:"varint,6,opt,name=watch,proto3" json:"watch,omitempty"`
 	CustomSelector *CustomSelector `protobuf:"bytes,7,opt,name=custom_selector,json=customSelector,proto3" json:"custom_selector,omitempty"`

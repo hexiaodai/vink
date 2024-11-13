@@ -45,9 +45,6 @@ export interface ListOptions {
      */
     continue: string;
     /**
-     * repeated NamespaceName namespace_names = 5;
-     * repeated string custom_field_selector = 6;
-     *
      * @generated from protobuf field: string namespace = 5;
      */
     namespace: string;
