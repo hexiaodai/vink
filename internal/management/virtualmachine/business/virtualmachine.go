@@ -13,20 +13,20 @@ const (
 	SerialConsoleRequestPathTmpl = "/apis/vink.io/v1alpha1/namespaces/{namespace}/virtualmachines/{name}/console"
 )
 
-func VirtualMachinePowerState(ctx context.Context, clients clients.Clients, namespaceName *types.NamespaceName, powerState vmv1alpha1.VirtualMachinePowerStateRequest_PowerState) error {
-	vminter := clients.GetKubeVirtClient().VirtualMachine(namespaceName.Namespace)
+func VirtualMachinePowerState(ctx context.Context, namespaceName *types.NamespaceName, powerState vmv1alpha1.VirtualMachinePowerStateRequest_PowerState) error {
+	cli := clients.Instance.VirtualMachine(namespaceName.Namespace)
 
 	switch powerState {
 	case vmv1alpha1.VirtualMachinePowerStateRequest_ON:
-		return vminter.Start(ctx, namespaceName.Name, &virtv1.StartOptions{})
+		return cli.Start(ctx, namespaceName.Name, &virtv1.StartOptions{})
 	case vmv1alpha1.VirtualMachinePowerStateRequest_OFF:
-		return vminter.Stop(ctx, namespaceName.Name, &virtv1.StopOptions{})
+		return cli.Stop(ctx, namespaceName.Name, &virtv1.StopOptions{})
 	case vmv1alpha1.VirtualMachinePowerStateRequest_REBOOT:
-		return vminter.Restart(ctx, namespaceName.Name, &virtv1.RestartOptions{})
+		return cli.Restart(ctx, namespaceName.Name, &virtv1.RestartOptions{})
 	case vmv1alpha1.VirtualMachinePowerStateRequest_FORCE_OFF:
-		return vminter.ForceStop(ctx, namespaceName.Name, &virtv1.StopOptions{})
+		return cli.ForceStop(ctx, namespaceName.Name, &virtv1.StopOptions{})
 	case vmv1alpha1.VirtualMachinePowerStateRequest_FORCE_REBOOT:
-		return vminter.ForceRestart(ctx, namespaceName.Name, &virtv1.RestartOptions{})
+		return cli.ForceRestart(ctx, namespaceName.Name, &virtv1.RestartOptions{})
 	}
 
 	return nil

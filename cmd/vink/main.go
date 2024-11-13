@@ -4,7 +4,6 @@ import (
 	"github.com/kubevm.io/vink/config"
 	"github.com/kubevm.io/vink/internal/cmd/apiserver"
 	cmdctl "github.com/kubevm.io/vink/internal/cmd/ctrl"
-	"github.com/kubevm.io/vink/internal/pkg/cache"
 	"github.com/kubevm.io/vink/pkg/clients"
 	"github.com/kubevm.io/vink/pkg/log"
 	"github.com/spf13/cobra"
@@ -21,32 +20,25 @@ func main() {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := ctrl.SetupSignalHandler()
 
-			config, err := config.ParseConfigFromFile(configFile)
-			if err != nil {
+			if err := config.ParseConfigFromFile(configFile); err != nil {
 				return err
 			}
-			if config.Debug {
+			if config.Instance.Debug {
 				log.SetDebug()
 			}
 
-			clients, err := clients.NewClients(config.KubeConfig)
-			if err != nil {
+			if err := clients.InitClients(); err != nil {
 				return err
 			}
 
-			kubeCache := cache.NewKubeCache(clients)
-			if err := kubeCache.Start(ctx); err != nil {
-				return err
-			}
-
-			ctrl := cmdctl.New(config, clients)
+			ctrl := cmdctl.New()
 			go func() {
 				if err := ctrl.Execute(ctx); err != nil {
 					panic(err)
 				}
 			}()
 
-			apiserver := apiserver.New(config, clients, kubeCache)
+			apiserver := apiserver.New()
 			go func() {
 				if err := apiserver.Execute(ctx); err != nil {
 					panic(err)
@@ -54,10 +46,10 @@ func main() {
 			}()
 
 			<-ctx.Done()
-			if err := ctrl.Stop(); err != nil {
+			if err := ctrl.Shutdown(); err != nil {
 				log.Error(err)
 			}
-			if err := apiserver.Stop(); err != nil {
+			if err := apiserver.Shutdown(); err != nil {
 				log.Error(err)
 			}
 

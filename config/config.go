@@ -7,37 +7,36 @@ import (
 	"github.com/spf13/viper"
 )
 
-type Configuration struct {
-	Debug      bool      `json:"debug"`
-	APIServer  APIServer `json:"apiserver"`
-	KubeConfig string    `json:"kubeConfig"`
+var Instance = &Config{}
+
+type Config struct {
+	Debug     bool      `json:"debug"`
+	APIServer APIServer `json:"apiserver"`
 }
 
 type APIServer struct {
-	Address string `json:"address"`
-	GRPC    string `json:"grpc"`
-	HTTP    string `json:"http"`
+	GRPC string `json:"grpc"`
+	HTTP string `json:"http"`
 }
 
-func ParseConfigFromFile(configPath string) (*Configuration, error) {
-	cfg := &Configuration{}
+func ParseConfigFromFile(configPath string) error {
 	viper.SetConfigType("yaml")
 	viper.SetConfigFile(configPath)
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	if err := viper.ReadInConfig(); err != nil {
-		return nil, err
+		return err
 	}
-	err := viper.Unmarshal(cfg, func(c *mapstructure.DecoderConfig) {
+	err := viper.Unmarshal(Instance, func(c *mapstructure.DecoderConfig) {
 		c.TagName = "json"
 	})
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if err := validate(); err != nil {
-		return nil, err
+		return err
 	}
-	return cfg, nil
+	return nil
 }
 
 func validate() error {

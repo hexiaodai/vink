@@ -5,46 +5,43 @@ import (
 	"fmt"
 
 	"github.com/kubevm.io/vink/config"
-
 	"github.com/kubevm.io/vink/internal/management"
 
-	"github.com/kubevm.io/vink/internal/pkg/cache"
-	resource_event_listener "github.com/kubevm.io/vink/internal/pkg/resource-event-listener"
 	"github.com/kubevm.io/vink/internal/pkg/servers"
-	"github.com/kubevm.io/vink/pkg/clients"
 
+	"github.com/kubevm.io/vink/pkg/informer"
 	"github.com/kubevm.io/vink/pkg/log"
 )
 
-func New(config *config.Configuration, clients clients.Clients, kubeCache *cache.KubeCache) *Daemon {
-	return &Daemon{
-		config:    config,
-		clients:   clients,
-		kubeCache: kubeCache,
-	}
+func New() *Daemon {
+	return &Daemon{}
 }
 
 type Daemon struct {
-	config    *config.Configuration
-	clients   clients.Clients
-	kubeCache *cache.KubeCache
+	informerFactory informer.KubeInformerFactory
 
 	grpcServer servers.Server
-
 	httpServer servers.Server
 }
 
 func (dm *Daemon) Execute(ctx context.Context) error {
-	httpAddress := fmt.Sprintf("%v:%v", dm.config.APIServer.Address, dm.config.APIServer.HTTP)
-	grpcAddress := fmt.Sprintf("%v:%v", dm.config.APIServer.Address, dm.config.APIServer.GRPC)
+	dm.informerFactory = informer.NewKubeInformerFactory()
+	_ = dm.informerFactory.VirtualMachine()
+	_ = dm.informerFactory.VirtualMachineInstances()
+	_ = dm.informerFactory.DataVolume()
+	_ = dm.informerFactory.VirtualMachineSummary()
+	_ = dm.informerFactory.Subnet()
 
-	resourceEventListener := resource_event_listener.NewResourceEventListener(dm.kubeCache.InformerFactory)
-	go resourceEventListener.StartListening(ctx)
+	dm.informerFactory.Start(ctx.Done())
+	dm.informerFactory.WaitForCacheSync(ctx.Done())
 
-	register, err := management.RegisterGRPCRoutes(dm.clients, dm.kubeCache.InformerFactory, resourceEventListener)
+	register, err := management.RegisterGRPCRoutes(dm.informerFactory)
 	if err != nil {
 		return err
 	}
+
+	httpAddress := fmt.Sprintf(":%v", config.Instance.APIServer.HTTP)
+	grpcAddress := fmt.Sprintf(":%v", config.Instance.APIServer.GRPC)
 
 	dm.grpcServer = servers.NewGRPCServer(grpcAddress, register)
 	log.Infof("Starting grpc server at: %s", grpcAddress)
@@ -55,14 +52,13 @@ func (dm *Daemon) Execute(ctx context.Context) error {
 		}
 	}()
 
-	httpRegister, err := management.RegisterHTTPRoutes(dm.clients)
-
+	httpRegister, err := management.RegisterHTTPRoutes()
 	dm.httpServer = servers.NewHTTPServer("apiserver", httpAddress, httpRegister)
 	log.Infof("Starting http server at: %s", httpAddress)
 	return dm.httpServer.Run()
 }
 
-func (dm *Daemon) Stop() error {
+func (dm *Daemon) Shutdown() error {
 	if err := dm.grpcServer.Stop(); err != nil {
 		log.Errorf("failed to stop grpc server: %v", err)
 	}

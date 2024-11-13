@@ -5,7 +5,6 @@ import (
 
 	netv1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
 	kubeovn "github.com/kubeovn/kube-ovn/pkg/apis/kubeovn/v1"
-	"github.com/kubevm.io/vink/config"
 	"github.com/kubevm.io/vink/internal/controller"
 	virtualmachinesummarys "github.com/kubevm.io/vink/internal/controller/summarys"
 	"github.com/kubevm.io/vink/pkg/clients"
@@ -32,24 +31,18 @@ func init() {
 	uruntime.Must(netv1.AddToScheme(scheme))
 }
 
-func New(config *config.Configuration, clients clients.Clients) *Daemon {
-	return &Daemon{
-		config:  config,
-		clients: clients,
-	}
+func New() *Daemon {
+	return &Daemon{}
 }
 
-type Daemon struct {
-	config  *config.Configuration
-	clients clients.Clients
-}
+type Daemon struct{}
 
 func (dm *Daemon) Execute(ctx context.Context) error {
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&zap.Options{
 		Development: true,
 	})))
 
-	mgr, err := ctrl.NewManager(dm.clients.GetKubeConfig(), ctrl.Options{
+	mgr, err := ctrl.NewManager(clients.Instance.Config(), ctrl.Options{
 		Scheme:                  scheme,
 		LeaderElectionID:        "vink.kubevm.io/ctrl",
 		LeaderElectionNamespace: "vink",
@@ -93,7 +86,7 @@ func (dm *Daemon) Execute(ctx context.Context) error {
 	if err := (&controller.DataVolumeBindingReconciler{
 		Client: mgr.GetClient(),
 		Cache:  mgr.GetCache(),
-	}).SetupWithManager(mgr, dm.clients.GetKubeVirtClient()); err != nil {
+	}).SetupWithManager(mgr); err != nil {
 		return err
 	}
 
@@ -114,6 +107,6 @@ func (dm *Daemon) Execute(ctx context.Context) error {
 	return mgr.Start(ctx)
 }
 
-func (dm *Daemon) Stop() error {
+func (dm *Daemon) Shutdown() error {
 	return nil
 }

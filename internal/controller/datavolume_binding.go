@@ -6,13 +6,13 @@ import (
 	"fmt"
 
 	"github.com/kubevm.io/vink/apis/annotation"
+	"github.com/kubevm.io/vink/pkg/clients"
 	"github.com/samber/lo"
 	apierr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/util/retry"
 	kubevirtv1 "kubevirt.io/api/core/v1"
-	"kubevirt.io/client-go/kubecli"
 	cdiv1beta1 "kubevirt.io/containerized-data-importer-api/pkg/apis/core/v1beta1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
@@ -114,9 +114,9 @@ func (reconciler *DataVolumeBindingReconciler) Reconcile(ctx context.Context, re
 	return ctrl.Result{}, nil
 }
 
-func (reconciler *DataVolumeBindingReconciler) SetupWithManager(mgr ctrl.Manager, cli kubecli.KubevirtClient) error {
+func (reconciler *DataVolumeBindingReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	err := retry.RetryOnConflict(retry.DefaultBackoff, func() error {
-		return syncAllVirtualMachineBindings(cli)
+		return syncAllVirtualMachineBindings()
 	})
 	if err != nil {
 		return err
@@ -128,15 +128,15 @@ func (reconciler *DataVolumeBindingReconciler) SetupWithManager(mgr ctrl.Manager
 		Complete(reconciler)
 }
 
-func syncAllVirtualMachineBindings(cli kubecli.KubevirtClient) error {
+func syncAllVirtualMachineBindings() error {
 	ctx := context.TODO()
 
-	dvList, err := cli.CdiClient().CdiV1beta1().DataVolumes(metav1.NamespaceAll).List(ctx, metav1.ListOptions{})
+	dvList, err := clients.Instance.CdiClient().CdiV1beta1().DataVolumes(metav1.NamespaceAll).List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
 
-	vmList, err := cli.VirtualMachine(metav1.NamespaceAll).List(ctx, metav1.ListOptions{})
+	vmList, err := clients.Instance.VirtualMachine(metav1.NamespaceAll).List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
@@ -178,7 +178,7 @@ func syncAllVirtualMachineBindings(cli kubecli.KubevirtClient) error {
 			dv.Annotations = make(map[string]string)
 		}
 		dv.Annotations[annotation.VinkVirtualmachineBinding.Name] = string(value)
-		if _, err := cli.CdiClient().CdiV1beta1().DataVolumes(dv.Namespace).Update(ctx, &dv, metav1.UpdateOptions{}); err != nil {
+		if _, err := clients.Instance.CdiClient().CdiV1beta1().DataVolumes(dv.Namespace).Update(ctx, &dv, metav1.UpdateOptions{}); err != nil {
 			return err
 		}
 	}
