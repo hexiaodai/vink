@@ -64,6 +64,10 @@ func newArbitraryFieldSelector(selector string) (*arbitraryFieldSelector, error)
 		operator = "!="
 	case strings.Contains(selector, "^="):
 		operator = "^="
+	case strings.Contains(selector, "$="):
+		operator = "$="
+	case strings.Contains(selector, "*="):
+		operator = "*="
 	case strings.Contains(selector, "="):
 		operator = "="
 	default:
@@ -95,6 +99,10 @@ func (fs *arbitraryFieldSelector) matches(item *unstructured.Unstructured) (bool
 		return actualValue != fs.ExpectedValue, nil
 	case "^=":
 		return strings.HasPrefix(actualValue, fs.ExpectedValue), nil
+	case "$=":
+		return strings.HasSuffix(actualValue, fs.ExpectedValue), nil
+	case "*=":
+		return strings.Contains(actualValue, fs.ExpectedValue), nil
 	default:
 		return false, errors.New("unsupported operator")
 	}
