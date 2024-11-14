@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package vink.kubevm.io.apis.management.resource.v1alpha1;
+
+import "google/protobuf/empty.proto";
+import "types/types.proto";
+import "validate/validate.proto";
+
+option go_package = "github.com/kubevm.io/vink/apis/management/resource/v1alpha1";
+
+service ResourceManagement {
+    rpc Get(GetRequest) returns (Resource);
+    rpc List(ListRequest) returns (ListResponse);
+    rpc Create(CreateRequest) returns (Resource);
+    rpc Update(UpdateRequest) returns (Resource);
+    rpc Delete(DeleteRequest) returns (google.protobuf.Empty);
+}
+
+message Resource {
+    string data = 1;
+}
+
+message GetRequest {
+    vink.kubevm.io.apis.types.ResourceType resource_type = 1;
+    vink.kubevm.io.apis.types.NamespaceName namespace_name = 2;
+}
+
+message ListRequest {
+    vink.kubevm.io.apis.types.ResourceType resource_type = 1;
+    ListOptions options = 2;
+}
+
+message ListResponse {
+    repeated string items = 1;
+}
+
+message CreateRequest {
+    vink.kubevm.io.apis.types.ResourceType resource_type = 1;
+    string data = 2;
+}
+
+message UpdateRequest {
+    vink.kubevm.io.apis.types.ResourceType resource_type = 1;
+    string data = 2;
+}
+
+message DeleteRequest {
+    vink.kubevm.io.apis.types.ResourceType resource_type = 1;
+    vink.kubevm.io.apis.types.NamespaceName namespace_name = 2;
+}
+
+message ListOptions {
+	string label_selector = 1;
+	string field_selector = 2;
+    repeated string arbitrary_field_selectors = 3;
+    int32 limit = 4 [(validate.rules).int32.gte = 0];
+    string continue = 5;
+    string namespace = 6;
+}
