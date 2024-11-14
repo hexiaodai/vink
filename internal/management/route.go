@@ -12,7 +12,7 @@ import (
 
 func RegisterGRPCRoutes(kubeInformerFactory informer.KubeInformerFactory) (func(s reflection.GRPCServer), error) {
 	return func(s reflection.GRPCServer) {
-		resource_v1alpha1.RegisterResourceListWatchManagementServer(s, resource.NewResourceListWatchManagement(kubeInformerFactory))
+		resource_v1alpha1.RegisterResourceWatchManagementServer(s, resource.NewResourceWatchManagement(kubeInformerFactory))
 		resource_v1alpha1.RegisterResourceManagementServer(s, resource.NewResourceManagement())
 		vmv1alpha1.RegisterVirtualMachineManagementServer(s, virtualmachine.NewVirtualMachineManagement())
 		reflection.Register(s)

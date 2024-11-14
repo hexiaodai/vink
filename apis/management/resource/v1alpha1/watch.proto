@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package vink.kubevm.io.apis.management.resource.v1alpha1;
+
+import "types/types.proto";
+
+option go_package = "github.com/kubevm.io/vink/apis/management/resource/v1alpha1";
+
+service ResourceWatchManagement {
+    rpc Watch(WatchRequest) returns (stream WatchResponse);
+}
+
+message WatchRequest {
+    vink.kubevm.io.apis.types.ResourceType resource_type = 1;
+    WatchOptions options = 2;
+}
+
+message WatchResponse {
+    EventType event_type = 1;
+    repeated string items = 2;
+}
+
+enum EventType {
+    ADDED = 0;
+    MODIFIED = 1;
+    DELETED = 2;
+}
+
+message WatchOptions {
+	repeated string field_selector = 1;
+}

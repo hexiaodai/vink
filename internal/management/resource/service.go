@@ -2,6 +2,7 @@ package resource
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	resource_v1alpha1 "github.com/kubevm.io/vink/apis/management/resource/v1alpha1"
@@ -12,56 +13,46 @@ import (
 	"k8s.io/client-go/tools/cache"
 )
 
-func NewResourceListWatchManagement(kubeInformerFactory informer.KubeInformerFactory) resource_v1alpha1.ResourceListWatchManagementServer {
-	return &resourceListWatchManagement{kubeInformerFactory: kubeInformerFactory}
+func NewResourceWatchManagement(kubeInformerFactory informer.KubeInformerFactory) resource_v1alpha1.ResourceWatchManagementServer {
+	return &resourceWatchManagement{kubeInformerFactory: kubeInformerFactory}
 }
 
-type resourceListWatchManagement struct {
+type resourceWatchManagement struct {
 	kubeInformerFactory informer.KubeInformerFactory
 
-	resource_v1alpha1.UnsafeResourceListWatchManagementServer
+	resource_v1alpha1.UnsafeResourceWatchManagementServer
 }
 
-func (rlw *resourceListWatchManagement) ListWatch(request *resource_v1alpha1.ListWatchRequest, server resource_v1alpha1.ResourceListWatchManagement_ListWatchServer) error {
+func (rw *resourceWatchManagement) Watch(request *resource_v1alpha1.WatchRequest, server resource_v1alpha1.ResourceWatchManagement_WatchServer) error {
 	gvr := gvr.ResolveGVR(request.ResourceType)
 
-	crds, metadatas, err := business.List(server.Context(), gvr, request.Options)
-	if err != nil {
-		return err
-	}
-
-	if err := server.Send(&resource_v1alpha1.ListWatchResponse{
-		EventType: resource_v1alpha1.EventType_ADDED,
-		Items:     crds,
-	}); err != nil {
-		return err
-	}
-
-	if !request.Options.Watch {
-		return nil
-	}
-
-	informer, ok := rlw.kubeInformerFactory.Informers()[gvr]
+	informer, ok := rw.kubeInformerFactory.Informers()[gvr]
 	if !ok {
 		return fmt.Errorf("failed to find informer for %s", gvr.String())
 	}
 
-	filterFuncs := []business.FilterFunc{business.DefaultFilterFunc(metadatas)}
+	filter, err := business.FilterFuncWithFieldSelector(request.Options)
+	if err != nil {
+		return fmt.Errorf("failed to filter field selector: %v", err)
+	}
+	filterFuncs := []business.FilterFunc{filter}
+
+	errCh := make(chan error)
 
 	eventHandler := cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			if err := business.SendResourceEvent(resource_v1alpha1.EventType_ADDED, obj, filterFuncs, server); err != nil {
-				fmt.Println(err)
+				errCh <- err
 			}
 		},
 		UpdateFunc: func(_, newObj interface{}) {
 			if err := business.SendResourceEvent(resource_v1alpha1.EventType_MODIFIED, newObj, filterFuncs, server); err != nil {
-				fmt.Println(err)
+				errCh <- err
 			}
 		},
 		DeleteFunc: func(obj interface{}) {
 			if err := business.SendResourceEvent(resource_v1alpha1.EventType_DELETED, obj, filterFuncs, server); err != nil {
-				fmt.Println(err)
+				errCh <- err
 			}
 		},
 	}
@@ -71,11 +62,18 @@ func (rlw *resourceListWatchManagement) ListWatch(request *resource_v1alpha1.Lis
 	}
 	defer informer.RemoveEventHandler(registration)
 
-	<-server.Context().Done()
+	if err := server.Send(&resource_v1alpha1.WatchResponse{}); err != nil {
+		return errors.New("failed to send readiness status to client")
+	}
 
-	fmt.Println("stopping resource watch")
-
-	return nil
+	select {
+	case err := <-errCh:
+		fmt.Println(err)
+		return err
+	case <-server.Context().Done():
+		fmt.Println("stopping resource watch")
+		return nil
+	}
 }
 
 func NewResourceManagement() resource_v1alpha1.ResourceManagementServer {
@@ -102,6 +100,15 @@ func (r *resourceManagement) Get(ctx context.Context, request *resource_v1alpha1
 		return nil, err
 	}
 	return &resource_v1alpha1.Resource{Data: crd}, nil
+}
+
+func (r *resourceManagement) List(ctx context.Context, request *resource_v1alpha1.ListRequest) (*resource_v1alpha1.ListResponse, error) {
+	gvr := gvr.ResolveGVR(request.ResourceType)
+	crds, err := business.List(ctx, gvr, request.Options)
+	if err != nil {
+		return nil, err
+	}
+	return &resource_v1alpha1.ListResponse{Items: crds}, nil
 }
 
 func (r *resourceManagement) Update(ctx context.Context, request *resource_v1alpha1.UpdateRequest) (*resource_v1alpha1.Resource, error) {
