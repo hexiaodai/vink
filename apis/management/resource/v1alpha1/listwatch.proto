@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package vink.kubevm.io.apis.management.resource.v1alpha1;
 
-import "types/resource_type.proto";
+import "types/resource.proto";
 import "types/list_options.proto";
 import "types/namespace_name.proto";
 

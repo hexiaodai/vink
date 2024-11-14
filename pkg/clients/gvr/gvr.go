@@ -96,6 +96,12 @@ func From[T any](o T) schema.GroupVersionResource {
 		return kubeovn.SchemeGroupVersion.WithResource("ips")
 	case v1alpha1.VirtualMachineSummary, *v1alpha1.VirtualMachineSummary:
 		return v1alpha1.VirtualMachineSummaryGVR
+	case corev1.Event, *corev1.Event:
+		return schema.GroupVersionResource{
+			Group:    corev1.SchemeGroupVersion.Group,
+			Version:  corev1.SchemeGroupVersion.Version,
+			Resource: "events",
+		}
 	}
 
 	return schema.GroupVersionResource{}
@@ -127,6 +133,8 @@ func ResolveGVR(rt types.ResourceType) schema.GroupVersionResource {
 		return From(kubeovn.IP{})
 	case types.ResourceType_VIRTUAL_MACHINE_SUMMARY:
 		return From(v1alpha1.VirtualMachineSummary{})
+	case types.ResourceType_EVENT:
+		return From(corev1.Event{})
 	}
 
 	return schema.GroupVersionResource{}

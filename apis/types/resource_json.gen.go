@@ -6,6 +6,6 @@ import (
 )
 
 var (
-	ResourceTypeMarshaler   = &jsonpb.Marshaler{}
-	ResourceTypeUnmarshaler = &jsonpb.Unmarshaler{AllowUnknownFields: true}
+	ResourceMarshaler   = &jsonpb.Marshaler{}
+	ResourceUnmarshaler = &jsonpb.Unmarshaler{AllowUnknownFields: true}
 )

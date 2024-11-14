@@ -3,7 +3,7 @@ syntax = "proto3";
 package vink.kubevm.io.apis.management.resource.v1alpha1;
 
 import "google/protobuf/empty.proto";
-import "types/resource_type.proto";
+import "types/resource.proto";
 import "types/namespace_name.proto";
 
 option go_package = "github.com/kubevm.io/vink/apis/management/resource/v1alpha1";

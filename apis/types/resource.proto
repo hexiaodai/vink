@@ -18,4 +18,5 @@ enum ResourceType {
 	STORAGE_CLASS = 10;
 	IPS = 11;
 	VIRTUAL_MACHINE_SUMMARY = 12;
+	EVENT = 13;
 }
