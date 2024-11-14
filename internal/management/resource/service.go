@@ -73,6 +73,8 @@ func (rlw *resourceListWatchManagement) ListWatch(request *resource_v1alpha1.Lis
 
 	<-server.Context().Done()
 
+	fmt.Println("stopping resource watch")
+
 	return nil
 }
 

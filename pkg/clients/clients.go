@@ -6,6 +6,7 @@ import (
 
 	kubeovnv1 "github.com/kubeovn/kube-ovn/pkg/apis/kubeovn/v1"
 	"github.com/kubevm.io/vink/pkg/k8s/apis/vink/v1alpha1"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -26,6 +27,7 @@ type clients struct {
 
 	VinkRestClient    *rest.RESTClient
 	KubeOVNRestClient *rest.RESTClient
+	KubeRestClient    *rest.RESTClient
 }
 
 func InitClients(args ...string) error {
@@ -51,12 +53,23 @@ func InitClients(args ...string) error {
 	}
 	Instance.KubevirtClient = kubevirtClient
 
+	kubeRestClient, err := newRestClientFromRESTConfig(kubeconfig, &corev1.SchemeGroupVersion)
+	// kubeRestClient, err := rest.RESTClientFor(kubeconfig)
+	if err != nil {
+		return err
+	}
+	Instance.KubeRestClient = kubeRestClient
+
 	return nil
 }
 
 func newRestClientFromRESTConfig(kubeconfig *rest.Config, gv *schema.GroupVersion) (*rest.RESTClient, error) {
 	shallowCopy := *kubeconfig
-	shallowCopy.APIPath = "/apis"
+	if len(gv.Group) == 0 {
+		shallowCopy.APIPath = "/api"
+	} else {
+		shallowCopy.APIPath = "/apis"
+	}
 	shallowCopy.GroupVersion = gv
 	shallowCopy.NegotiatedSerializer = serializer.WithoutConversionCodecFactory{CodecFactory: scheme.Codecs}
 	return rest.RESTClientFor(&shallowCopy)
@@ -177,6 +190,8 @@ func InterfaceToJSON(obj any) (string, error) {
 	case *v1alpha1.VirtualMachineSummary:
 		un, err = Unstructured(payload)
 	case *cdiv1beta1.DataVolume:
+		un, err = Unstructured(payload)
+	case *corev1.Event:
 		un, err = Unstructured(payload)
 	default:
 		return "", fmt.Errorf("unsupported payload type %T", payload)
