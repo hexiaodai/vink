@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -86,26 +87,130 @@ func newArbitraryFieldSelector(selector string) (*arbitraryFieldSelector, error)
 	}, nil
 }
 
+func parseFieldPath(fieldPath string) []string {
+	re := regexp.MustCompile(`\\\.`)
+	parsedField := re.ReplaceAllString(fieldPath, "\u0000")
+	parts := strings.Split(parsedField, ".")
+
+	for i := range parts {
+		parts[i] = strings.ReplaceAll(parts[i], "\u0000", ".")
+	}
+	return parts
+}
+
 func (fs *arbitraryFieldSelector) matches(item *unstructured.Unstructured) (bool, error) {
-	actualValue, found, err := unstructured.NestedString(item.Object, strings.Split(fs.FieldPath, ".")...)
-	if err != nil || !found {
+	fieldPathParts := parseFieldPath(fs.FieldPath)
+	actualValues, err := getValuesFromFieldPath(item.Object, fieldPathParts)
+	if err != nil {
 		return false, err
 	}
 
-	switch fs.Operator {
-	case "=":
-		return actualValue == fs.ExpectedValue, nil
-	case "!=":
-		return actualValue != fs.ExpectedValue, nil
-	case "^=":
-		return strings.HasPrefix(actualValue, fs.ExpectedValue), nil
-	case "$=":
-		return strings.HasSuffix(actualValue, fs.ExpectedValue), nil
-	case "*=":
-		return strings.Contains(actualValue, fs.ExpectedValue), nil
-	default:
-		return false, errors.New("unsupported operator")
+	for _, actualValue := range actualValues {
+		switch fs.Operator {
+		case "=":
+			if actualValue == fs.ExpectedValue {
+				return true, nil
+			}
+		case "!=":
+			if actualValue != fs.ExpectedValue {
+				return true, nil
+			}
+		case "^=":
+			if strings.HasPrefix(actualValue, fs.ExpectedValue) {
+				return true, nil
+			}
+		case "$=":
+			if strings.HasSuffix(actualValue, fs.ExpectedValue) {
+				return true, nil
+			}
+		case "*=":
+			if strings.Contains(actualValue, fs.ExpectedValue) {
+				return true, nil
+			}
+		default:
+			return false, errors.New("unsupported operator")
+		}
 	}
+
+	// If no value matched, return false
+	return false, nil
+}
+
+// Helper function to recursively resolve the field path
+func getValuesFromFieldPath(obj map[string]interface{}, fieldPathParts []string) ([]string, error) {
+	if len(fieldPathParts) == 0 {
+		return nil, nil
+	}
+
+	currentPart := fieldPathParts[0]
+	remainingParts := fieldPathParts[1:]
+
+	// Handle array access
+	if strings.HasSuffix(currentPart, "]") {
+		openBracketIndex := strings.Index(currentPart, "[")
+		if openBracketIndex == -1 {
+			return nil, fmt.Errorf("invalid field path: %s", currentPart)
+		}
+
+		fieldName := currentPart[:openBracketIndex]
+		arrayIndex := currentPart[openBracketIndex+1 : len(currentPart)-1]
+
+		// Access the array
+		rawArray, found, err := unstructured.NestedFieldNoCopy(obj, fieldName)
+		if err != nil || !found {
+			return nil, nil // Treat as not found
+		}
+
+		array, ok := rawArray.([]interface{})
+		if !ok {
+			return nil, fmt.Errorf("field %s is not an array", fieldName)
+		}
+
+		// Handle specific index [n]
+		if arrayIndex != "*" {
+			index, err := strconv.Atoi(arrayIndex)
+			if err != nil || index < 0 || index >= len(array) {
+				return nil, nil // Treat as not found
+			}
+			return getValuesFromFieldPath(array[index].(map[string]interface{}), remainingParts)
+		}
+
+		// Handle wildcard [*]
+		var results []string
+		for _, item := range array {
+			subObj, ok := item.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			values, err := getValuesFromFieldPath(subObj, remainingParts)
+			if err != nil {
+				continue
+			}
+			results = append(results, values...)
+		}
+		return results, nil
+	}
+
+	// Handle regular field
+	rawValue, found, err := unstructured.NestedFieldNoCopy(obj, currentPart)
+	if err != nil || !found {
+		return nil, nil // Treat as not found
+	}
+
+	// If there are no more parts, return the value as a string
+	if len(remainingParts) == 0 {
+		if strValue, ok := rawValue.(string); ok {
+			return []string{strValue}, nil
+		}
+		return nil, fmt.Errorf("field %s is not a string", currentPart)
+	}
+
+	// Continue to the next part
+	subObj, ok := rawValue.(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("field %s is not an object", currentPart)
+	}
+	return getValuesFromFieldPath(subObj, remainingParts)
 }
 
 func listResourcesByListOptions(ctx context.Context, cli dynamic.NamespaceableResourceInterface, opts *resource_v1alpha1.ListOptions) ([]unstructured.Unstructured, error) {
@@ -205,20 +310,6 @@ func trueFilterFunc() FilterFunc {
 		return true, nil
 	}
 }
-
-// func FilterFuncWithLabelSelector(opts *resource_v1alpha1.WatchOptions) (FilterFunc, error) {
-// 	if len(opts.LabelSelector) == 0 {
-// 		return trueFilterFunc(), nil
-// 	}
-// 	selector, err := labels.Parse(opts.LabelSelector)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("failed to parse LabelSelector: %v", err)
-// 	}
-
-// 	return func(unobj *unstructured.Unstructured) (bool, error) {
-// 		return selector.Matches(labels.Set(unobj.GetLabels())), nil
-// 	}, nil
-// }
 
 func FilterFuncWithFieldSelector(opts *resource_v1alpha1.WatchOptions) (FilterFunc, error) {
 	if len(opts.FieldSelector) == 0 {
