@@ -84,9 +84,15 @@ func (reconciler *DataVolumeBindingReconciler) Reconcile(ctx context.Context, re
 			binding = append(binding, key)
 		}
 
-		bindingAnnoValue, err := json.Marshal(binding)
-		if err != nil {
-			return ctrl.Result{}, err
+		var (
+			bindingAnnoValue []byte
+			err              error
+		)
+		if len(binding) > 0 {
+			bindingAnnoValue, err = json.Marshal(binding)
+			if err != nil {
+				return ctrl.Result{}, err
+			}
 		}
 
 		dv.Annotations[annotation.VinkVirtualmachineBinding.Name] = string(bindingAnnoValue)
@@ -163,19 +169,26 @@ func syncAllVirtualMachineBindings() error {
 	}
 
 	for _, dv := range dvList.Items {
+		var (
+			value []byte
+			err   error
+		)
+
 		ns := types.NamespacedName{Namespace: dv.Namespace, Name: dv.Name}
 		binding := bindingMap[ns]
 		if len(binding) == 0 && (dv.Annotations == nil || len(dv.Annotations[annotation.VinkVirtualmachineBinding.Name]) == 0) {
 			continue
 		}
 
-		value, err := json.Marshal(binding)
-		if err != nil {
-			return err
+		if len(binding) > 0 {
+			value, err = json.Marshal(binding)
+			if err != nil {
+				return err
+			}
 		}
 
 		if dv.Annotations == nil {
-			dv.Annotations = make(map[string]string)
+			dv.Annotations = make(map[string]string, 1)
 		}
 		dv.Annotations[annotation.VinkVirtualmachineBinding.Name] = string(value)
 		if _, err := clients.Instance.CdiClient().CdiV1beta1().DataVolumes(dv.Namespace).Update(ctx, &dv, metav1.UpdateOptions{}); err != nil {

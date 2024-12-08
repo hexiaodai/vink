@@ -138,3 +138,245 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = NamespaceNameValidationError{}
+
+// Validate checks the field values on FieldSelector with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *FieldSelector) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on FieldSelector with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in FieldSelectorMultiError, or
+// nil if none found.
+func (m *FieldSelector) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *FieldSelector) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for FieldPath
+
+	// no validation rules for Operator
+
+	if len(errors) > 0 {
+		return FieldSelectorMultiError(errors)
+	}
+
+	return nil
+}
+
+// FieldSelectorMultiError is an error wrapping multiple validation errors
+// returned by FieldSelector.ValidateAll() if the designated constraints
+// aren't met.
+type FieldSelectorMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m FieldSelectorMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m FieldSelectorMultiError) AllErrors() []error { return m }
+
+// FieldSelectorValidationError is the validation error returned by
+// FieldSelector.Validate if the designated constraints aren't met.
+type FieldSelectorValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e FieldSelectorValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e FieldSelectorValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e FieldSelectorValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e FieldSelectorValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e FieldSelectorValidationError) ErrorName() string { return "FieldSelectorValidationError" }
+
+// Error satisfies the builtin error interface
+func (e FieldSelectorValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sFieldSelector.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = FieldSelectorValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = FieldSelectorValidationError{}
+
+// Validate checks the field values on FieldSelectorGroup with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *FieldSelectorGroup) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on FieldSelectorGroup with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// FieldSelectorGroupMultiError, or nil if none found.
+func (m *FieldSelectorGroup) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *FieldSelectorGroup) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Operator
+
+	for idx, item := range m.GetFieldSelectors() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, FieldSelectorGroupValidationError{
+						field:  fmt.Sprintf("FieldSelectors[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, FieldSelectorGroupValidationError{
+						field:  fmt.Sprintf("FieldSelectors[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return FieldSelectorGroupValidationError{
+					field:  fmt.Sprintf("FieldSelectors[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return FieldSelectorGroupMultiError(errors)
+	}
+
+	return nil
+}
+
+// FieldSelectorGroupMultiError is an error wrapping multiple validation errors
+// returned by FieldSelectorGroup.ValidateAll() if the designated constraints
+// aren't met.
+type FieldSelectorGroupMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m FieldSelectorGroupMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m FieldSelectorGroupMultiError) AllErrors() []error { return m }
+
+// FieldSelectorGroupValidationError is the validation error returned by
+// FieldSelectorGroup.Validate if the designated constraints aren't met.
+type FieldSelectorGroupValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e FieldSelectorGroupValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e FieldSelectorGroupValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e FieldSelectorGroupValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e FieldSelectorGroupValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e FieldSelectorGroupValidationError) ErrorName() string {
+	return "FieldSelectorGroupValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e FieldSelectorGroupValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sFieldSelectorGroup.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = FieldSelectorGroupValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = FieldSelectorGroupValidationError{}

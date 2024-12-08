@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	netv1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
 	kubeovn "github.com/kubeovn/kube-ovn/pkg/apis/kubeovn/v1"
 	"github.com/kubevm.io/vink/pkg/clients"
 	"github.com/kubevm.io/vink/pkg/clients/gvr"
@@ -17,7 +18,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/tools/cache"
-
 	kubev1 "kubevirt.io/api/core/v1"
 	cdiv1 "kubevirt.io/containerized-data-importer-api/pkg/apis/core/v1beta1"
 )
@@ -45,7 +45,13 @@ type KubeInformerFactory interface {
 
 	Node() cache.SharedIndexInformer
 
+	Multus() cache.SharedIndexInformer
+
 	Subnet() cache.SharedIndexInformer
+
+	IPPool() cache.SharedIndexInformer
+
+	VPC() cache.SharedIndexInformer
 
 	Event() cache.SharedIndexInformer
 
@@ -150,10 +156,31 @@ func (f *kubeInformerFactory) VirtualMachineInstances() cache.SharedIndexInforme
 	})
 }
 
+func (f *kubeInformerFactory) Multus() cache.SharedIndexInformer {
+	return f.getInformer(gvr.From(netv1.NetworkAttachmentDefinition{}), func() cache.SharedIndexInformer {
+		lw := cache.NewListWatchFromClient(clients.Instance.KubeNetWorldClient, "network-attachment-definitions", k8sv1.NamespaceAll, fields.Everything())
+		return cache.NewSharedIndexInformer(lw, &netv1.NetworkAttachmentDefinition{}, f.defaultResync, cache.Indexers{})
+	})
+}
+
 func (f *kubeInformerFactory) Subnet() cache.SharedIndexInformer {
 	return f.getInformer(gvr.From(kubeovn.Subnet{}), func() cache.SharedIndexInformer {
 		lw := cache.NewListWatchFromClient(clients.Instance.KubeOVNRestClient, "subnets", k8sv1.NamespaceAll, fields.Everything())
 		return cache.NewSharedIndexInformer(lw, &kubeovn.Subnet{}, f.defaultResync, cache.Indexers{})
+	})
+}
+
+func (f *kubeInformerFactory) IPPool() cache.SharedIndexInformer {
+	return f.getInformer(gvr.From(kubeovn.IPPool{}), func() cache.SharedIndexInformer {
+		lw := cache.NewListWatchFromClient(clients.Instance.KubeOVNRestClient, "ippools", k8sv1.NamespaceAll, fields.Everything())
+		return cache.NewSharedIndexInformer(lw, &kubeovn.IPPool{}, f.defaultResync, cache.Indexers{})
+	})
+}
+
+func (f *kubeInformerFactory) VPC() cache.SharedIndexInformer {
+	return f.getInformer(gvr.From(kubeovn.Vpc{}), func() cache.SharedIndexInformer {
+		lw := cache.NewListWatchFromClient(clients.Instance.KubeOVNRestClient, "vpcs", k8sv1.NamespaceAll, fields.Everything())
+		return cache.NewSharedIndexInformer(lw, &kubeovn.Vpc{}, f.defaultResync, cache.Indexers{})
 	})
 }
 

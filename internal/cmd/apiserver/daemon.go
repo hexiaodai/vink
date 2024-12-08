@@ -30,7 +30,10 @@ func (dm *Daemon) Execute(ctx context.Context) error {
 	_ = dm.informerFactory.VirtualMachineInstances()
 	_ = dm.informerFactory.DataVolume()
 	_ = dm.informerFactory.VirtualMachineSummary()
+	_ = dm.informerFactory.Multus()
 	_ = dm.informerFactory.Subnet()
+	_ = dm.informerFactory.IPPool()
+	_ = dm.informerFactory.VPC()
 	_ = dm.informerFactory.Event()
 
 	dm.informerFactory.Start(ctx.Done())

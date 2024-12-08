@@ -53,9 +53,9 @@ func List(ctx context.Context, gvr schema.GroupVersionResource, opts *resource_v
 }
 
 type arbitraryFieldSelector struct {
-	FieldPath     string
-	Operator      string
-	ExpectedValue string
+	FieldPath      string
+	Operator       string
+	ExpectedValues []string
 }
 
 func newArbitraryFieldSelector(selector string) (*arbitraryFieldSelector, error) {
@@ -69,6 +69,10 @@ func newArbitraryFieldSelector(selector string) (*arbitraryFieldSelector, error)
 		operator = "$="
 	case strings.Contains(selector, "*="):
 		operator = "*="
+	case strings.Contains(selector, "~="):
+		operator = "~="
+	case strings.Contains(selector, "!~="):
+		operator = "!~="
 	case strings.Contains(selector, "="):
 		operator = "="
 	default:
@@ -81,9 +85,9 @@ func newArbitraryFieldSelector(selector string) (*arbitraryFieldSelector, error)
 	}
 
 	return &arbitraryFieldSelector{
-		FieldPath:     parts[0],
-		Operator:      operator,
-		ExpectedValue: parts[1],
+		FieldPath: parts[0],
+		Operator:  operator,
+		// ExpectedValue: parts[1],
 	}, nil
 }
 
@@ -106,27 +110,47 @@ func (fs *arbitraryFieldSelector) matches(item *unstructured.Unstructured) (bool
 	}
 
 	for _, actualValue := range actualValues {
+		actualValue = strings.ToLower(actualValue)
+		var expectedValue string
+		if len(fs.ExpectedValues) > 0 {
+			expectedValue = strings.ToLower(fs.ExpectedValues[0])
+		}
 		switch fs.Operator {
 		case "=":
-			if actualValue == fs.ExpectedValue {
+			if actualValue == expectedValue {
 				return true, nil
 			}
 		case "!=":
-			if actualValue != fs.ExpectedValue {
+			if actualValue != expectedValue {
 				return true, nil
 			}
 		case "^=":
-			if strings.HasPrefix(actualValue, fs.ExpectedValue) {
+			if strings.HasPrefix(actualValue, expectedValue) {
 				return true, nil
 			}
 		case "$=":
-			if strings.HasSuffix(actualValue, fs.ExpectedValue) {
+			if strings.HasSuffix(actualValue, expectedValue) {
 				return true, nil
 			}
 		case "*=":
-			if strings.Contains(actualValue, fs.ExpectedValue) {
+			if strings.Contains(actualValue, expectedValue) {
 				return true, nil
 			}
+		case "~=":
+			for _, ev := range fs.ExpectedValues {
+				ev = strings.ToLower(ev)
+				if actualValue == strings.TrimSpace(ev) {
+					return true, nil
+				}
+			}
+		case "!~=":
+			for _, ev := range fs.ExpectedValues {
+				ev = strings.ToLower(ev)
+				if actualValue == strings.TrimSpace(ev) {
+					return false, nil
+				}
+			}
+			return true, nil
 		default:
 			return false, errors.New("unsupported operator")
 		}
@@ -178,15 +202,20 @@ func getValuesFromFieldPath(obj map[string]interface{}, fieldPathParts []string)
 		// Handle wildcard [*]
 		var results []string
 		for _, item := range array {
-			subObj, ok := item.(map[string]interface{})
-			if !ok {
+			switch value := item.(type) {
+			case map[string]interface{}:
+				values, err := getValuesFromFieldPath(value, remainingParts)
+				if err != nil {
+					continue
+				}
+				results = append(results, values...)
+			case string:
+				if len(remainingParts) == 0 {
+					results = append(results, value)
+				}
+			default:
 				continue
 			}
-			values, err := getValuesFromFieldPath(subObj, remainingParts)
-			if err != nil {
-				continue
-			}
-			results = append(results, values...)
 		}
 		return results, nil
 	}
@@ -312,37 +341,36 @@ func trueFilterFunc() FilterFunc {
 }
 
 func FilterFuncWithFieldSelector(opts *resource_v1alpha1.WatchOptions) (FilterFunc, error) {
-	if len(opts.FieldSelector) == 0 {
+	if opts.FieldSelectorGroup == nil || len(opts.FieldSelectorGroup.FieldSelectors) == 0 {
 		return trueFilterFunc(), nil
 	}
 
 	return func(unobj *unstructured.Unstructured) (bool, error) {
-		for _, selectorGroup := range opts.FieldSelector {
-			if len(selectorGroup) == 0 {
-				continue
+		for _, selector := range opts.FieldSelectorGroup.FieldSelectors {
+			fieldSelector := &arbitraryFieldSelector{
+				FieldPath:      selector.FieldPath,
+				Operator:       selector.Operator,
+				ExpectedValues: selector.Values,
 			}
-			conditions := strings.Split(selectorGroup, ",")
-			groupMatches := true
-			for _, condition := range conditions {
-				fieldSelector, err := newArbitraryFieldSelector(condition)
-				if err != nil {
-					return false, fmt.Errorf("failed to parse ArbitraryFieldSelector: %v", err)
-				}
 
-				match, err := fieldSelector.matches(unobj)
-				if err != nil {
-					return false, fmt.Errorf("failed to match field selector: %v", err)
-				}
-				if !match {
-					groupMatches = false
-					break
-				}
+			match, err := fieldSelector.matches(unobj)
+			if err != nil {
+				return false, fmt.Errorf("failed to match field selector: %v", err)
 			}
-			if groupMatches {
-				return true, nil
+			switch opts.FieldSelectorGroup.Operator {
+			case "||":
+				if match {
+					return true, nil
+				}
+			case "&&":
+				if !match {
+					return false, nil
+				}
+			default:
+				return false, fmt.Errorf("unknown field selector group operator: %s", opts.FieldSelectorGroup.Operator)
 			}
 		}
-		return false, nil
+		return true, nil
 	}, nil
 }
 

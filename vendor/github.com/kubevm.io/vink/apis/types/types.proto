@@ -9,6 +9,17 @@ message NamespaceName {
     string name = 2;
 }
 
+message FieldSelector {
+    string field_path = 1;
+    string operator = 2;
+    repeated string values = 3;
+}
+
+message FieldSelectorGroup {
+	string operator = 1;
+	repeated FieldSelector field_selectors = 2;
+}
+
 enum ResourceType {
 	UNSPECIFIED = 0;
 	VIRTUAL_MACHINE = 1;
