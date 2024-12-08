@@ -27,5 +27,6 @@ enum EventType {
 }
 
 message WatchOptions {
-	repeated string field_selector = 1;
+	vink.kubevm.io.apis.types.FieldSelectorGroup field_selector_group = 1;
+	// repeated string field_selector = 1;
 }

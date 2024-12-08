@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	netv1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
 	kubeovnv1 "github.com/kubeovn/kube-ovn/pkg/apis/kubeovn/v1"
 	"github.com/kubevm.io/vink/pkg/k8s/apis/vink/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
@@ -25,9 +26,10 @@ var Instance = &clients{}
 type clients struct {
 	kubecli.KubevirtClient
 
-	VinkRestClient    *rest.RESTClient
-	KubeOVNRestClient *rest.RESTClient
-	KubeRestClient    *rest.RESTClient
+	VinkRestClient     *rest.RESTClient
+	KubeOVNRestClient  *rest.RESTClient
+	KubeRestClient     *rest.RESTClient
+	KubeNetWorldClient *rest.RESTClient
 }
 
 func InitClients(args ...string) error {
@@ -54,11 +56,16 @@ func InitClients(args ...string) error {
 	Instance.KubevirtClient = kubevirtClient
 
 	kubeRestClient, err := newRestClientFromRESTConfig(kubeconfig, &corev1.SchemeGroupVersion)
-	// kubeRestClient, err := rest.RESTClientFor(kubeconfig)
 	if err != nil {
 		return err
 	}
 	Instance.KubeRestClient = kubeRestClient
+
+	kubeNetworkCLient, err := newRestClientFromRESTConfig(kubeconfig, &netv1.SchemeGroupVersion)
+	if err != nil {
+		return err
+	}
+	Instance.KubeNetWorldClient = kubeNetworkCLient
 
 	return nil
 }
@@ -192,6 +199,14 @@ func InterfaceToJSON(obj any) (string, error) {
 	case *cdiv1beta1.DataVolume:
 		un, err = Unstructured(payload)
 	case *corev1.Event:
+		un, err = Unstructured(payload)
+	case *kubeovnv1.IPPool:
+		un, err = Unstructured(payload)
+	case *kubeovnv1.Vpc:
+		un, err = Unstructured(payload)
+	case *kubeovnv1.Subnet:
+		un, err = Unstructured(payload)
+	case *netv1.NetworkAttachmentDefinition:
 		un, err = Unstructured(payload)
 	default:
 		return "", fmt.Errorf("unsupported payload type %T", payload)
