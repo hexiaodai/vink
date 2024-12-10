@@ -26,8 +26,8 @@ func List(ctx context.Context, gvr schema.GroupVersionResource, opts *resource_v
 	items := make([]unstructured.Unstructured, 0)
 
 	switch {
-	case len(opts.ArbitraryFieldSelectors) > 0:
-		result, err := listResourcesByArbitraryFieldSelectors(ctx, cli, opts.Namespace, opts.ArbitraryFieldSelectors)
+	case opts.FieldSelectorGroup != nil && len(opts.FieldSelectorGroup.FieldSelectors) > 0:
+		result, err := listResourcesByArbitraryFieldSelectors(ctx, cli, opts.Namespace, opts.FieldSelectorGroup)
 		if err != nil {
 			return nil, err
 		}
@@ -56,39 +56,6 @@ type arbitraryFieldSelector struct {
 	FieldPath      string
 	Operator       string
 	ExpectedValues []string
-}
-
-func newArbitraryFieldSelector(selector string) (*arbitraryFieldSelector, error) {
-	var operator string
-	switch {
-	case strings.Contains(selector, "!="):
-		operator = "!="
-	case strings.Contains(selector, "^="):
-		operator = "^="
-	case strings.Contains(selector, "$="):
-		operator = "$="
-	case strings.Contains(selector, "*="):
-		operator = "*="
-	case strings.Contains(selector, "~="):
-		operator = "~="
-	case strings.Contains(selector, "!~="):
-		operator = "!~="
-	case strings.Contains(selector, "="):
-		operator = "="
-	default:
-		return nil, fmt.Errorf("unsupported operator in selector: %s", selector)
-	}
-
-	parts := strings.SplitN(selector, operator, 2)
-	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid selector format: %s", selector)
-	}
-
-	return &arbitraryFieldSelector{
-		FieldPath: parts[0],
-		Operator:  operator,
-		// ExpectedValue: parts[1],
-	}, nil
 }
 
 func parseFieldPath(fieldPath string) []string {
@@ -256,8 +223,13 @@ func listResourcesByListOptions(ctx context.Context, cli dynamic.NamespaceableRe
 	return res.Items, nil
 }
 
-func listResourcesByArbitraryFieldSelectors(ctx context.Context, cli dynamic.NamespaceableResourceInterface, namespace string, fieldSelectors []string) ([]unstructured.Unstructured, error) {
+func listResourcesByArbitraryFieldSelectors(ctx context.Context, cli dynamic.NamespaceableResourceInterface, namespace string, fieldSelectorGroup *types.FieldSelectorGroup) ([]unstructured.Unstructured, error) {
 	res, err := cli.Namespace(namespace).List(ctx, metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	filterFunc, err := FilterFuncWithFieldSelector(fieldSelectorGroup)
 	if err != nil {
 		return nil, err
 	}
@@ -265,27 +237,10 @@ func listResourcesByArbitraryFieldSelectors(ctx context.Context, cli dynamic.Nam
 	var filteredItems []unstructured.Unstructured
 
 	for _, item := range res.Items {
-	outerLoop:
-		for _, selectorGroup := range fieldSelectors {
-			conditions := strings.Split(selectorGroup, ",")
-			groupMatches := true
-
-			for _, condition := range conditions {
-				fieldSelector, err := newArbitraryFieldSelector(condition)
-				if err != nil {
-					return nil, err
-				}
-
-				if match, err := fieldSelector.matches(&item); err != nil || !match {
-					groupMatches = false
-					break
-				}
-			}
-
-			if groupMatches {
-				filteredItems = append(filteredItems, item)
-				break outerLoop
-			}
+		if ok, err := filterFunc(&item); err != nil {
+			return nil, err
+		} else if ok {
+			filteredItems = append(filteredItems, item)
 		}
 	}
 
@@ -340,13 +295,13 @@ func trueFilterFunc() FilterFunc {
 	}
 }
 
-func FilterFuncWithFieldSelector(opts *resource_v1alpha1.WatchOptions) (FilterFunc, error) {
-	if opts.FieldSelectorGroup == nil || len(opts.FieldSelectorGroup.FieldSelectors) == 0 {
+func FilterFuncWithFieldSelector(fieldSelectorGroup *types.FieldSelectorGroup) (FilterFunc, error) {
+	if fieldSelectorGroup == nil || len(fieldSelectorGroup.FieldSelectors) == 0 {
 		return trueFilterFunc(), nil
 	}
 
 	return func(unobj *unstructured.Unstructured) (bool, error) {
-		for _, selector := range opts.FieldSelectorGroup.FieldSelectors {
+		for _, selector := range fieldSelectorGroup.FieldSelectors {
 			fieldSelector := &arbitraryFieldSelector{
 				FieldPath:      selector.FieldPath,
 				Operator:       selector.Operator,
@@ -357,17 +312,17 @@ func FilterFuncWithFieldSelector(opts *resource_v1alpha1.WatchOptions) (FilterFu
 			if err != nil {
 				return false, fmt.Errorf("failed to match field selector: %v", err)
 			}
-			switch opts.FieldSelectorGroup.Operator {
+			switch fieldSelectorGroup.Operator {
 			case "||":
 				if match {
 					return true, nil
 				}
-			case "&&":
+			case "&&", "":
 				if !match {
 					return false, nil
 				}
 			default:
-				return false, fmt.Errorf("unknown field selector group operator: %s", opts.FieldSelectorGroup.Operator)
+				return false, fmt.Errorf("unknown field selector group operator: %s", fieldSelectorGroup.Operator)
 			}
 		}
 		return true, nil
