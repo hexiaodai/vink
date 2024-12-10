@@ -52,7 +52,8 @@ message DeleteRequest {
 message ListOptions {
 	string label_selector = 1;
 	string field_selector = 2;
-    repeated string arbitrary_field_selectors = 3;
+    // repeated string arbitrary_field_selectors = 3;
+	vink.kubevm.io.apis.types.FieldSelectorGroup field_selector_group = 3;
     int32 limit = 4 [(validate.rules).int32.gte = 0];
     string continue = 5;
     string namespace = 6;

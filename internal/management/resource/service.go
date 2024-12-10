@@ -31,7 +31,7 @@ func (rw *resourceWatchManagement) Watch(request *resource_v1alpha1.WatchRequest
 		return fmt.Errorf("failed to find informer for %s", gvr.String())
 	}
 
-	filter, err := business.FilterFuncWithFieldSelector(request.Options)
+	filter, err := business.FilterFuncWithFieldSelector(request.Options.FieldSelectorGroup)
 	if err != nil {
 		return fmt.Errorf("failed to filter field selector: %v", err)
 	}

@@ -864,6 +864,35 @@ func (m *ListOptions) validate(all bool) error {
 
 	// no validation rules for FieldSelector
 
+	if all {
+		switch v := interface{}(m.GetFieldSelectorGroup()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ListOptionsValidationError{
+					field:  "FieldSelectorGroup",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ListOptionsValidationError{
+					field:  "FieldSelectorGroup",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetFieldSelectorGroup()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ListOptionsValidationError{
+				field:  "FieldSelectorGroup",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if m.GetLimit() < 0 {
 		err := ListOptionsValidationError{
 			field:  "Limit",
