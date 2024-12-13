@@ -52,9 +52,6 @@ type Instance struct {
 	// FeatureStatus of this annotation.
 	FeatureStatus FeatureStatus
 
-	// Hide the existence of this annotation when outputting usage information.
-	Hidden bool
-
 	// Mark this annotation as deprecated when generating usage information.
 	Deprecated bool
 
@@ -68,30 +65,28 @@ var (
 		Name:          "cdi.kubevirt.io/storage.bind.immediate.requested",
 		Description:   "CDI executes binding requests immediately.",
 		FeatureStatus: Alpha,
-		Hidden:        true,
 		Deprecated:    false,
 		Resources: []ResourceTypes{
 			DataVolume,
 		},
 	}
 
-	VinkVirtualmachineBinding = Instance {
-		Name:          "vink.kubevm.io/virtualmachine.binding",
+	VinkDatavolumeOwner = Instance {
+		Name:          "vink.kubevm.io/datavolume.owner",
 		Description:   "Indicates that this DataVolume is being used by a "+
                         "specific virtual machine.",
 		FeatureStatus: Alpha,
-		Hidden:        true,
 		Deprecated:    false,
 		Resources: []ResourceTypes{
 			DataVolume,
 		},
 	}
 
-	VinkVirtualmachineinstanceHost = Instance {
-		Name:          "vink.kubevm.io/virtualmachineinstance.host",
-		Description:   "",
+	VinkHost = Instance {
+		Name:          "vink.kubevm.io/host",
+		Description:   "Specifies the host machine where the virtual machine "+
+                        "instance is scheduled to run.",
 		FeatureStatus: Alpha,
-		Hidden:        true,
 		Deprecated:    false,
 		Resources: []ResourceTypes{
 			VirtualMachineInstance,
@@ -103,8 +98,8 @@ var (
 func AllResourceAnnotations() []*Instance {
 	return []*Instance {
 		&IoKubevirtCdiStorageBindImmediateRequested,
-		&VinkVirtualmachineBinding,
-		&VinkVirtualmachineinstanceHost,
+		&VinkDatavolumeOwner,
+		&VinkHost,
 	}
 }
 

@@ -77,7 +77,7 @@ func NewKubeInformerFactory() KubeInformerFactory {
 		defaultResync:    resyncPeriod(12 * time.Hour),
 		informers:        make(map[schema.GroupVersionResource]cache.SharedIndexInformer),
 		startedInformers: make(map[schema.GroupVersionResource]bool),
-		k8sInformers:     informers.NewSharedInformerFactoryWithOptions(clients.Instance.KubevirtClient, 0),
+		k8sInformers:     informers.NewSharedInformerFactoryWithOptions(clients.Clients.KubevirtClient, 0),
 	}
 }
 
@@ -151,35 +151,35 @@ func GetVMIInformerIndexers() cache.Indexers {
 
 func (f *kubeInformerFactory) VirtualMachineInstances() cache.SharedIndexInformer {
 	return f.getInformer(gvr.From(kubev1.VirtualMachineInstance{}), func() cache.SharedIndexInformer {
-		lw := cache.NewListWatchFromClient(clients.Instance.KubevirtClient.RestClient(), "virtualmachineinstances", k8sv1.NamespaceAll, fields.Everything())
+		lw := cache.NewListWatchFromClient(clients.Clients.KubevirtClient.RestClient(), "virtualmachineinstances", k8sv1.NamespaceAll, fields.Everything())
 		return cache.NewSharedIndexInformer(lw, &kubev1.VirtualMachineInstance{}, f.defaultResync, GetVMIInformerIndexers())
 	})
 }
 
 func (f *kubeInformerFactory) Multus() cache.SharedIndexInformer {
 	return f.getInformer(gvr.From(netv1.NetworkAttachmentDefinition{}), func() cache.SharedIndexInformer {
-		lw := cache.NewListWatchFromClient(clients.Instance.KubeNetWorldClient, "network-attachment-definitions", k8sv1.NamespaceAll, fields.Everything())
+		lw := cache.NewListWatchFromClient(clients.Clients.KubeNetWorldClient, "network-attachment-definitions", k8sv1.NamespaceAll, fields.Everything())
 		return cache.NewSharedIndexInformer(lw, &netv1.NetworkAttachmentDefinition{}, f.defaultResync, cache.Indexers{})
 	})
 }
 
 func (f *kubeInformerFactory) Subnet() cache.SharedIndexInformer {
 	return f.getInformer(gvr.From(kubeovn.Subnet{}), func() cache.SharedIndexInformer {
-		lw := cache.NewListWatchFromClient(clients.Instance.KubeOVNRestClient, "subnets", k8sv1.NamespaceAll, fields.Everything())
+		lw := cache.NewListWatchFromClient(clients.Clients.KubeOVNRestClient, "subnets", k8sv1.NamespaceAll, fields.Everything())
 		return cache.NewSharedIndexInformer(lw, &kubeovn.Subnet{}, f.defaultResync, cache.Indexers{})
 	})
 }
 
 func (f *kubeInformerFactory) IPPool() cache.SharedIndexInformer {
 	return f.getInformer(gvr.From(kubeovn.IPPool{}), func() cache.SharedIndexInformer {
-		lw := cache.NewListWatchFromClient(clients.Instance.KubeOVNRestClient, "ippools", k8sv1.NamespaceAll, fields.Everything())
+		lw := cache.NewListWatchFromClient(clients.Clients.KubeOVNRestClient, "ippools", k8sv1.NamespaceAll, fields.Everything())
 		return cache.NewSharedIndexInformer(lw, &kubeovn.IPPool{}, f.defaultResync, cache.Indexers{})
 	})
 }
 
 func (f *kubeInformerFactory) VPC() cache.SharedIndexInformer {
 	return f.getInformer(gvr.From(kubeovn.Vpc{}), func() cache.SharedIndexInformer {
-		lw := cache.NewListWatchFromClient(clients.Instance.KubeOVNRestClient, "vpcs", k8sv1.NamespaceAll, fields.Everything())
+		lw := cache.NewListWatchFromClient(clients.Clients.KubeOVNRestClient, "vpcs", k8sv1.NamespaceAll, fields.Everything())
 		return cache.NewSharedIndexInformer(lw, &kubeovn.Vpc{}, f.defaultResync, cache.Indexers{})
 	})
 }
@@ -218,35 +218,35 @@ func GetVirtualMachineInformerIndexers() cache.Indexers {
 
 func (f *kubeInformerFactory) VirtualMachine() cache.SharedIndexInformer {
 	return f.getInformer(gvr.From(kubev1.VirtualMachine{}), func() cache.SharedIndexInformer {
-		lw := cache.NewListWatchFromClient(clients.Instance.KubevirtClient.RestClient(), "virtualmachines", k8sv1.NamespaceAll, fields.Everything())
+		lw := cache.NewListWatchFromClient(clients.Clients.KubevirtClient.RestClient(), "virtualmachines", k8sv1.NamespaceAll, fields.Everything())
 		return cache.NewSharedIndexInformer(lw, &kubev1.VirtualMachine{}, f.defaultResync, cache.Indexers{})
 	})
 }
 
 func (f *kubeInformerFactory) VirtualMachineSummary() cache.SharedIndexInformer {
 	return f.getInformer(gvr.From(v1alpha1.VirtualMachineSummary{}), func() cache.SharedIndexInformer {
-		lw := cache.NewListWatchFromClient(clients.Instance.VinkRestClient, "virtualmachinesummarys", k8sv1.NamespaceAll, fields.Everything())
+		lw := cache.NewListWatchFromClient(clients.Clients.VinkRestClient, "virtualmachinesummarys", k8sv1.NamespaceAll, fields.Everything())
 		return cache.NewSharedIndexInformer(lw, &v1alpha1.VirtualMachineSummary{}, f.defaultResync, cache.Indexers{})
 	})
 }
 
 func (f *kubeInformerFactory) DataVolume() cache.SharedIndexInformer {
 	return f.getInformer(gvr.From(cdiv1.DataVolume{}), func() cache.SharedIndexInformer {
-		lw := cache.NewListWatchFromClient(clients.Instance.CdiClient().CdiV1beta1().RESTClient(), "datavolumes", k8sv1.NamespaceAll, fields.Everything())
+		lw := cache.NewListWatchFromClient(clients.Clients.CdiClient().CdiV1beta1().RESTClient(), "datavolumes", k8sv1.NamespaceAll, fields.Everything())
 		return cache.NewSharedIndexInformer(lw, &cdiv1.DataVolume{}, f.defaultResync, cache.Indexers{})
 	})
 }
 
 func (f *kubeInformerFactory) Node() cache.SharedIndexInformer {
 	return f.getInformer(gvr.From(k8sv1.Node{}), func() cache.SharedIndexInformer {
-		lw := cache.NewListWatchFromClient(clients.Instance.KubeRestClient, "nodes", k8sv1.NamespaceAll, fields.Everything())
+		lw := cache.NewListWatchFromClient(clients.Clients.KubeRestClient, "nodes", k8sv1.NamespaceAll, fields.Everything())
 		return cache.NewSharedIndexInformer(lw, &k8sv1.Node{}, f.defaultResync, cache.Indexers{})
 	})
 }
 
 func (f *kubeInformerFactory) Event() cache.SharedIndexInformer {
 	return f.getInformer(gvr.From(k8sv1.Event{}), func() cache.SharedIndexInformer {
-		lw := cache.NewListWatchFromClient(clients.Instance.KubeRestClient, "events", k8sv1.NamespaceAll, fields.Everything())
+		lw := cache.NewListWatchFromClient(clients.Clients.KubeRestClient, "events", k8sv1.NamespaceAll, fields.Everything())
 		return cache.NewSharedIndexInformer(lw, &k8sv1.Event{}, f.defaultResync, cache.Indexers{})
 	})
 }

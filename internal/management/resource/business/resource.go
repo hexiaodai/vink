@@ -21,7 +21,7 @@ import (
 )
 
 func List(ctx context.Context, gvr schema.GroupVersionResource, opts *resource_v1alpha1.ListOptions) ([]string, error) {
-	cli := clients.Instance.DynamicClient().Resource(gvr)
+	cli := clients.Clients.DynamicClient().Resource(gvr)
 
 	items := make([]unstructured.Unstructured, 0)
 
@@ -248,14 +248,14 @@ func listResourcesByArbitraryFieldSelectors(ctx context.Context, cli dynamic.Nam
 }
 
 func Delete(ctx context.Context, gvr schema.GroupVersionResource, nn *types.NamespaceName) error {
-	cli := clients.Instance.DynamicClient().Resource(gvr)
+	cli := clients.Clients.DynamicClient().Resource(gvr)
 	return cli.Namespace(nn.Namespace).Delete(ctx, nn.Name, metav1.DeleteOptions{})
 }
 
 func Create(ctx context.Context, gvr schema.GroupVersionResource, crd string) (string, error) {
 	obj, err := pkg_clients.JSONToUnstructured(crd)
 
-	unStructObj, err := clients.Instance.DynamicClient().Resource(gvr).Namespace(obj.GetNamespace()).Create(ctx, obj, metav1.CreateOptions{})
+	unStructObj, err := clients.Clients.DynamicClient().Resource(gvr).Namespace(obj.GetNamespace()).Create(ctx, obj, metav1.CreateOptions{})
 	if err != nil {
 		return "", err
 	}
@@ -271,7 +271,7 @@ func Update(ctx context.Context, gvr schema.GroupVersionResource, crd string) (s
 
 	obj := unstructured.Unstructured{Object: payload}
 
-	unStructObj, err := clients.Instance.DynamicClient().Resource(gvr).Namespace(obj.GetNamespace()).Update(ctx, &obj, metav1.UpdateOptions{})
+	unStructObj, err := clients.Clients.DynamicClient().Resource(gvr).Namespace(obj.GetNamespace()).Update(ctx, &obj, metav1.UpdateOptions{})
 	if err != nil {
 		return "", err
 	}
@@ -279,7 +279,7 @@ func Update(ctx context.Context, gvr schema.GroupVersionResource, crd string) (s
 }
 
 func Get(ctx context.Context, gvr schema.GroupVersionResource, namespace, name string) (string, error) {
-	cli := clients.Instance.DynamicClient().Resource(gvr)
+	cli := clients.Clients.DynamicClient().Resource(gvr)
 	unStructObj, err := cli.Namespace(namespace).Get(ctx, name, metav1.GetOptions{})
 	if err != nil {
 		return "", err

@@ -14,7 +14,7 @@ const (
 )
 
 func VirtualMachinePowerState(ctx context.Context, namespaceName *types.NamespaceName, powerState vmv1alpha1.VirtualMachinePowerStateRequest_PowerState) error {
-	cli := clients.Instance.VirtualMachine(namespaceName.Namespace)
+	cli := clients.Clients.VirtualMachine(namespaceName.Namespace)
 
 	switch powerState {
 	case vmv1alpha1.VirtualMachinePowerStateRequest_ON:

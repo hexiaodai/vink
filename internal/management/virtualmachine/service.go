@@ -38,7 +38,7 @@ func RegisterSerialConsole(router *mux.Router) {
 		vars := mux.Vars(request)
 		namespace, name := vars["namespace"], vars["name"]
 
-		parse, err := url.Parse(clients.Instance.Config().Host)
+		parse, err := url.Parse(clients.Clients.Config().Host)
 		if err != nil {
 			writer.WriteHeader(http.StatusInternalServerError)
 			return
@@ -47,7 +47,7 @@ func RegisterSerialConsole(router *mux.Router) {
 
 		dialer := websocket.Dialer{
 			HandshakeTimeout: 15 * time.Second,
-			TLSClientConfig:  generateSerialConsoleTLSConfig(clients.Instance.Config()),
+			TLSClientConfig:  generateSerialConsoleTLSConfig(clients.Clients.Config()),
 		}
 
 		serverConn, _, err := dialer.Dial(ws, http.Header{})

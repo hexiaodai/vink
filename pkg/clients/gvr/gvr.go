@@ -5,24 +5,12 @@ import (
 	kubeovn "github.com/kubeovn/kube-ovn/pkg/apis/kubeovn/v1"
 	"github.com/kubevm.io/vink/apis/types"
 	"github.com/kubevm.io/vink/pkg/k8s/apis/vink/v1alpha1"
-	spv2beta1 "github.com/spidernet-io/spiderpool/pkg/k8s/apis/spiderpool.spidernet.io/v2beta1"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/client-go/kubernetes/scheme"
 	virtv1 "kubevirt.io/api/core/v1"
 	cdiv1beta1 "kubevirt.io/containerized-data-importer-api/pkg/apis/core/v1beta1"
 )
-
-func init() {
-	cdiv1beta1.AddToScheme(scheme.Scheme)
-	spv2beta1.AddToScheme(scheme.Scheme)
-	virtv1.AddToScheme(scheme.Scheme)
-	netv1.AddToScheme(scheme.Scheme)
-	kubeovn.AddToScheme(scheme.Scheme)
-	storagev1.AddToScheme(scheme.Scheme)
-	v1alpha1.AddToScheme(scheme.Scheme)
-}
 
 func From[T any](o T) schema.GroupVersionResource {
 	switch any(o).(type) {
@@ -139,18 +127,3 @@ func ResolveGVR(rt types.ResourceType) schema.GroupVersionResource {
 
 	return schema.GroupVersionResource{}
 }
-
-// func GetGVRFromObjectUsingMapper(obj runtime.Object) (schema.GroupVersionResource, error) {
-// 	cachedDiscoveryClient := memory.NewMemCacheClient(clients.GetClients().GetDiscoveryClient())
-
-// 	mapper := restmapper.NewDeferredDiscoveryRESTMapper(cachedDiscoveryClient)
-
-// 	gvk := obj.GetObjectKind().GroupVersionKind()
-
-// 	mapping, err := mapper.RESTMapping(gvk.GroupKind(), gvk.Version)
-// 	if err != nil {
-// 		return schema.GroupVersionResource{}, err
-// 	}
-
-// 	return mapping.Resource, nil
-// }

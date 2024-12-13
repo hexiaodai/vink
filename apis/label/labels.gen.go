@@ -49,9 +49,6 @@ type Instance struct {
 	// FeatureStatus of this label.
 	FeatureStatus FeatureStatus
 
-	// Hide the existence of this label when outputting usage information.
-	Hidden bool
-
 	// Mark this label as deprecated when generating usage information.
 	Deprecated bool
 
@@ -63,36 +60,32 @@ var (
 
 	VinkDatavolumeType = Instance {
 		Name:          "vink.kubevm.io/datavolume.type",
-		Description:   "Defines the type of datavolume, such as root for the "+
-                        "system datavolume, image for the system image, and data "+
-                        "for the data datavolume.",
+		Description:   "Specifies the type of data volume associated with the "+
+                        "virtual machine.",
 		FeatureStatus: Alpha,
-		Hidden:        true,
 		Deprecated:    false,
 		Resources: []ResourceTypes{
 			DataVolume,
 		},
 	}
 
-	VinkVirtualmachineOs = Instance {
-		Name:          "vink.kubevm.io/virtualmachine.os",
+	VinkOperatingSystem = Instance {
+		Name:          "vink.kubevm.io/operating-system",
 		Description:   "Defines the operating system of the virtual machine, "+
                         "where 'windows' represents the Windows operating system, "+
                         "and 'linux' represents the Linux operating system.",
 		FeatureStatus: Alpha,
-		Hidden:        true,
 		Deprecated:    false,
 		Resources: []ResourceTypes{
 			DataVolume,
 		},
 	}
 
-	VinkVirtualmachineVersion = Instance {
-		Name:          "vink.kubevm.io/virtualmachine.version",
+	VinkOperatingSystemVersion = Instance {
+		Name:          "vink.kubevm.io/operating-system.version",
 		Description:   "Defines the operating system version of the virtual "+
                         "machine.",
 		FeatureStatus: Alpha,
-		Hidden:        true,
 		Deprecated:    false,
 		Resources: []ResourceTypes{
 			DataVolume,
@@ -104,8 +97,8 @@ var (
 func AllResourceLabels() []*Instance {
 	return []*Instance {
 		&VinkDatavolumeType,
-		&VinkVirtualmachineOs,
-		&VinkVirtualmachineVersion,
+		&VinkOperatingSystem,
+		&VinkOperatingSystemVersion,
 	}
 }
 
