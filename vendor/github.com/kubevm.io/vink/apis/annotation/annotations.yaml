@@ -2,21 +2,18 @@ annotations:
   - name: cdi.kubevirt.io/storage.bind.immediate.requested
     featureStatus: Alpha
     description: CDI executes binding requests immediately.
-    hidden: true
     deprecated: false
     resources:
       - DataVolume
-  - name: vink.kubevm.io/virtualmachine.binding
+  - name: vink.kubevm.io/datavolume.owner
     featureStatus: Alpha
     description: Indicates that this DataVolume is being used by a specific virtual machine.
-    hidden: true
     deprecated: false
     resources:
       - DataVolume
-  - name: vink.kubevm.io/virtualmachineinstance.host
+  - name: vink.kubevm.io/host
     featureStatus: Alpha
-    description: 
-    hidden: true
+    description: Specifies the host machine where the virtual machine instance is scheduled to run.
     deprecated: false
     resources:
       - VirtualMachineInstance

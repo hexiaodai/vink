@@ -6,7 +6,7 @@ import (
 	netv1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
 	kubeovn "github.com/kubeovn/kube-ovn/pkg/apis/kubeovn/v1"
 	"github.com/kubevm.io/vink/internal/controller"
-	virtualmachinesummarys "github.com/kubevm.io/vink/internal/controller/summarys"
+	vm_summary "github.com/kubevm.io/vink/internal/controller/vm_summary"
 	"github.com/kubevm.io/vink/pkg/clients"
 	"github.com/kubevm.io/vink/pkg/k8s/apis/vink/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
@@ -42,7 +42,7 @@ func (dm *Daemon) Execute(ctx context.Context) error {
 		Development: true,
 	})))
 
-	mgr, err := ctrl.NewManager(clients.Instance.Config(), ctrl.Options{
+	mgr, err := ctrl.NewManager(clients.Clients.Config(), ctrl.Options{
 		Scheme:                  scheme,
 		LeaderElectionID:        "vink.kubevm.io/ctrl",
 		LeaderElectionNamespace: "vink",
@@ -55,42 +55,42 @@ func (dm *Daemon) Execute(ctx context.Context) error {
 		return err
 	}
 
-	if err := (&virtualmachinesummarys.VirtualMachineReconciler{
+	if err := (&vm_summary.VirtualMachineReconciler{
 		Client: mgr.GetClient(),
 		Cache:  mgr.GetCache(),
 	}).SetupWithManager(mgr); err != nil {
 		return err
 	}
 
-	if err := (&virtualmachinesummarys.VirtualMachineInstanceReconciler{
+	if err := (&vm_summary.VirtualMachineInstanceReconciler{
 		Client: mgr.GetClient(),
 		Cache:  mgr.GetCache(),
 	}).SetupWithManager(mgr); err != nil {
 		return err
 	}
 
-	if err := (&virtualmachinesummarys.NetworkReconciler{
+	if err := (&vm_summary.NetworkReconciler{
 		Client: mgr.GetClient(),
 		Cache:  mgr.GetCache(),
 	}).SetupWithManager(mgr); err != nil {
 		return err
 	}
 
-	if err := (&virtualmachinesummarys.DataVolumeReconciler{
+	if err := (&vm_summary.DataVolumeReconciler{
 		Client: mgr.GetClient(),
 		Cache:  mgr.GetCache(),
 	}).SetupWithManager(mgr); err != nil {
 		return err
 	}
 
-	if err := (&controller.DataVolumeBindingReconciler{
+	if err := (&controller.DataVolumeOwnerReconciler{
 		Client: mgr.GetClient(),
 		Cache:  mgr.GetCache(),
 	}).SetupWithManager(mgr); err != nil {
 		return err
 	}
 
-	if err := (&controller.HostBindingReconciler{
+	if err := (&controller.VMIHostReconciler{
 		Client: mgr.GetClient(),
 		Cache:  mgr.GetCache(),
 	}).SetupWithManager(mgr); err != nil {

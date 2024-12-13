@@ -90,9 +90,6 @@ type Instance struct {
 	// FeatureStatus of this {{ .Collection.NameLowercase }}.
 	FeatureStatus FeatureStatus
 
-	// Hide the existence of this {{ .Collection.NameLowercase }} when outputting usage information.
-	Hidden bool
-
 	// Mark this {{ .Collection.NameLowercase }} as deprecated when generating usage information.
 	Deprecated bool
 
@@ -106,7 +103,6 @@ var (
 		Name:          "{{ .Name }}",
 		Description:   {{ processGoDescription .Description 24 }},
 		FeatureStatus: {{ .FeatureStatus }},
-		Hidden:        {{ .Hidden }},
 		Deprecated:    {{ .Deprecated }},
 		Resources: []ResourceTypes{
 			{{- range .Resources }}
@@ -175,7 +171,6 @@ export interface Instance {
   name: string;
   description: string;
   featureStatus: FeatureStatus;
-  hidden: boolean;
   deprecated: boolean;
   resources: ResourceTypes[];
 }
@@ -186,7 +181,6 @@ export const instances: { [key: string]: Instance } = {
     name: "{{ .Name }}",
     description: {{ processGoDescription .Description 24 }},
     featureStatus: FeatureStatus.{{ .FeatureStatus }},
-    hidden: {{ .Hidden }},
     deprecated: {{ .Deprecated }},
     resources: [
       {{ range .Resources }}ResourceTypes.{{ . }},{{ end }}
@@ -400,9 +394,6 @@ type Variable struct {
 
 	// Description of the collection variable.
 	Description string `json:"description"`
-
-	// Hide the existence of this collection variable when outputting usage information.
-	Hidden bool `json:"hidden"`
 
 	// Mark this annotation as deprecated when generating usage information.
 	Deprecated bool `json:"deprecated"`

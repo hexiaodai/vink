@@ -23,9 +23,11 @@ func main() {
 			if err := config.ParseConfigFromFile(configFile); err != nil {
 				return err
 			}
-			if config.Instance.Debug {
-				log.SetDebug()
-			}
+
+			log.InitEngine(&log.Config{
+				Debug:  config.Instance.Debug,
+				Output: "stdout",
+			})
 
 			if err := clients.InitClients(); err != nil {
 				return err

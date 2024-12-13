@@ -8,7 +8,6 @@ import (
 	kubeovnv1 "github.com/kubeovn/kube-ovn/pkg/apis/kubeovn/v1"
 	"github.com/kubevm.io/vink/pkg/k8s/apis/vink/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -19,9 +18,23 @@ import (
 	virtv1 "kubevirt.io/api/core/v1"
 	"kubevirt.io/client-go/kubecli"
 	cdiv1beta1 "kubevirt.io/containerized-data-importer-api/pkg/apis/core/v1beta1"
+
+	kubeovn "github.com/kubeovn/kube-ovn/pkg/apis/kubeovn/v1"
+	spv2beta1 "github.com/spidernet-io/spiderpool/pkg/k8s/apis/spiderpool.spidernet.io/v2beta1"
+	storagev1 "k8s.io/api/storage/v1"
 )
 
-var Instance = &clients{}
+func init() {
+	cdiv1beta1.AddToScheme(scheme.Scheme)
+	spv2beta1.AddToScheme(scheme.Scheme)
+	virtv1.AddToScheme(scheme.Scheme)
+	netv1.AddToScheme(scheme.Scheme)
+	kubeovn.AddToScheme(scheme.Scheme)
+	storagev1.AddToScheme(scheme.Scheme)
+	v1alpha1.AddToScheme(scheme.Scheme)
+}
+
+var Clients = &clients{}
 
 type clients struct {
 	kubecli.KubevirtClient
@@ -41,31 +54,31 @@ func InitClients(args ...string) error {
 	if err != nil {
 		return err
 	}
-	Instance.VinkRestClient = vinkRestClient
+	Clients.VinkRestClient = vinkRestClient
 
 	kubeovnRestClient, err := newRestClientFromRESTConfig(kubeconfig, &kubeovnv1.SchemeGroupVersion)
 	if err != nil {
 		return err
 	}
-	Instance.KubeOVNRestClient = kubeovnRestClient
+	Clients.KubeOVNRestClient = kubeovnRestClient
 
 	kubevirtClient, err := kubecli.GetKubevirtClientFromRESTConfig(kubeconfig)
 	if err != nil {
 		return err
 	}
-	Instance.KubevirtClient = kubevirtClient
+	Clients.KubevirtClient = kubevirtClient
 
 	kubeRestClient, err := newRestClientFromRESTConfig(kubeconfig, &corev1.SchemeGroupVersion)
 	if err != nil {
 		return err
 	}
-	Instance.KubeRestClient = kubeRestClient
+	Clients.KubeRestClient = kubeRestClient
 
 	kubeNetworkCLient, err := newRestClientFromRESTConfig(kubeconfig, &netv1.SchemeGroupVersion)
 	if err != nil {
 		return err
 	}
-	Instance.KubeNetWorldClient = kubeNetworkCLient
+	Clients.KubeNetWorldClient = kubeNetworkCLient
 
 	return nil
 }
@@ -132,9 +145,9 @@ func UnstructuredToJSON(obj *unstructured.Unstructured) (string, error) {
 	}
 	return string(jsonBytes), nil
 }
-func JSONToUnstructured(crd string) (*unstructured.Unstructured, error) {
+func JSONToUnstructured(data string) (*unstructured.Unstructured, error) {
 	obj := map[string]interface{}{}
-	if err := json.Unmarshal([]byte(crd), &obj); err != nil {
+	if err := json.Unmarshal([]byte(data), &obj); err != nil {
 		return nil, err
 	}
 
@@ -152,40 +165,6 @@ func InterfaceToUnstructured(obj any) (*unstructured.Unstructured, error) {
 
 	un.SetUnstructuredContent(c)
 	return un, nil
-}
-
-func InterfaceToObjectMeta(obj any) (*metav1.ObjectMeta, error) {
-	un := &unstructured.Unstructured{}
-	c, err := runtime.DefaultUnstructuredConverter.ToUnstructured(obj)
-	if err != nil {
-		return nil, err
-	}
-	un.SetUnstructuredContent(c)
-
-	return &metav1.ObjectMeta{
-		Name:                       un.GetName(),
-		GenerateName:               un.GetGenerateName(),
-		Namespace:                  un.GetNamespace(),
-		Labels:                     un.GetLabels(),
-		Annotations:                un.GetAnnotations(),
-		UID:                        un.GetUID(),
-		CreationTimestamp:          un.GetCreationTimestamp(),
-		DeletionTimestamp:          un.GetDeletionTimestamp(),
-		DeletionGracePeriodSeconds: un.GetDeletionGracePeriodSeconds(),
-		Finalizers:                 un.GetFinalizers(),
-		OwnerReferences:            un.GetOwnerReferences(),
-		ResourceVersion:            un.GetResourceVersion(),
-		SelfLink:                   un.GetSelfLink(),
-		Generation:                 un.GetGeneration(),
-	}, nil
-}
-
-func CRDToJSON(obj any) (string, error) {
-	jsonBytes, err := json.Marshal(obj)
-	if err != nil {
-		return "", err
-	}
-	return string(jsonBytes), nil
 }
 
 func InterfaceToJSON(obj any) (string, error) {
@@ -216,9 +195,4 @@ func InterfaceToJSON(obj any) (string, error) {
 		return "", err
 	}
 	return string(jsonBytes), err
-}
-
-func JSONToCRD[T runtime.Object](crd string) (T, error) {
-	var obj T
-	return obj, json.Unmarshal([]byte(crd), &obj)
 }
