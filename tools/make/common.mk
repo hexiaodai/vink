@@ -31,9 +31,11 @@ endif
 # ENV Options:
 # ====================================================================================================
 
-OCI_REGISTRY ?= oci://docker.io/kubevm-io
+OCI_REGISTRY ?= oci://docker.io/hejianmin
+# OCI_REGISTRY ?= oci://docker.io/kubevm-io
 # REGISTRY is the image registry to use for build and push image targets.
-REGISTRY ?= docker.io/kubevm-io
+REGISTRY ?= docker.io/hejianmin
+# REGISTRY ?= docker.io/kubevm-io
 # IMAGE_NAME is the name of image
 # Use vink-dev in default when developing
 # Use vink when releasing an image.
@@ -45,7 +47,7 @@ IMAGE_VINK ?= $(REGISTRY)/$(IMAGE_NAME_VINK)
 # Version is the tag to use for build and push image targets.
 VERSION ?= $(shell git describe --tags --abbrev=8)
 ifeq ($(VERSION),)
-VERSION = 0.0.0-$(shell git rev-parse --short=8 HEAD)
+VERSION = 0.0.1-$(shell git rev-parse --short=8 HEAD)
 endif
 
 .PHONY: help

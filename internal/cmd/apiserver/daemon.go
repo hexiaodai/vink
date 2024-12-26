@@ -7,6 +7,7 @@ import (
 	"github.com/kubevm.io/vink/config"
 	"github.com/kubevm.io/vink/internal/management"
 
+	grpcwebproxy "github.com/kubevm.io/vink/internal/pkg/grpc-web-proxy"
 	"github.com/kubevm.io/vink/internal/pkg/servers"
 
 	"github.com/kubevm.io/vink/pkg/informer"
@@ -59,7 +60,22 @@ func (dm *Daemon) Execute(ctx context.Context) error {
 	httpRegister, err := management.RegisterHTTPRoutes()
 	dm.httpServer = servers.NewHTTPServer("apiserver", httpAddress, httpRegister)
 	log.Infof("Starting http server at: %s", httpAddress)
-	return dm.httpServer.Run()
+	go func() {
+		if err := dm.httpServer.Run(); err != nil {
+			panic(err)
+		}
+	}()
+
+	grpcweb := grpcwebproxy.NewDetaaultProxy()
+
+	go func() {
+		if err := grpcweb.Run(ctx); err != nil {
+			panic(err)
+		}
+	}()
+
+	<-ctx.Done()
+	return nil
 }
 
 func (dm *Daemon) Shutdown() error {

@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vink
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: vink
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vink
+  template:
+    metadata:
+      labels:
+        app: vink
+    spec:
+      containers:
+      - name: vink
+        image: docker.io/hejianmin/vink@sha256:a2f5610bdb98aeab1644258fca2907c66114e1eb415e5d23e874dd2bd7a8c7fc
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9090
+          name: http
+          protocol: TCP
+        - containerPort: 9091
+          name: grpc
+          protocol: TCP
+        - containerPort: 8080
+          name: grpc-web
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 500m
+            memory: 128Mi
+          requests:
+            cpu: 10m
+            memory: 64Mi
+        volumeMounts:
+        - readOnly: true
+          mountPath: /app
+          name: config
+      serviceAccountName: vink
+      volumes:
+        - name: config
+          configMap:
+            name: vink

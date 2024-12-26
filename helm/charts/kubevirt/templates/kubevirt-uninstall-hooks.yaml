@@ -1,35 +1,33 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.namespace }}
   name: {{ template "kubevirt.crUninstallHook.name" . }}
   {{ template "kubevirt.crUninstallHook.annotations" (dict "hookWeight" 1) }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.namespace }}
   name: {{ template "kubevirt.crUninstallHook.name" . }}
   {{ template "kubevirt.crUninstallHook.annotations" (dict "hookWeight" 1) }}
 rules:
   - apiGroups: [ "kubevirt.io" ]
     resources: [ "kubevirts" ]
-    resourceNames:
-      - "kubevirt"
-    verbs: [ "delete" ]
+    verbs: [ "*" ]
   - apiGroups: [ "apps" ]
     resources: [ "deployments", "daemonsets" ]
-    verbs: [ "get", "list" ]
+    verbs: [ "*" ]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.namespace }}
   name: {{ template "kubevirt.crUninstallHook.name" . }}
   {{ template "kubevirt.crUninstallHook.annotations" (dict "hookWeight" 2) }}
 subjects:
   - kind: ServiceAccount
-    namespace: {{ .Release.Namespace }}
+    namespace: {{ .Values.namespace }}
     name: {{ template "kubevirt.crUninstallHook.name" . }}
 roleRef:
   kind: Role
@@ -39,7 +37,7 @@ roleRef:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.namespace }}
   name: {{ template "kubevirt.crUninstallHook.name" . }}
   {{ template "kubevirt.crUninstallHook.annotations" (dict "hookWeight" 3) }}
 spec:
@@ -54,18 +52,23 @@ spec:
           image: {{ .Values.hookImage }}
           securityContext:
             {{- toYaml .Values.hookSecurityContext | nindent 12 }}
+          command: [ "/bin/bash", "-c" ]
           args:
-            - delete
-            - kubevirt
-            - kubevirt
-        - name: {{ template "kubevirt.crUninstallHook.name" . }}-cleanup
-          image: {{ .Values.hookImage }}
-          securityContext:
-            {{- toYaml .Values.hookSecurityContext | nindent 12 }}
-          args:
-            - wait
-            - --for=delete
-            - deployments/virt-api
-            - deployments/virt-controller
-            - daemonsets/virt-handler
-            - --timeout=60s
+            - >
+              echo '[INFO] Deleting all kubevirt resources...';
+              kubectl delete kubevirt --wait --all --ignore-not-found;
+
+              echo '[INFO] Waiting for kubevirt to be fully deleted...';
+              kubectl wait --for=delete kubevirts.kubevirt.io/kubevirt;
+
+              echo '[INFO] Waiting for the virt-api deployment to be deleted...';
+              kubectl wait --for=delete deployments/virt-api;
+
+              echo '[INFO] Waiting for the virt-controller deployment to be deleted...';
+              kubectl wait --for=delete deployments/virt-controller;
+
+              echo '[INFO] Waiting for the virt-handler daemonset to be deleted...';
+              kubectl wait --for=delete daemonsets/virt-handler;
+
+              echo '[INFO] All kubevirt resources and deployments deletion steps completed.';
+

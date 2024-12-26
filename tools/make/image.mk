@@ -24,4 +24,4 @@ image.build.%:
 
 .PHONY: image.release
 image.release: ## Push docker images to registry.
-image.release: image.build.vink
+image.release: image.build.vink image.build.shell
