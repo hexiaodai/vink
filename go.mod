@@ -7,11 +7,16 @@ replace github.com/kubevm.io/vink/apis => ./apis
 require (
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/websocket v1.5.3
+	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
+	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.22.0
+	github.com/improbable-eng/grpc-web v0.15.0
 	github.com/k8snetworkplumbingwg/network-attachment-definition-client v1.7.1
 	github.com/kubeovn/kube-ovn v1.12.23
 	github.com/kubevm.io/vink/apis v0.0.0-00010101000000-000000000000
 	github.com/mitchellh/mapstructure v1.5.0
+	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f
+	github.com/mwitkow/grpc-proxy v0.0.0-20230212185441-f345521cb9c9
 	github.com/samber/lo v1.39.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/slok/go-http-metrics v0.12.0
@@ -35,7 +40,9 @@ require (
 require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
+	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
 	github.com/emicklei/go-restful/v3 v3.12.1 // indirect
 	github.com/envoyproxy/protoc-gen-validate v1.0.4 // indirect
 	github.com/evanphx/json-patch/v5 v5.9.0 // indirect
@@ -59,6 +66,8 @@ require (
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
+	github.com/jpillora/backoff v1.0.0 // indirect
+	github.com/klauspost/compress v1.17.8 // indirect
 	github.com/kubernetes-csi/external-snapshotter/client/v4 v4.2.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
@@ -71,6 +80,7 @@ require (
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.55.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
+	github.com/rs/cors v1.7.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	go.mongodb.org/mongo-driver v1.13.1 // indirect
 	go.uber.org/zap v1.27.0 // indirect
@@ -79,6 +89,7 @@ require (
 	gopkg.in/evanphx/json-patch.v4 v4.12.0 // indirect
 	k8s.io/apiextensions-apiserver v0.31.0 // indirect
 	k8s.io/kube-openapi v0.31.0 // indirect
+	nhooyr.io/websocket v1.8.6 // indirect
 )
 
 require (
@@ -105,7 +116,7 @@ require (
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.7.0 // indirect
-	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/spf13/pflag v1.0.5
 	github.com/spidernet-io/spiderpool v0.9.3
 	github.com/subosito/gotenv v1.6.0 // indirect
 	go.opentelemetry.io/otel v1.30.0 // indirect

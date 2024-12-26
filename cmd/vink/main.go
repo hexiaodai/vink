@@ -59,7 +59,7 @@ func main() {
 		},
 	}
 
-	root.PersistentFlags().StringVarP(&configFile, "config", "c", "config/config.yaml", "Config file path.")
+	root.PersistentFlags().StringVarP(&configFile, "config", "c", "/app/config.yaml", "Config file path.")
 
 	if err := root.Execute(); err != nil {
 		panic(err)

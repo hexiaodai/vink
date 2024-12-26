@@ -15,8 +15,9 @@ type Config struct {
 }
 
 type APIServer struct {
-	GRPC string `json:"grpc"`
-	HTTP string `json:"http"`
+	GRPC    string `json:"grpc"`
+	GRPCWeb int `json:"grpcWeb"`
+	HTTP    string `json:"http"`
 }
 
 func ParseConfigFromFile(configPath string) error {

@@ -1,3 +1,5 @@
+namespace: kubevirt
+
 operator:
   image: registry.suse.com/suse/sles/15.5/virt-operator
   version: 1.1.1-150500.8.12.1
@@ -16,8 +18,11 @@ kubevirt:
   uninstallStrategy: ""
   # WorkloadUpdateStrategy defines at the cluster level how to handle automated workload updates.
   workloadUpdateStrategy: {}
+  monitorAccount: prometheus-k8s
+  monitorNamespace: monitoring
 
-hookImage: rancher/kubectl:v1.28.7
+hookImage: hejianmin/shell:0.0.1-4e596d93
+# hookImage: rancher/kubectl:v1.28.7
 hookRestartPolicy: OnFailure
 hookSecurityContext:
   seccompProfile:

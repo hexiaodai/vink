@@ -2,7 +2,7 @@ apiVersion: kubevirt.io/v1
 kind: KubeVirt
 metadata:
   name: kubevirt
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.namespace }}
 spec:
   {{- with .Values.kubevirt.configuration }}
   configuration:
@@ -24,3 +24,5 @@ spec:
   workloadUpdateStrategy:
   {{- toYaml . | nindent 4 }}
   {{- end }}
+  monitorAccount: {{ .Values.kubevirt.monitorAccount }}
+  monitorNamespace: {{ .Values.kubevirt.monitorNamespace }}

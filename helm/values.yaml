@@ -1,0 +1,29 @@
+vink:
+  namespace: vink
+  configuration:
+    debug: true
+    apiserver:
+      http: 9090
+      grpc: 9091
+      grpcWeb: 8080
+
+kubevirt:
+  namespace: kubevirt
+
+cdi:
+  namespace: cdi
+
+kube-ovn:
+  namespace: kube-system
+
+kube-prometheus-stack:
+  namespaceOverride: monitoring
+  grafana:
+    namespaceOverride: monitoring
+  prometheus-node-exporter:
+    namespaceOverride: monitoring
+  kube-state-metrics:
+    namespaceOverride: monitoring
+
+local-path-storage:
+  namespace: local-path-storage

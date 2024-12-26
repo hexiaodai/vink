@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.namespace }}
   name: {{ template "kubevirt.namespaceHook.name" . }}
   {{ template "kubevirt.namespaceHook.annotations" (dict "hookWeight" 1) }}
 ---
@@ -14,7 +14,7 @@ rules:
   - apiGroups: [ "" ]
     resources: [ "namespaces" ]
     resourceNames:
-      - {{ .Release.Namespace | quote }}
+      - {{ .Values.namespace | quote }}
     verbs: [ "get", "patch" ]
   - apiGroups: [ "management.cattle.io" ] # Rancher
     resources: [ "projects" ]
@@ -27,7 +27,7 @@ metadata:
   {{ template "kubevirt.namespaceHook.annotations" (dict "hookWeight" 2) }}
 subjects:
   - kind: ServiceAccount
-    namespace: {{ .Release.Namespace }}
+    namespace: {{ .Values.namespace }}
     name: {{ template "kubevirt.namespaceHook.name" . }}
 roleRef:
   kind: ClusterRole
@@ -37,7 +37,7 @@ roleRef:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.namespace }}
   name: {{ template "kubevirt.namespaceHook.name" . }}
   {{ template "kubevirt.namespaceHook.annotations" (dict "hookWeight" 3) }}
 spec:
@@ -52,9 +52,12 @@ spec:
           securityContext:
             {{- toYaml .Values.hookSecurityContext | nindent 12 }}
           image: {{ .Values.hookImage }}
+          command:
+            - kubectl
           args:
             - label
             - namespace
-            - {{ .Release.Namespace }}
+            - {{ .Values.namespace }}
             - kubevirt.io=
             - pod-security.kubernetes.io/enforce=privileged
+            - --overwrite
