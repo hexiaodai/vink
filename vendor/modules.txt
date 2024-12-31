@@ -134,10 +134,6 @@ github.com/gorilla/websocket
 # github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 ## explicit; go 1.14
 github.com/grpc-ecosystem/go-grpc-middleware
-github.com/grpc-ecosystem/go-grpc-middleware/logging
-github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus
-github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus
-github.com/grpc-ecosystem/go-grpc-middleware/tags
 # github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 ## explicit
 github.com/grpc-ecosystem/go-grpc-prometheus
