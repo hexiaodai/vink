@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: vink
-        image: docker.io/hejianmin/vink@sha256:a2f5610bdb98aeab1644258fca2907c66114e1eb415e5d23e874dd2bd7a8c7fc
+        image: docker.io/hejianmin/vink:0.0.1-62af76bf
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 9090
