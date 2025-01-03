@@ -65,8 +65,8 @@ spec:
         - mountPath: /tmp
           name: tmp-plugins
           readOnly: false
-        - mountPath: /grafana-dashboard-definitions/0/vmi-overview
-          name: grafana-dashboard-vmi-overview
+        - mountPath: /grafana-dashboard-definitions/0/vink-overview
+          name: grafana-dashboard-vink-overview
           readOnly: false
         # - mountPath: /grafana-dashboard-definitions/0/alertmanager-overview
         #   name: grafana-dashboard-alertmanager-overview
@@ -166,8 +166,8 @@ spec:
           medium: Memory
         name: tmp-plugins
       - configMap:
-          name: grafana-dashboard-vmi-overview
-        name: grafana-dashboard-vmi-overview
+          name: grafana-dashboard-vink-overview
+        name: grafana-dashboard-vink-overview
       # - configMap:
       #     name: grafana-dashboard-alertmanager-overview
       #   name: grafana-dashboard-alertmanager-overview
