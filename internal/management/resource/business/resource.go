@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 
 	resource_v1alpha1 "github.com/kubevm.io/vink/apis/management/resource/v1alpha1"
 	"github.com/kubevm.io/vink/apis/types"
@@ -361,7 +362,22 @@ func DefaultFilterFunc(items []*metav1.ObjectMeta) FilterFunc {
 	}
 }
 
-func SendResourceEvent(eventType resource_v1alpha1.EventType, obj interface{}, filterFuncs []FilterFunc, server resource_v1alpha1.ResourceWatchManagement_WatchServer) error {
+func SendReadyEventOnce(readyOnce *sync.Once, server resource_v1alpha1.ResourceWatchManagement_WatchServer) error {
+	var err error
+	readyOnce.Do(func() {
+		err = server.Send(&resource_v1alpha1.WatchResponse{EventType: resource_v1alpha1.EventType_READY})
+	})
+	if err != nil {
+		return fmt.Errorf("failed to send readiness status to client: %w", err)
+	}
+	return nil
+}
+
+func SendResourceEventWithReady(readyOnce *sync.Once, eventType resource_v1alpha1.EventType, obj interface{}, filterFuncs []FilterFunc, server resource_v1alpha1.ResourceWatchManagement_WatchServer) error {
+	if err := SendReadyEventOnce(readyOnce, server); err != nil {
+		return err
+	}
+
 	unobj, err := clients.InterfaceToUnstructured(obj)
 	if err != nil {
 		return err
@@ -389,5 +405,6 @@ func SendResourceEvent(eventType resource_v1alpha1.EventType, obj interface{}, f
 	if err := server.Send(&resp); err != nil {
 		return errors.New("failed to send response to client")
 	}
+
 	return nil
 }

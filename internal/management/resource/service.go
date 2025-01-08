@@ -2,8 +2,8 @@ package resource
 
 import (
 	"context"
-	"errors"
 	"fmt"
+	"sync"
 
 	resource_v1alpha1 "github.com/kubevm.io/vink/apis/management/resource/v1alpha1"
 	"github.com/kubevm.io/vink/internal/management/resource/business"
@@ -37,33 +37,37 @@ func (rw *resourceWatchManagement) Watch(request *resource_v1alpha1.WatchRequest
 	}
 	filterFuncs := []business.FilterFunc{filter}
 
-	errCh := make(chan error)
+	var (
+		readyOnce = sync.Once{}
+		errCh     = make(chan error)
+	)
 
 	eventHandler := cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
-			if err := business.SendResourceEvent(resource_v1alpha1.EventType_ADDED, obj, filterFuncs, server); err != nil {
+			if err := business.SendResourceEventWithReady(&readyOnce, resource_v1alpha1.EventType_ADDED, obj, filterFuncs, server); err != nil {
 				errCh <- err
 			}
 		},
 		UpdateFunc: func(_, newObj interface{}) {
-			if err := business.SendResourceEvent(resource_v1alpha1.EventType_MODIFIED, newObj, filterFuncs, server); err != nil {
+			if err := business.SendResourceEventWithReady(&readyOnce, resource_v1alpha1.EventType_MODIFIED, newObj, filterFuncs, server); err != nil {
 				errCh <- err
 			}
 		},
 		DeleteFunc: func(obj interface{}) {
-			if err := business.SendResourceEvent(resource_v1alpha1.EventType_DELETED, obj, filterFuncs, server); err != nil {
+			if err := business.SendResourceEventWithReady(&readyOnce, resource_v1alpha1.EventType_DELETED, obj, filterFuncs, server); err != nil {
 				errCh <- err
 			}
 		},
 	}
+
 	registration, err := informer.AddEventHandler(eventHandler)
 	if err != nil {
 		return fmt.Errorf("failed to AddEventHandler, error: %v", err)
 	}
 	defer informer.RemoveEventHandler(registration)
 
-	if err := server.Send(&resource_v1alpha1.WatchResponse{}); err != nil {
-		return errors.New("failed to send readiness status to client")
+	if err := business.SendReadyEventOnce(&readyOnce, server); err != nil {
+		return err
 	}
 
 	select {

@@ -21,9 +21,10 @@ message WatchResponse {
 }
 
 enum EventType {
-    ADDED = 0;
-    MODIFIED = 1;
-    DELETED = 2;
+    READY = 0;
+    ADDED = 1;
+    MODIFIED = 2;
+    DELETED = 3;
 }
 
 message WatchOptions {
