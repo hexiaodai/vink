@@ -32,7 +32,7 @@ require (
 	k8s.io/api v0.31.1
 	k8s.io/apimachinery v0.31.1
 	k8s.io/client-go v12.0.0+incompatible
-	kubevirt.io/api v1.3.0
+	kubevirt.io/api v1.4.0
 	kubevirt.io/client-go v1.3.0
 	kubevirt.io/containerized-data-importer-api v1.59.0
 	sigs.k8s.io/controller-runtime v0.19.0
