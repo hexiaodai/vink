@@ -187,9 +187,15 @@ func InterfaceToJSON(obj any) (string, error) {
 		un, err = Unstructured(payload)
 	case *netv1.NetworkAttachmentDefinition:
 		un, err = Unstructured(payload)
+	case *corev1.Namespace:
+		un, err = Unstructured(payload)
 	default:
 		return "", fmt.Errorf("unsupported payload type %T", payload)
 	}
+	if err != nil {
+		return "", err
+	}
+
 	jsonBytes, err := UnstructuredToJSON(un)
 	if err != nil {
 		return "", err

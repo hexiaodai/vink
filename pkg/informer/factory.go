@@ -55,6 +55,8 @@ type KubeInformerFactory interface {
 
 	Event() cache.SharedIndexInformer
 
+	Namespace() cache.SharedIndexInformer
+
 	K8SInformerFactory() informers.SharedInformerFactory
 
 	InformerForGVR(gvr schema.GroupVersionResource) (cache.SharedIndexInformer, bool)
@@ -248,6 +250,13 @@ func (f *kubeInformerFactory) Event() cache.SharedIndexInformer {
 	return f.getInformer(gvr.From(k8sv1.Event{}), func() cache.SharedIndexInformer {
 		lw := cache.NewListWatchFromClient(clients.Clients.KubeRestClient, "events", k8sv1.NamespaceAll, fields.Everything())
 		return cache.NewSharedIndexInformer(lw, &k8sv1.Event{}, f.defaultResync, cache.Indexers{})
+	})
+}
+
+func (f *kubeInformerFactory) Namespace() cache.SharedIndexInformer {
+	return f.getInformer(gvr.From(k8sv1.Namespace{}), func() cache.SharedIndexInformer {
+		lw := cache.NewListWatchFromClient(clients.Clients.KubeRestClient, "namespaces", k8sv1.NamespaceAll, fields.Everything())
+		return cache.NewSharedIndexInformer(lw, &k8sv1.Namespace{}, f.defaultResync, cache.Indexers{})
 	})
 }
 
