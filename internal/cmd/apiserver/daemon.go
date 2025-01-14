@@ -36,6 +36,7 @@ func (dm *Daemon) Execute(ctx context.Context) error {
 	_ = dm.informerFactory.IPPool()
 	_ = dm.informerFactory.VPC()
 	_ = dm.informerFactory.Event()
+	_ = dm.informerFactory.Namespace()
 
 	dm.informerFactory.Start(ctx.Done())
 	dm.informerFactory.WaitForCacheSync(ctx.Done())
