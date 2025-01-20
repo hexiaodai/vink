@@ -38,6 +38,13 @@ func (reconciler *DataVolumeOwnerReconciler) Reconcile(ctx context.Context, requ
 		}
 	}
 
+	if err := reconciler.detachDataVolumeOwners(ctx, &vm); err != nil {
+		if apierr.IsConflict(err) {
+			return ctrl.Result{Requeue: true}, nil
+		}
+		return ctrl.Result{}, err
+	}
+
 	if vm.DeletionTimestamp == nil && !lo.Contains(vm.Finalizers, virtualmachineFinalizer) {
 		vm.Finalizers = append(vm.Finalizers, virtualmachineFinalizer)
 		if err := reconciler.Client.Update(ctx, &vm); err != nil {
@@ -122,7 +129,7 @@ func (reconciler *DataVolumeOwnerReconciler) Reconcile(ctx context.Context, requ
 
 func (reconciler *DataVolumeOwnerReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	err := retry.RetryOnConflict(retry.DefaultBackoff, func() error {
-		return syncAllVirtualMachineBindings()
+		return syncAllDataVolumeOwners()
 	})
 	if err != nil {
 		return err
@@ -134,7 +141,67 @@ func (reconciler *DataVolumeOwnerReconciler) SetupWithManager(mgr ctrl.Manager) 
 		Complete(reconciler)
 }
 
-func syncAllVirtualMachineBindings() error {
+func (reconciler *DataVolumeOwnerReconciler) detachDataVolumeOwners(ctx context.Context, vm *kubevirtv1.VirtualMachine) error {
+	dvList := cdiv1beta1.DataVolumeList{}
+	if err := reconciler.Client.List(ctx, &dvList, &client.ListOptions{Namespace: vm.Namespace}); err != nil {
+		return err
+	}
+
+	fn := func(dv cdiv1beta1.DataVolume, owner string) error {
+		if dv.Annotations == nil || len(dv.Annotations[annotation.VinkDatavolumeOwner.Name]) == 0 {
+			return nil
+		}
+
+		owners := make([]string, 0, 0)
+		_ = json.Unmarshal([]byte(dv.Annotations[annotation.VinkDatavolumeOwner.Name]), &owners)
+		if len(owners) == 0 {
+			return nil
+		}
+
+		newOwners := lo.Filter(owners, func(item string, index int) bool {
+			return item != vm.Name
+		})
+		if len(owner) == len(newOwners) {
+			return nil
+		}
+
+		annoValue, err := json.Marshal(newOwners)
+		if err != nil {
+			return err
+		}
+		dv.Annotations[annotation.VinkDatavolumeOwner.Name] = string(annoValue)
+		if err := reconciler.Client.Update(ctx, &dv, &client.UpdateOptions{}); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	inusedvs := make(map[string]*kubevirtv1.DataVolumeSource, len(vm.Spec.Template.Spec.Volumes)-1)
+	for _, vol := range vm.Spec.Template.Spec.Volumes {
+		if vol.DataVolume == nil {
+			continue
+		}
+		inusedvs[vol.DataVolume.Name] = vol.DataVolume
+	}
+
+	for _, item := range dvList.Items {
+		if vm.DeletionTimestamp != nil {
+			if err := fn(item, vm.Name); err != nil {
+				return err
+			}
+			continue
+		}
+
+		if inusedvs[item.Name] == nil {
+			if err := fn(item, vm.Name); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func syncAllDataVolumeOwners() error {
 	ctx := context.TODO()
 
 	dvList, err := clients.Clients.CdiClient().CdiV1beta1().DataVolumes(metav1.NamespaceAll).List(ctx, metav1.ListOptions{})

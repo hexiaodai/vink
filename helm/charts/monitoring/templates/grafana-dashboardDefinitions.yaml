@@ -132,7 +132,7 @@ data:
                         "datasource": {
                             "uid": "$datasource"
                         },
-                        "expr": "(avg(rate(kubevirt_vmi_vcpu_seconds_total{namespace=\"$namespace\",name=\"$vm\"}[5m])) by (namespace,name)) * (count(kubevirt_vmi_vcpu_seconds_total{namespace=\"$namespace\",name=\"$vm\"}) by (namespace,name)) / 1000",
+                        "expr": "sum(irate(kubevirt_vmi_vcpu_seconds_total{namespace=\"$namespace\",name=\"$vm\"}[$__rate_interval]))",
                         "format": "table",
                         "instant": true,
                         "intervalFactor": 2,
@@ -192,7 +192,7 @@ data:
                         "datasource": {
                             "uid": "$datasource"
                         },
-                        "expr": "kubevirt_vmi_memory_available_bytes{namespace=\"$namespace\",name=\"$vm\"}/1000/1000/1000",
+                        "expr": "kubevirt_vmi_memory_available_bytes{namespace=\"$namespace\",name=\"$vm\"}/1024/1024/1024",
                         "format": "table",
                         "instant": true,
                         "intervalFactor": 2,
@@ -252,7 +252,7 @@ data:
                         "datasource": {
                             "uid": "$datasource"
                         },
-                        "expr": "(kubevirt_vmi_memory_available_bytes{namespace=\"$namespace\",name=\"$vm\"}-kubevirt_vmi_memory_usable_bytes{namespace=\"$namespace\",name=\"$vm\"})/1000/1000/1000",
+                        "expr": "(kubevirt_vmi_memory_available_bytes{namespace=\"$namespace\",name=\"$vm\"}-kubevirt_vmi_memory_usable_bytes{namespace=\"$namespace\",name=\"$vm\"})/1024/1024/1024",
                         "format": "table",
                         "instant": true,
                         "intervalFactor": 2,
@@ -625,7 +625,7 @@ data:
                         "format": "time_series",
                         "instant": false,
                         "interval": "",
-                        "legendFormat": "{{ printf "{{name}} / {{namespace}}" }}",
+                        "legendFormat": "{{ printf "{{interface}}" }}",
                         "refId": "A"
                     }
                 ],
@@ -725,7 +725,7 @@ data:
                         "format": "time_series",
                         "instant": false,
                         "interval": "",
-                        "legendFormat": "{{ printf "{{name}} / {{namespace}}" }}",
+                        "legendFormat": "{{ printf "{{interface}}" }}",
                         "refId": "A"
                     }
                 ],
