@@ -59,6 +59,9 @@ func (dm *Daemon) Execute(ctx context.Context) error {
 	}()
 
 	httpRegister, err := management.RegisterHTTPRoutes()
+	if err != nil {
+		return err
+	}
 	dm.httpServer = servers.NewHTTPServer("apiserver", httpAddress, httpRegister)
 	log.Infof("Starting http server at: %s", httpAddress)
 	go func() {
