@@ -403,7 +403,7 @@ func SendResourceEventWithReady(readyOnce *sync.Once, eventType resource_v1alpha
 		Items:     []string{data},
 	}
 	if err := server.Send(&resp); err != nil {
-		return errors.New("failed to send response to client")
+		return fmt.Errorf("failed to send response to client: %w", err)
 	}
 
 	return nil

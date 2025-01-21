@@ -32,7 +32,7 @@ var (
 	DefaultMaxCallRecvMsgSize = 1024 * 1024 * 4
 )
 
-func NewDetaaultProxy() *Proxy {
+func NewDetaultProxy() *Proxy {
 	return &Proxy{
 		BindAddr:           "0.0.0.0",
 		HttpPort:           config.Instance.APIServer.GRPCWeb,

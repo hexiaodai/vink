@@ -190,7 +190,7 @@ func InterfaceToJSON(obj any) (string, error) {
 	case *corev1.Namespace:
 		un, err = Unstructured(payload)
 	default:
-		return "", fmt.Errorf("unsupported payload type %T", payload)
+		err = fmt.Errorf("unsupported payload type %T", payload)
 	}
 	if err != nil {
 		return "", err
