@@ -67,7 +67,7 @@ func (dm *Daemon) Execute(ctx context.Context) error {
 		}
 	}()
 
-	grpcweb := grpcwebproxy.NewDetaaultProxy()
+	grpcweb := grpcwebproxy.NewDetaultProxy()
 
 	go func() {
 		if err := grpcweb.Run(ctx); err != nil {
