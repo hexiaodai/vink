@@ -30,6 +30,8 @@ func (dm *Daemon) Execute(ctx context.Context) error {
 	_ = dm.informerFactory.VirtualMachine()
 	_ = dm.informerFactory.VirtualMachineInstances()
 	_ = dm.informerFactory.DataVolume()
+	_ = dm.informerFactory.VirtualMachineSnapshot()
+	_ = dm.informerFactory.VirtualMachineRestore()
 	_ = dm.informerFactory.VirtualMachineSummary()
 	_ = dm.informerFactory.Multus()
 	_ = dm.informerFactory.Subnet()
@@ -37,6 +39,7 @@ func (dm *Daemon) Execute(ctx context.Context) error {
 	_ = dm.informerFactory.VPC()
 	_ = dm.informerFactory.Event()
 	_ = dm.informerFactory.Namespace()
+	_ = dm.informerFactory.Node()
 
 	dm.informerFactory.Start(ctx.Done())
 	dm.informerFactory.WaitForCacheSync(ctx.Done())

@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: vink-ui
-  namespace: {{ .Values.namespace }}
+  namespace: {{ .Release.Namespace }}
   labels:
     app: vink-ui
 spec:
@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: vink-ui
-        image: docker.io/hejianmin/vink-ui:0.0.0-22afe4c1
+        image: docker.io/hejianmin/vink-ui:0.0.0-2354c699
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80

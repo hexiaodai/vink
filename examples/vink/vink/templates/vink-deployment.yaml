@@ -1,27 +1,33 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: vink-ui
-  namespace: {{ .Values.namespace }}
+  name: vink
+  namespace: {{ .Release.Namespace }}
   labels:
-    app: vink-ui
+    app: vink
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: vink-ui
+      app: vink
   template:
     metadata:
       labels:
-        app: vink-ui
+        app: vink
     spec:
       containers:
-      - name: vink-ui
-        image: docker.io/hejianmin/vink-ui:0.0.0-22afe4c1
+      - name: vink
+        image: docker.io/hejianmin/vink:0.0.1-ad0b0d57
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 80
+        - containerPort: 9090
           name: http
+          protocol: TCP
+        - containerPort: 9091
+          name: grpc
+          protocol: TCP
+        - containerPort: 8080
+          name: grpc-web
           protocol: TCP
         resources:
           limits:
@@ -32,9 +38,10 @@ spec:
             memory: 64Mi
         volumeMounts:
         - readOnly: true
-          mountPath: /etc/nginx/conf.d
-          name: nginx-conf
+          mountPath: /app
+          name: config
+      serviceAccountName: vink
       volumes:
-        - name: nginx-conf
+        - name: config
           configMap:
-            name: vink-nginx
+            name: vink

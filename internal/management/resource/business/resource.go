@@ -24,7 +24,7 @@ import (
 func List(ctx context.Context, gvr schema.GroupVersionResource, opts *resource_v1alpha1.ListOptions) ([]string, error) {
 	cli := clients.Clients.DynamicClient().Resource(gvr)
 
-	items := make([]unstructured.Unstructured, 0)
+	items := make([]unstructured.Unstructured, 0, 0)
 
 	switch {
 	case opts.FieldSelectorGroup != nil && len(opts.FieldSelectorGroup.FieldSelectors) > 0:
@@ -84,26 +84,32 @@ func (fs *arbitraryFieldSelector) matches(item *unstructured.Unstructured) (bool
 			expectedValue = strings.ToLower(fs.ExpectedValues[0])
 		}
 		switch fs.Operator {
+		// Equals
 		case "=":
 			if actualValue == expectedValue {
 				return true, nil
 			}
+		// Not equals
 		case "!=":
 			if actualValue != expectedValue {
 				return true, nil
 			}
+		// Starts with
 		case "^=":
 			if strings.HasPrefix(actualValue, expectedValue) {
 				return true, nil
 			}
+		// Ends with
 		case "$=":
 			if strings.HasSuffix(actualValue, expectedValue) {
 				return true, nil
 			}
+		// Contains
 		case "*=":
 			if strings.Contains(actualValue, expectedValue) {
 				return true, nil
 			}
+		// Matches one of
 		case "~=":
 			for _, ev := range fs.ExpectedValues {
 				ev = strings.ToLower(ev)
@@ -111,6 +117,7 @@ func (fs *arbitraryFieldSelector) matches(item *unstructured.Unstructured) (bool
 					return true, nil
 				}
 			}
+		// Does not match any of
 		case "!~=":
 			for _, ev := range fs.ExpectedValues {
 				ev = strings.ToLower(ev)
@@ -255,6 +262,9 @@ func Delete(ctx context.Context, gvr schema.GroupVersionResource, nn *types.Name
 
 func Create(ctx context.Context, gvr schema.GroupVersionResource, crd string) (string, error) {
 	obj, err := pkg_clients.JSONToUnstructured(crd)
+	if err != nil {
+		return "", err
+	}
 
 	unStructObj, err := clients.Clients.DynamicClient().Resource(gvr).Namespace(obj.GetNamespace()).Create(ctx, obj, metav1.CreateOptions{})
 	if err != nil {
