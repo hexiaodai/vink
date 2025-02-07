@@ -5,9 +5,12 @@ import (
 	"fmt"
 
 	netv1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
+	kubeovn "github.com/kubeovn/kube-ovn/pkg/apis/kubeovn/v1"
 	kubeovnv1 "github.com/kubeovn/kube-ovn/pkg/apis/kubeovn/v1"
 	"github.com/kubevm.io/vink/pkg/k8s/apis/vink/v1alpha1"
+	spv2beta1 "github.com/spidernet-io/spiderpool/pkg/k8s/apis/spiderpool.spidernet.io/v2beta1"
 	corev1 "k8s.io/api/core/v1"
+	storagev1 "k8s.io/api/storage/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -15,13 +18,11 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/util/flowcontrol"
+	clonev1alpha1 "kubevirt.io/api/clone/v1alpha1"
 	virtv1 "kubevirt.io/api/core/v1"
+	snapshotv1beta1 "kubevirt.io/api/snapshot/v1beta1"
 	"kubevirt.io/client-go/kubecli"
 	cdiv1beta1 "kubevirt.io/containerized-data-importer-api/pkg/apis/core/v1beta1"
-
-	kubeovn "github.com/kubeovn/kube-ovn/pkg/apis/kubeovn/v1"
-	spv2beta1 "github.com/spidernet-io/spiderpool/pkg/k8s/apis/spiderpool.spidernet.io/v2beta1"
-	storagev1 "k8s.io/api/storage/v1"
 )
 
 func init() {
@@ -32,6 +33,7 @@ func init() {
 	kubeovn.AddToScheme(scheme.Scheme)
 	storagev1.AddToScheme(scheme.Scheme)
 	v1alpha1.AddToScheme(scheme.Scheme)
+	snapshotv1beta1.AddToScheme(scheme.Scheme)
 }
 
 var Clients = &clients{}
@@ -188,6 +190,14 @@ func InterfaceToJSON(obj any) (string, error) {
 	case *netv1.NetworkAttachmentDefinition:
 		un, err = Unstructured(payload)
 	case *corev1.Namespace:
+		un, err = Unstructured(payload)
+	case *corev1.Node:
+		un, err = Unstructured(payload)
+	case *snapshotv1beta1.VirtualMachineSnapshot:
+		un, err = Unstructured(payload)
+	case *snapshotv1beta1.VirtualMachineRestore:
+		un, err = Unstructured(payload)
+	case *clonev1alpha1.VirtualMachineClone:
 		un, err = Unstructured(payload)
 	default:
 		err = fmt.Errorf("unsupported payload type %T", payload)

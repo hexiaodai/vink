@@ -8,7 +8,9 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	clonev1alpha1 "kubevirt.io/api/clone/v1alpha1"
 	virtv1 "kubevirt.io/api/core/v1"
+	snapshotv1beta1 "kubevirt.io/api/snapshot/v1beta1"
 	cdiv1beta1 "kubevirt.io/containerized-data-importer-api/pkg/apis/core/v1beta1"
 )
 
@@ -90,6 +92,24 @@ func From[T any](o T) schema.GroupVersionResource {
 			Version:  corev1.SchemeGroupVersion.Version,
 			Resource: "events",
 		}
+	case snapshotv1beta1.VirtualMachineSnapshot, *snapshotv1beta1.VirtualMachineSnapshot:
+		return schema.GroupVersionResource{
+			Group:    snapshotv1beta1.SchemeGroupVersion.Group,
+			Version:  snapshotv1beta1.SchemeGroupVersion.Version,
+			Resource: "virtualmachinesnapshots",
+		}
+	case snapshotv1beta1.VirtualMachineRestore, *snapshotv1beta1.VirtualMachineRestore:
+		return schema.GroupVersionResource{
+			Group:    snapshotv1beta1.SchemeGroupVersion.Group,
+			Version:  snapshotv1beta1.SchemeGroupVersion.Version,
+			Resource: "virtualmachinerestores",
+		}
+	case clonev1alpha1.VirtualMachineClone, *clonev1alpha1.VirtualMachineClone:
+		return schema.GroupVersionResource{
+			Group:    clonev1alpha1.SchemeGroupVersion.Group,
+			Version:  clonev1alpha1.SchemeGroupVersion.Version,
+			Resource: "virtualmachineclones",
+		}
 	}
 
 	return schema.GroupVersionResource{}
@@ -123,6 +143,12 @@ func ResolveGVR(rt types.ResourceType) schema.GroupVersionResource {
 		return From(v1alpha1.VirtualMachineSummary{})
 	case types.ResourceType_EVENT:
 		return From(corev1.Event{})
+	case types.ResourceType_VIRTUAL_MACHINE_SNAPSHOT:
+		return From(snapshotv1beta1.VirtualMachineSnapshot{})
+	case types.ResourceType_VIRTUAL_MACHINE_RESTORE:
+		return From(snapshotv1beta1.VirtualMachineRestore{})
+	case types.ResourceType_VIRTUAL_MACHINE_CLONE:
+		return From(clonev1alpha1.VirtualMachineClone{})
 	}
 
 	return schema.GroupVersionResource{}

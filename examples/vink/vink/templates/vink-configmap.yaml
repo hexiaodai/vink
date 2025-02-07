@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vink
+  namespace: {{ .Release.Namespace }}
+data:
+  config.yaml: |
+    debug: {{ .Values.configuration.debug }}
+    apiserver:
+      http: {{ .Values.configuration.apiserver.http }}
+      grpc: {{ .Values.configuration.apiserver.grpc }}
+      grpcWeb: {{ .Values.configuration.apiserver.grpcWeb }}

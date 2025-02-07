@@ -18,7 +18,9 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/tools/cache"
+	clonev1alpha1 "kubevirt.io/api/clone/v1alpha1"
 	kubev1 "kubevirt.io/api/core/v1"
+	snapshotv1beta1 "kubevirt.io/api/snapshot/v1beta1"
 	cdiv1 "kubevirt.io/containerized-data-importer-api/pkg/apis/core/v1beta1"
 )
 
@@ -42,6 +44,12 @@ type KubeInformerFactory interface {
 	VirtualMachineSummary() cache.SharedIndexInformer
 
 	DataVolume() cache.SharedIndexInformer
+
+	VirtualMachineSnapshot() cache.SharedIndexInformer
+
+	VirtualMachineRestore() cache.SharedIndexInformer
+
+	VirtualMachineClone() cache.SharedIndexInformer
 
 	Node() cache.SharedIndexInformer
 
@@ -236,6 +244,27 @@ func (f *kubeInformerFactory) DataVolume() cache.SharedIndexInformer {
 	return f.getInformer(gvr.From(cdiv1.DataVolume{}), func() cache.SharedIndexInformer {
 		lw := cache.NewListWatchFromClient(clients.Clients.CdiClient().CdiV1beta1().RESTClient(), "datavolumes", k8sv1.NamespaceAll, fields.Everything())
 		return cache.NewSharedIndexInformer(lw, &cdiv1.DataVolume{}, f.defaultResync, cache.Indexers{})
+	})
+}
+
+func (f *kubeInformerFactory) VirtualMachineSnapshot() cache.SharedIndexInformer {
+	return f.getInformer(gvr.From(snapshotv1beta1.VirtualMachineSnapshot{}), func() cache.SharedIndexInformer {
+		lw := cache.NewListWatchFromClient(clients.Clients.KubevirtClient.GeneratedKubeVirtClient().SnapshotV1beta1().RESTClient(), "virtualmachinesnapshots", k8sv1.NamespaceAll, fields.Everything())
+		return cache.NewSharedIndexInformer(lw, &snapshotv1beta1.VirtualMachineSnapshot{}, f.defaultResync, cache.Indexers{})
+	})
+}
+
+func (f *kubeInformerFactory) VirtualMachineRestore() cache.SharedIndexInformer {
+	return f.getInformer(gvr.From(snapshotv1beta1.VirtualMachineRestore{}), func() cache.SharedIndexInformer {
+		lw := cache.NewListWatchFromClient(clients.Clients.KubevirtClient.GeneratedKubeVirtClient().SnapshotV1beta1().RESTClient(), "virtualmachinerestores", k8sv1.NamespaceAll, fields.Everything())
+		return cache.NewSharedIndexInformer(lw, &snapshotv1beta1.VirtualMachineRestore{}, f.defaultResync, cache.Indexers{})
+	})
+}
+
+func (f *kubeInformerFactory) VirtualMachineClone() cache.SharedIndexInformer {
+	return f.getInformer(gvr.From(clonev1alpha1.VirtualMachineClone{}), func() cache.SharedIndexInformer {
+		lw := cache.NewListWatchFromClient(clients.Clients.KubevirtClient.GeneratedKubeVirtClient().SnapshotV1beta1().RESTClient(), "virtualmachineclones", k8sv1.NamespaceAll, fields.Everything())
+		return cache.NewSharedIndexInformer(lw, &clonev1alpha1.VirtualMachineClone{}, f.defaultResync, cache.Indexers{})
 	})
 }
 
