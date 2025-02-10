@@ -1,6 +1,6 @@
 toolbox:
   # -- Enable Ceph debugging pod deployment. See [toolbox](../Troubleshooting/ceph-toolbox.md)
-  enabled: true
+  enabled: false
   # -- Toolbox resources
   resources:
     requests:
@@ -8,6 +8,9 @@ toolbox:
       memory: "0"
 
 cephClusterSpec:
+  crashCollector:
+    disable: true
+
   mon:
     # Set the number of mons to be started. Generally recommended to be 3.
     # For highest availability, an odd number of mons should be specified.
@@ -94,7 +97,7 @@ cephFileSystems:
 
     storageClass:
       enabled: true
-      isDefault: false
+      isDefault: true
       name: ceph-filesystem
       # (Optional) specify a data pool to use, must be the name of one of the data pools above, 'data0' by default
       pool: data0
@@ -151,7 +154,7 @@ cephObjectStores:
         #       cpu: "100m"
         #       memory: "40Mi"
     storageClass:
-      enabled: true
+      enabled: false
       name: ceph-bucket
       reclaimPolicy: Delete
       volumeBindingMode: "Immediate"
@@ -173,11 +176,11 @@ cephBlockPools:
       # For reference: https://docs.ceph.com/docs/latest/mgr/prometheus/#rbd-io-statistics
       # enableRBDStats: true
     storageClass:
-      enabled: true
+      enabled: false
       name: ceph-block
       annotations: {}
       labels: {}
-      isDefault: true
+      isDefault: false
       reclaimPolicy: Delete
       allowVolumeExpansion: true
       volumeBindingMode: "Immediate"

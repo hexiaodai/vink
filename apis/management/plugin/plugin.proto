@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package vink.kubevm.io.apis.management.plugin.v1alpha1;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "github.com/kubevm.io/vink/apis/management/plugin/v1alpha1";
+
+service PluginManagement {
+    rpc ManagePlugin(ManagePluginRequest) returns (google.protobuf.Empty);
+}
+
+enum Plugin {
+    MULTUS = 0;
+    KUBE_OVN = 1;
+    ROOK_CEPH = 2;
+    SNAPSHOTTER = 3;
+    MONITOR = 4;
+    KUBEVIRT = 5;
+    CDI = 6;
+}
+
+enum Action {
+    INSTALL = 0;
+    UNINSTALL = 1;
+}
+
+message ManagePluginRequest {
+    Plugin plugin = 1;
+    Action action = 2;
+    string values = 3;
+}

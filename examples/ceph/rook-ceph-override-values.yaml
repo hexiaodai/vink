@@ -4,6 +4,8 @@ resources:
     memory: "0"
 
 csi:
+  enableRbdDriver: false
+  enableCephfsDriver: true
   provisionerReplicas: 1
   csiRBDProvisionerResource: |
     - name : csi-provisioner
