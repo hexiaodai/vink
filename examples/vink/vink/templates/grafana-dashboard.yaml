@@ -1219,3 +1219,631 @@ data:
         "uid": "vink-overview-zh",
         "version": 0
     }
+  vink-stat.json: |-
+    {
+        "annotations": {
+            "list": [
+                {
+                    "builtIn": 1,
+                    "datasource": {
+                        "type": "grafana",
+                        "uid": "-- Grafana --"
+                    },
+                    "enable": true,
+                    "hide": true,
+                    "iconColor": "rgba(0, 211, 255, 1)",
+                    "name": "Annotations & Alerts",
+                    "type": "dashboard"
+                }
+            ]
+        },
+        "editable": true,
+        "fiscalYearStartMonth": 0,
+        "graphTooltip": 1,
+        "id": null,
+        "links": [],
+        "panels": [
+            {
+                "collapsed": false,
+                "gridPos": {
+                    "h": 1,
+                    "w": 24,
+                    "x": 0,
+                    "y": 0
+                },
+                "id": 1,
+                "panels": [],
+                "title": "Host",
+                "type": "row"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "$datasource"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "thresholds"
+                        },
+                        "fieldMinMax": false,
+                        "mappings": [],
+                        "min": 0,
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": null
+                                }
+                            ]
+                        },
+                        "unit": "none"
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 3,
+                    "w": 4,
+                    "x": 0,
+                    "y": 1
+                },
+                "id": 2,
+                "options": {
+                    "colorMode": "none",
+                    "graphMode": "none",
+                    "justifyMode": "auto",
+                    "orientation": "auto",
+                    "percentChangeColorMode": "standard",
+                    "reduceOptions": {
+                        "calcs": [
+                            "lastNotNull"
+                        ],
+                        "fields": "",
+                        "values": false
+                    },
+                    "showPercentChange": false,
+                    "textMode": "auto",
+                    "wideLayout": true
+                },
+                "pluginVersion": "11.4.0",
+                "targets": [
+                    {
+                        "datasource": {
+                            "type": "prometheus",
+                            "uid": "$datasource"
+                        },
+                        "expr": "count(kube_node_info)",
+                        "legendFormat": "total",
+                        "refId": "A"
+                    }
+                ],
+                "title": "Total",
+                "type": "stat"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "$datasource"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "thresholds"
+                        },
+                        "fieldMinMax": false,
+                        "mappings": [],
+                        "min": 0,
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": null
+                                }
+                            ]
+                        },
+                        "unit": "none"
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 3,
+                    "w": 4,
+                    "x": 4,
+                    "y": 1
+                },
+                "id": 3,
+                "options": {
+                    "colorMode": "none",
+                    "graphMode": "none",
+                    "justifyMode": "auto",
+                    "orientation": "auto",
+                    "percentChangeColorMode": "standard",
+                    "reduceOptions": {
+                        "calcs": [
+                            "lastNotNull"
+                        ],
+                        "fields": "",
+                        "values": false
+                    },
+                    "showPercentChange": false,
+                    "textMode": "auto",
+                    "wideLayout": true
+                },
+                "pluginVersion": "11.4.0",
+                "targets": [
+                    {
+                        "datasource": {
+                            "type": "prometheus",
+                            "uid": "$datasource"
+                        },
+                        "expr": "kube_node_status_condition{condition=\"Ready\", status=\"true\"}",
+                        "legendFormat": "ready",
+                        "refId": "A"
+                    }
+                ],
+                "title": "Connected",
+                "type": "stat"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "$datasource"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "thresholds"
+                        },
+                        "fieldMinMax": false,
+                        "mappings": [],
+                        "min": 0,
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": null
+                                }
+                            ]
+                        },
+                        "unit": "none"
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 3,
+                    "w": 4,
+                    "x": 8,
+                    "y": 1
+                },
+                "id": 4,
+                "options": {
+                    "colorMode": "none",
+                    "graphMode": "none",
+                    "justifyMode": "auto",
+                    "orientation": "auto",
+                    "percentChangeColorMode": "standard",
+                    "reduceOptions": {
+                        "calcs": [
+                            "lastNotNull"
+                        ],
+                        "fields": "",
+                        "values": false
+                    },
+                    "showPercentChange": false,
+                    "textMode": "auto",
+                    "wideLayout": true
+                },
+                "pluginVersion": "11.4.0",
+                "targets": [
+                    {
+                        "datasource": {
+                            "type": "prometheus",
+                            "uid": "$datasource"
+                        },
+                        "expr": "kube_node_status_condition{condition=\"Ready\", status=\"false\"}",
+                        "legendFormat": "not ready",
+                        "refId": "A"
+                    }
+                ],
+                "title": "Disconnected",
+                "type": "stat"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "$datasource"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "thresholds"
+                        },
+                        "fieldMinMax": false,
+                        "mappings": [],
+                        "min": 0,
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": null
+                                }
+                            ]
+                        },
+                        "unit": "none"
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 3,
+                    "w": 4,
+                    "x": 12,
+                    "y": 1
+                },
+                "id": 5,
+                "options": {
+                    "colorMode": "none",
+                    "graphMode": "none",
+                    "justifyMode": "auto",
+                    "orientation": "auto",
+                    "percentChangeColorMode": "standard",
+                    "reduceOptions": {
+                        "calcs": [
+                            "lastNotNull"
+                        ],
+                        "fields": "",
+                        "values": false
+                    },
+                    "showPercentChange": false,
+                    "textMode": "auto",
+                    "wideLayout": true
+                },
+                "pluginVersion": "11.4.0",
+                "targets": [
+                    {
+                        "datasource": {
+                            "type": "prometheus",
+                            "uid": "$datasource"
+                        },
+                        "expr": "kube_node_status_condition{condition=\"Ready\", status=\"unknown\"}",
+                        "legendFormat": "unknown",
+                        "refId": "A"
+                    }
+                ],
+                "title": "Unknown",
+                "type": "stat"
+            },
+            {
+                "collapsed": false,
+                "gridPos": {
+                    "h": 1,
+                    "w": 24,
+                    "x": 0,
+                    "y": 4
+                },
+                "id": 6,
+                "panels": [],
+                "title": "Virtual Machine",
+                "type": "row"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "$datasource"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "thresholds"
+                        },
+                        "fieldMinMax": false,
+                        "mappings": [],
+                        "min": 0,
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": null
+                                }
+                            ]
+                        },
+                        "unit": "none"
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 3,
+                    "w": 4,
+                    "x": 0,
+                    "y": 5
+                },
+                "id": 7,
+                "options": {
+                    "colorMode": "none",
+                    "graphMode": "none",
+                    "justifyMode": "auto",
+                    "orientation": "auto",
+                    "percentChangeColorMode": "standard",
+                    "reduceOptions": {
+                        "calcs": [
+                            "lastNotNull"
+                        ],
+                        "fields": "",
+                        "values": false
+                    },
+                    "showPercentChange": false,
+                    "textMode": "auto",
+                    "wideLayout": true
+                },
+                "pluginVersion": "11.4.0",
+                "targets": [
+                    {
+                        "datasource": {
+                            "type": "prometheus",
+                            "uid": "$datasource"
+                        },
+                        "expr": "count(kubevirt_vm_info)",
+                        "legendFormat": "total",
+                        "refId": "A"
+                    }
+                ],
+                "title": "Total",
+                "type": "stat"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "$datasource"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "thresholds"
+                        },
+                        "fieldMinMax": false,
+                        "mappings": [],
+                        "min": 0,
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": null
+                                }
+                            ]
+                        },
+                        "unit": "none"
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 3,
+                    "w": 4,
+                    "x": 4,
+                    "y": 5
+                },
+                "id": 8,
+                "options": {
+                    "colorMode": "none",
+                    "graphMode": "none",
+                    "justifyMode": "auto",
+                    "orientation": "auto",
+                    "percentChangeColorMode": "standard",
+                    "reduceOptions": {
+                        "calcs": [
+                            "lastNotNull"
+                        ],
+                        "fields": "",
+                        "values": false
+                    },
+                    "showPercentChange": false,
+                    "textMode": "auto",
+                    "wideLayout": true
+                },
+                "pluginVersion": "11.4.0",
+                "targets": [
+                    {
+                        "datasource": {
+                            "type": "prometheus",
+                            "uid": "$datasource"
+                        },
+                        "expr": "count(kubevirt_vm_info{status=\"running\"})",
+                        "legendFormat": "running",
+                        "refId": "A"
+                    }
+                ],
+                "title": "Running",
+                "type": "stat"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "$datasource"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "thresholds"
+                        },
+                        "fieldMinMax": false,
+                        "mappings": [],
+                        "min": 0,
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": null
+                                }
+                            ]
+                        },
+                        "unit": "none"
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 3,
+                    "w": 4,
+                    "x": 8,
+                    "y": 5
+                },
+                "id": 9,
+                "options": {
+                    "colorMode": "none",
+                    "graphMode": "none",
+                    "justifyMode": "auto",
+                    "orientation": "auto",
+                    "percentChangeColorMode": "standard",
+                    "reduceOptions": {
+                        "calcs": [
+                            "lastNotNull"
+                        ],
+                        "fields": "",
+                        "values": false
+                    },
+                    "showPercentChange": false,
+                    "textMode": "auto",
+                    "wideLayout": true
+                },
+                "pluginVersion": "11.4.0",
+                "targets": [
+                    {
+                        "datasource": {
+                            "type": "prometheus",
+                            "uid": "$datasource"
+                        },
+                        "expr": "count(kubevirt_vm_info{status=\"stopped\"})",
+                        "legendFormat": "stop",
+                        "refId": "A"
+                    }
+                ],
+                "title": "Stop",
+                "type": "stat"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "$datasource"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "thresholds"
+                        },
+                        "fieldMinMax": false,
+                        "mappings": [],
+                        "min": 0,
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": null
+                                }
+                            ]
+                        },
+                        "unit": "none"
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 3,
+                    "w": 4,
+                    "x": 12,
+                    "y": 5
+                },
+                "id": 10,
+                "options": {
+                    "colorMode": "none",
+                    "graphMode": "none",
+                    "justifyMode": "auto",
+                    "orientation": "auto",
+                    "percentChangeColorMode": "standard",
+                    "reduceOptions": {
+                        "calcs": [
+                            "lastNotNull"
+                        ],
+                        "fields": "",
+                        "values": false
+                    },
+                    "showPercentChange": false,
+                    "textMode": "auto",
+                    "wideLayout": true
+                },
+                "pluginVersion": "11.4.0",
+                "targets": [
+                    {
+                        "datasource": {
+                            "type": "prometheus",
+                            "uid": "$datasource"
+                        },
+                        "expr": "count(kubevirt_vm_info{status=\"processing\"})",
+                        "legendFormat": "processing",
+                        "refId": "A"
+                    }
+                ],
+                "title": "Processing",
+                "type": "stat"
+            }
+        ],
+        "refresh": "30s",
+        "schemaVersion": 40,
+        "tags": [
+            "node-exporter-mixin"
+        ],
+        "templating": {
+            "list": [
+                {
+                    "current": {},
+                    "name": "datasource",
+                    "options": [],
+                    "query": "prometheus",
+                    "refresh": 1,
+                    "type": "datasource",
+                    "hide": 2
+                },
+                {
+                    "allValue": ".*",
+                    "current": {},
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "$datasource"
+                    },
+                    "hide": 2,
+                    "label": "Cluster",
+                    "name": "cluster",
+                    "options": [],
+                    "query": "label_values(node_uname_info{job=\"node-exporter\", sysname!=\"Darwin\"}, cluster)",
+                    "refresh": 2,
+                    "type": "query"
+                },
+                {
+                    "current": {},
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${datasource}"
+                    },
+                    "label": "Instance",
+                    "name": "instance",
+                    "options": [],
+                    "query": "label_values(node_uname_info{job=\"node-exporter\", cluster=\"$cluster\", sysname!=\"Darwin\"}, instance)",
+                    "refresh": 2,
+                    "type": "query"
+                }
+            ]
+        },
+        "time": {
+            "from": "now-1h",
+            "to": "now"
+        },
+        "timepicker": {},
+        "timezone": "browser",
+        "title": "Vink Stats",
+        "uid": "vink-stats",
+        "version": 2,
+        "weekStart": ""
+    }

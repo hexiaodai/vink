@@ -10,3 +10,5 @@ data:
       http: {{ .Values.configuration.apiserver.http }}
       grpc: {{ .Values.configuration.apiserver.grpc }}
       grpcWeb: {{ .Values.configuration.apiserver.grpcWeb }}
+    components:
+      - name: multus
