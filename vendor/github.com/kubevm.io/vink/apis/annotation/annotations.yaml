@@ -13,7 +13,37 @@ annotations:
       - DataVolume
   - name: vink.kubevm.io/host
     featureStatus: Alpha
-    description: Specifies the host machine where the virtual machine instance is scheduled to run.
+    description: Specifies the host machine where the virtual machine is scheduled to run.
     deprecated: false
     resources:
-      - VirtualMachineInstance
+      - VirtualMachine
+  - name: vink.kubevm.io/monitor
+    featureStatus: Alpha
+    description: ""
+    deprecated: false
+    resources:
+      - VirtualMachine
+  - name: vink.kubevm.io/networks
+    featureStatus: Alpha
+    description: ""
+    deprecated: false
+    resources:
+      - VirtualMachine
+  - name: vink.kubevm.io/operating-system
+    featureStatus: Alpha
+    description: ""
+    deprecated: false
+    resources:
+      - VirtualMachine
+  - name: vink.kubevm.io/disks
+    featureStatus: Alpha
+    description: ""
+    deprecated: false
+    resources:
+      - VirtualMachine
+  - name: vink.kubevm.io/storage
+    featureStatus: Alpha
+    description: ""
+    deprecated: false
+    resources:
+      - Node

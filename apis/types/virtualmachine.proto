@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package vink.kubevm.io.apis.types;
+
+option go_package = "github.com/kubevm.io/vink/apis/types";
+
+message VirtualMachineHost {
+    string name = 1;
+    repeated string ips = 2;
+}
+
+message VirtualMachineResourceMetrics {
+    float cpu_usage = 1;
+    float memery_usage = 2;
+
+    // float cpu_total = 1;
+    // float cpu_used = 2;
+    // float memery_total = 3;
+    // float memery_used = 4;
+}
+
+message VirtualMachineNetwork {
+    string name = 1;
+    string ips_name = 2;
+    string network = 3;
+    string interface = 4;
+    string ip = 5;
+    string mac = 6;
+    string subnet = 7;
+    string vpc = 8;
+    string multus = 9;
+    bool default = 10;
+}
+
+message VirtualMachineDisk {
+    string name = 1;
+    string capacity = 2;
+    string status = 3;
+    string accessMode = 4;
+    string storageClassName = 5;
+    bool rootfs = 6;
+    bool mounted = 7;
+}

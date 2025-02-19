@@ -18,6 +18,7 @@ RUN apk update && \
 # Download kubectl binaries
 RUN mkdir -p /tmp/pkg/cache/ && cd /tmp/pkg/cache/ && \
     if [ ! -e kubectl ]; then \
+     
       curl -LO https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/${OS_NAME}/${OS_ARCH}/kubectl ; \
       curl -LO https://dl.k8s.io/${KUBECTL_VERSION}/bin/${OS_NAME}/${OS_ARCH}/kubectl.sha256 ; \
     fi && \

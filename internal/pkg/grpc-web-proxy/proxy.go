@@ -32,13 +32,14 @@ var (
 	DefaultMaxCallRecvMsgSize = 1024 * 1024 * 4
 )
 
-func NewDetaultProxy() *Proxy {
+func NewDetaultProxy(cfg *config.Config) *Proxy {
 	return &Proxy{
 		BindAddr:           "0.0.0.0",
-		HttpPort:           config.Instance.APIServer.GRPCWeb,
+		HttpPort:           cfg.APIServerGRPCWeb,
 		RunHttpServer:      true,
 		HealthEndpointName: "_health",
 		HealthServiceName:  "health",
+		BackendHostPort:    cfg.APIServerGRPC,
 	}
 }
 
@@ -69,10 +70,12 @@ type Proxy struct {
 
 	HttpPort    int
 	HttpTlsPort int
+
+	BackendHostPort int
 }
 
 func (p *Proxy) Run(ctx context.Context) error {
-	backend := NewDetaultBackend()
+	backend := NewDetaultBackend(p.BackendHostPort)
 
 	backendConn, err := backend.Dial()
 	if err != nil {

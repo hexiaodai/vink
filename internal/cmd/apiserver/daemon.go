@@ -14,8 +14,8 @@ import (
 	"github.com/kubevm.io/vink/pkg/log"
 )
 
-func New() *Daemon {
-	return &Daemon{}
+func New(cfg *config.Config) *Daemon {
+	return &Daemon{config: cfg}
 }
 
 type Daemon struct {
@@ -23,6 +23,8 @@ type Daemon struct {
 
 	grpcServer servers.Server
 	httpServer servers.Server
+
+	config *config.Config
 }
 
 func (dm *Daemon) Execute(ctx context.Context) error {
@@ -32,11 +34,14 @@ func (dm *Daemon) Execute(ctx context.Context) error {
 	_ = dm.informerFactory.DataVolume()
 	_ = dm.informerFactory.VirtualMachineSnapshot()
 	_ = dm.informerFactory.VirtualMachineRestore()
+	_ = dm.informerFactory.VirtualMachineClone()
 	_ = dm.informerFactory.VirtualMachineSummary()
 	_ = dm.informerFactory.Multus()
 	_ = dm.informerFactory.Subnet()
 	_ = dm.informerFactory.IPPool()
 	_ = dm.informerFactory.VPC()
+	_ = dm.informerFactory.VLAN()
+	_ = dm.informerFactory.ProviderNetwork()
 	_ = dm.informerFactory.Event()
 	_ = dm.informerFactory.Namespace()
 	_ = dm.informerFactory.Node()
@@ -49,11 +54,11 @@ func (dm *Daemon) Execute(ctx context.Context) error {
 		return err
 	}
 
-	httpAddress := fmt.Sprintf(":%v", config.Instance.APIServer.HTTP)
-	grpcAddress := fmt.Sprintf(":%v", config.Instance.APIServer.GRPC)
+	httpAddress := fmt.Sprintf(":%v", dm.config.APIServerHTTP)
+	grpcAddress := fmt.Sprintf(":%v", dm.config.APIServerGRPC)
 
 	dm.grpcServer = servers.NewGRPCServer(grpcAddress, register)
-	log.Infof("Starting grpc server at: %s", grpcAddress)
+	log.Infof("Starting gRPC server at: %s", grpcAddress)
 
 	go func() {
 		if err := dm.grpcServer.Run(); err != nil {
@@ -73,7 +78,7 @@ func (dm *Daemon) Execute(ctx context.Context) error {
 		}
 	}()
 
-	grpcweb := grpcwebproxy.NewDetaultProxy()
+	grpcweb := grpcwebproxy.NewDetaultProxy(dm.config)
 
 	go func() {
 		if err := grpcweb.Run(ctx); err != nil {

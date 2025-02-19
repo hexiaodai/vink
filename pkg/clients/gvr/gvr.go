@@ -110,6 +110,10 @@ func From[T any](o T) schema.GroupVersionResource {
 			Version:  clonev1alpha1.SchemeGroupVersion.Version,
 			Resource: "virtualmachineclones",
 		}
+	case kubeovn.Vlan, *kubeovn.Vlan:
+		return kubeovn.SchemeGroupVersion.WithResource("vlans")
+	case kubeovn.ProviderNetwork, *kubeovn.ProviderNetwork:
+		return kubeovn.SchemeGroupVersion.WithResource("provider-networks")
 	}
 
 	return schema.GroupVersionResource{}
@@ -149,6 +153,10 @@ func ResolveGVR(rt types.ResourceType) schema.GroupVersionResource {
 		return From(snapshotv1beta1.VirtualMachineRestore{})
 	case types.ResourceType_VIRTUAL_MACHINE_CLONE:
 		return From(clonev1alpha1.VirtualMachineClone{})
+	case types.ResourceType_PROVIDER_NETWORK:
+		return From(kubeovn.ProviderNetwork{})
+	case types.ResourceType_VLAN:
+		return From(kubeovn.Vlan{})
 	}
 
 	return schema.GroupVersionResource{}

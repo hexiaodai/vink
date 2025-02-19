@@ -47,20 +47,20 @@ helm upgrade --install --create-namespace --namespace rook-ceph rook-ceph-cluste
     $(build_helm_options)
 
 # Install Snapshotter
-#echo "Installing Snapshotter"
-#kubectl kustomize https://github.com/kubernetes-csi/external-snapshotter/client/config/crd | kubectl create -f -
-#kubectl -n kube-system kustomize https://github.com/kubernetes-csi/external-snapshotter/deploy/kubernetes/snapshot-controller | kubectl create -f -
-#kubectl kustomize https://github.com/kubernetes-csi/external-snapshotter/deploy/kubernetes/csi-snapshotter | kubectl create -f -
+echo "Installing Snapshotter"
+kubectl kustomize https://github.com/kubernetes-csi/external-snapshotter/client/config/crd | kubectl create -f -
+kubectl -n kube-system kustomize https://github.com/kubernetes-csi/external-snapshotter/deploy/kubernetes/snapshot-controller | kubectl create -f -
+kubectl kustomize https://github.com/kubernetes-csi/external-snapshotter/deploy/kubernetes/csi-snapshotter | kubectl create -f -
 
 # Install Monitor
-#echo "Installing Monitor"
-#helm repo add prometheus-community https://prometheus-community.github.io/helm-charts --force-update
-#helm repo update prometheus-community
+echo "Installing Monitor"
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts --force-update
+helm repo update prometheus-community
 
-# helm upgrade --install --create-namespace --namespace monitoring monitoring \
-#     prometheus-community/kube-prometheus-stack \
-#     -f examples/monitoring/monitoring-override-values.yaml \
-#     $(build_helm_options)
+helm upgrade --install --create-namespace --namespace monitoring monitoring \
+    prometheus-community/kube-prometheus-stack \
+    -f examples/monitoring/monitoring-override-values.yaml \
+    $(build_helm_options)
 
 # Install KubeVirt
 echo "Installing KubeVirt"

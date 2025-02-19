@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/kubevm.io/vink/config"
+	vinkcmd "github.com/kubevm.io/vink/internal/cmd"
 	"github.com/kubevm.io/vink/internal/cmd/apiserver"
 	cmdctl "github.com/kubevm.io/vink/internal/cmd/ctrl"
 	"github.com/kubevm.io/vink/pkg/clients"
@@ -11,8 +12,6 @@ import (
 )
 
 func main() {
-	var configFile string
-
 	root := &cobra.Command{
 		Use:     "vink",
 		Aliases: []string{"vink"},
@@ -20,27 +19,23 @@ func main() {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := ctrl.SetupSignalHandler()
 
-			if err := config.ParseConfigFromFile(configFile); err != nil {
+			config := &config.Config{}
+			config.Populate()
+
+			log.InitEngine(&log.Config{Debug: config.Debug, Output: "stdout"})
+
+			if err := clients.InitClients(ctx, config); err != nil {
 				return err
 			}
 
-			log.InitEngine(&log.Config{
-				Debug:  config.Instance.Debug,
-				Output: "stdout",
-			})
-
-			if err := clients.InitClients(); err != nil {
-				return err
-			}
-
-			ctrl := cmdctl.New()
+			ctrl := cmdctl.New(config)
 			go func() {
 				if err := ctrl.Execute(ctx); err != nil {
 					panic(err)
 				}
 			}()
 
-			apiserver := apiserver.New()
+			apiserver := apiserver.New(config)
 			go func() {
 				if err := apiserver.Execute(ctx); err != nil {
 					panic(err)
@@ -59,7 +54,7 @@ func main() {
 		},
 	}
 
-	root.PersistentFlags().StringVarP(&configFile, "config", "c", "/app/config.yaml", "Config file path.")
+	vinkcmd.InitFlags(root)
 
 	if err := root.Execute(); err != nil {
 		panic(err)

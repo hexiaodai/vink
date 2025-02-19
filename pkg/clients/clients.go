@@ -1,12 +1,13 @@
 package clients
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
 	netv1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
-	kubeovn "github.com/kubeovn/kube-ovn/pkg/apis/kubeovn/v1"
 	kubeovnv1 "github.com/kubeovn/kube-ovn/pkg/apis/kubeovn/v1"
+	"github.com/kubevm.io/vink/config"
 	"github.com/kubevm.io/vink/pkg/k8s/apis/vink/v1alpha1"
 	spv2beta1 "github.com/spidernet-io/spiderpool/pkg/k8s/apis/spiderpool.spidernet.io/v2beta1"
 	corev1 "k8s.io/api/core/v1"
@@ -30,16 +31,19 @@ func init() {
 	spv2beta1.AddToScheme(scheme.Scheme)
 	virtv1.AddToScheme(scheme.Scheme)
 	netv1.AddToScheme(scheme.Scheme)
-	kubeovn.AddToScheme(scheme.Scheme)
+	kubeovnv1.AddToScheme(scheme.Scheme)
 	storagev1.AddToScheme(scheme.Scheme)
 	v1alpha1.AddToScheme(scheme.Scheme)
 	snapshotv1beta1.AddToScheme(scheme.Scheme)
+	clonev1alpha1.AddToScheme(scheme.Scheme)
 }
 
 var Clients = &clients{}
 
 type clients struct {
 	kubecli.KubevirtClient
+	Ceph       CephInterface
+	Prometheus *Prometheus
 
 	VinkRestClient     *rest.RESTClient
 	KubeOVNRestClient  *rest.RESTClient
@@ -47,8 +51,8 @@ type clients struct {
 	KubeNetWorldClient *rest.RESTClient
 }
 
-func InitClients(args ...string) error {
-	kubeconfig := GetK8sConfigConfigWithFile(args...)
+func InitClients(ctx context.Context, cfg *config.Config) error {
+	kubeconfig := GetK8sConfigConfigWithFile()
 
 	kubeconfig.RateLimiter = flowcontrol.NewTokenBucketRateLimiter(100, 200)
 
@@ -81,6 +85,16 @@ func InitClients(args ...string) error {
 		return err
 	}
 	Clients.KubeNetWorldClient = kubeNetworkCLient
+
+	Clients.Prometheus, err = NewPrometheus(cfg.Prometheus)
+	if err != nil {
+		return err
+	}
+
+	Clients.Ceph, err = NewCeph(ctx, cfg.Ceph, cfg.CephUsername, cfg.CephPassword)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -141,12 +155,14 @@ func Unstructured[T runtime.Object](obj T) (*unstructured.Unstructured, error) {
 }
 
 func UnstructuredToJSON(obj *unstructured.Unstructured) (string, error) {
+	obj.SetManagedFields(nil)
 	jsonBytes, err := json.Marshal(obj.Object)
 	if err != nil {
 		return "", err
 	}
 	return string(jsonBytes), nil
 }
+
 func JSONToUnstructured(data string) (*unstructured.Unstructured, error) {
 	obj := map[string]interface{}{}
 	if err := json.Unmarshal([]byte(data), &obj); err != nil {

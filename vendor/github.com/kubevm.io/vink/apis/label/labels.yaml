@@ -1,0 +1,19 @@
+labels:
+  - name: vink.kubevm.io/datavolume.type
+    featureStatus: Alpha
+    description: Specifies the type of data volume associated with the virtual machine.
+    deprecated: false
+    resources:
+      - DataVolume
+  - name: vink.kubevm.io/operating-system
+    featureStatus: Alpha
+    description: Defines the operating system of the virtual machine, where 'windows' represents the Windows operating system, and 'linux' represents the Linux operating system.
+    deprecated: false
+    resources:
+      - DataVolume
+  - name: vink.kubevm.io/operating-system.version
+    featureStatus: Alpha
+    description: Defines the operating system version of the virtual machine.
+    deprecated: false
+    resources:
+      - DataVolume

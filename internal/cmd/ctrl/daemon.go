@@ -5,8 +5,11 @@ import (
 
 	netv1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
 	kubeovn "github.com/kubeovn/kube-ovn/pkg/apis/kubeovn/v1"
+	"github.com/kubevm.io/vink/config"
 	"github.com/kubevm.io/vink/internal/controller"
-	vm_summary "github.com/kubevm.io/vink/internal/controller/vm_summary"
+	"github.com/kubevm.io/vink/internal/controller/node"
+	"github.com/kubevm.io/vink/internal/controller/virtualmachine"
+	// vm_summary "github.com/kubevm.io/vink/internal/controller/vm_summary"
 	"github.com/kubevm.io/vink/pkg/clients"
 	"github.com/kubevm.io/vink/pkg/k8s/apis/vink/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
@@ -31,11 +34,13 @@ func init() {
 	uruntime.Must(netv1.AddToScheme(scheme))
 }
 
-func New() *Daemon {
-	return &Daemon{}
+func New(cfg *config.Config) *Daemon {
+	return &Daemon{config: cfg}
 }
 
-type Daemon struct{}
+type Daemon struct {
+	config *config.Config
+}
 
 func (dm *Daemon) Execute(ctx context.Context) error {
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&zap.Options{
@@ -55,33 +60,33 @@ func (dm *Daemon) Execute(ctx context.Context) error {
 		return err
 	}
 
-	if err := (&vm_summary.VirtualMachineReconciler{
-		Client: mgr.GetClient(),
-		Cache:  mgr.GetCache(),
-	}).SetupWithManager(mgr); err != nil {
-		return err
-	}
+	// if err := (&vm_summary.VirtualMachineReconciler{
+	// 	Client: mgr.GetClient(),
+	// 	Cache:  mgr.GetCache(),
+	// }).SetupWithManager(mgr); err != nil {
+	// 	return err
+	// }
 
-	if err := (&vm_summary.VirtualMachineInstanceReconciler{
-		Client: mgr.GetClient(),
-		Cache:  mgr.GetCache(),
-	}).SetupWithManager(mgr); err != nil {
-		return err
-	}
+	// if err := (&vm_summary.VirtualMachineInstanceReconciler{
+	// 	Client: mgr.GetClient(),
+	// 	Cache:  mgr.GetCache(),
+	// }).SetupWithManager(mgr); err != nil {
+	// 	return err
+	// }
 
-	if err := (&vm_summary.NetworkReconciler{
-		Client: mgr.GetClient(),
-		Cache:  mgr.GetCache(),
-	}).SetupWithManager(mgr); err != nil {
-		return err
-	}
+	// if err := (&vm_summary.NetworkReconciler{
+	// 	Client: mgr.GetClient(),
+	// 	Cache:  mgr.GetCache(),
+	// }).SetupWithManager(mgr); err != nil {
+	// 	return err
+	// }
 
-	if err := (&vm_summary.DataVolumeReconciler{
-		Client: mgr.GetClient(),
-		Cache:  mgr.GetCache(),
-	}).SetupWithManager(mgr); err != nil {
-		return err
-	}
+	// if err := (&vm_summary.DataVolumeReconciler{
+	// 	Client: mgr.GetClient(),
+	// 	Cache:  mgr.GetCache(),
+	// }).SetupWithManager(mgr); err != nil {
+	// 	return err
+	// }
 
 	if err := (&controller.DataVolumeOwnerReconciler{
 		Client: mgr.GetClient(),
@@ -90,12 +95,58 @@ func (dm *Daemon) Execute(ctx context.Context) error {
 		return err
 	}
 
-	if err := (&controller.VMIHostReconciler{
+	// if err := (&controller.VMIHostReconciler{
+	// 	Client: mgr.GetClient(),
+	// 	Cache:  mgr.GetCache(),
+	// }).SetupWithManager(mgr); err != nil {
+	// 	return err
+	// }
+
+	if err := (&virtualmachine.NetworkReconciler{
 		Client: mgr.GetClient(),
 		Cache:  mgr.GetCache(),
 	}).SetupWithManager(mgr); err != nil {
 		return err
 	}
+
+	if err := (&virtualmachine.OperatingSystemReconciler{
+		Client: mgr.GetClient(),
+		Cache:  mgr.GetCache(),
+	}).SetupWithManager(mgr); err != nil {
+		return err
+	}
+
+	if err := (&virtualmachine.HostReconciler{
+		Client: mgr.GetClient(),
+		Cache:  mgr.GetCache(),
+	}).SetupWithManager(mgr); err != nil {
+		return err
+	}
+
+	if err := (&virtualmachine.DiskReconciler{
+		Client: mgr.GetClient(),
+		Cache:  mgr.GetCache(),
+	}).SetupWithManager(mgr); err != nil {
+		return err
+	}
+
+	monitor, err := virtualmachine.NewCollector(mgr.GetClient(), mgr.GetCache())
+	if err != nil {
+		return err
+	}
+	go monitor.Collector(ctx, dm.config.MonitorInterval)
+
+	nodeMonitor, err := node.NewCollector(mgr.GetClient(), mgr.GetCache())
+	if err != nil {
+		return err
+	}
+	go nodeMonitor.Collector(ctx, dm.config.MonitorInterval)
+
+	storage, err := node.NewCephStorageCollector(mgr.GetClient(), mgr.GetCache())
+	if err != nil {
+		return err
+	}
+	go storage.Collector(ctx, dm.config.MonitorInterval)
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
 		return err
