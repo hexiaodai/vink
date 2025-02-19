@@ -1,6 +1,6 @@
 toolbox:
   # -- Enable Ceph debugging pod deployment. See [toolbox](../Troubleshooting/ceph-toolbox.md)
-  enabled: false
+  enabled: true
   # -- Toolbox resources
   resources:
     requests:
@@ -9,7 +9,7 @@ toolbox:
 
 cephClusterSpec:
   crashCollector:
-    disable: true
+    disable: false
 
   mon:
     # Set the number of mons to be started. Generally recommended to be 3.
@@ -28,6 +28,8 @@ cephClusterSpec:
 
   resources:
     mgr:
+      limits:
+        memory: 3Gi
       requests:
         cpu: "0"
         memory: "0"
@@ -97,7 +99,7 @@ cephFileSystems:
 
     storageClass:
       enabled: true
-      isDefault: true
+      isDefault: false
       name: ceph-filesystem
       # (Optional) specify a data pool to use, must be the name of one of the data pools above, 'data0' by default
       pool: data0
@@ -176,11 +178,11 @@ cephBlockPools:
       # For reference: https://docs.ceph.com/docs/latest/mgr/prometheus/#rbd-io-statistics
       # enableRBDStats: true
     storageClass:
-      enabled: false
+      enabled: true
       name: ceph-block
       annotations: {}
       labels: {}
-      isDefault: false
+      isDefault: true
       reclaimPolicy: Delete
       allowVolumeExpansion: true
       volumeBindingMode: "Immediate"
@@ -227,3 +229,8 @@ cephBlockPools:
         # will set default as `ext4`. Note that `xfs` is not recommended due to potential deadlock
         # in hyperconverged settings where the volume is mounted on the same node as the osds.
         csi.storage.k8s.io/fstype: ext4
+
+monitoring:
+  # -- Enable Prometheus integration, will also create necessary RBAC rules to allow Operator to create ServiceMonitors.
+  # Monitoring requires Prometheus to be pre-installed
+  enabled: true

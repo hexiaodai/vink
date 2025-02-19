@@ -5,18 +5,18 @@ import (
 	"crypto/x509"
 	"fmt"
 	"io/ioutil"
+	"strconv"
 	"time"
 
-	"github.com/kubevm.io/vink/config"
 	"github.com/mwitkow/grpc-proxy/proxy"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
 
-func NewDetaultBackend() *Backend {
+func NewDetaultBackend(port int) *Backend {
 	return &Backend{
 		BackendBackoffMaxDelay: grpc.DefaultBackoffConfig.MaxDelay,
-		BackendHostPort:        fmt.Sprintf("0.0.0.0:%s", config.Instance.APIServer.GRPC),
+		BackendHostPort:        fmt.Sprintf("0.0.0.0:%s", strconv.Itoa(port)),
 	}
 }
 

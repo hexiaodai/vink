@@ -380,3 +380,107 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = FieldSelectorGroupValidationError{}
+
+// Validate checks the field values on OperatingSystem with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *OperatingSystem) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on OperatingSystem with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// OperatingSystemMultiError, or nil if none found.
+func (m *OperatingSystem) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *OperatingSystem) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Name
+
+	// no validation rules for Version
+
+	if len(errors) > 0 {
+		return OperatingSystemMultiError(errors)
+	}
+
+	return nil
+}
+
+// OperatingSystemMultiError is an error wrapping multiple validation errors
+// returned by OperatingSystem.ValidateAll() if the designated constraints
+// aren't met.
+type OperatingSystemMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m OperatingSystemMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m OperatingSystemMultiError) AllErrors() []error { return m }
+
+// OperatingSystemValidationError is the validation error returned by
+// OperatingSystem.Validate if the designated constraints aren't met.
+type OperatingSystemValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e OperatingSystemValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e OperatingSystemValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e OperatingSystemValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e OperatingSystemValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e OperatingSystemValidationError) ErrorName() string { return "OperatingSystemValidationError" }
+
+// Error satisfies the builtin error interface
+func (e OperatingSystemValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sOperatingSystem.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = OperatingSystemValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = OperatingSystemValidationError{}

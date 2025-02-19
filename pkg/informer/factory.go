@@ -61,6 +61,10 @@ type KubeInformerFactory interface {
 
 	VPC() cache.SharedIndexInformer
 
+	ProviderNetwork() cache.SharedIndexInformer
+
+	VLAN() cache.SharedIndexInformer
+
 	Event() cache.SharedIndexInformer
 
 	Namespace() cache.SharedIndexInformer
@@ -194,6 +198,20 @@ func (f *kubeInformerFactory) VPC() cache.SharedIndexInformer {
 	})
 }
 
+func (f *kubeInformerFactory) VLAN() cache.SharedIndexInformer {
+	return f.getInformer(gvr.From(kubeovn.Vlan{}), func() cache.SharedIndexInformer {
+		lw := cache.NewListWatchFromClient(clients.Clients.KubeOVNRestClient, "vlans", k8sv1.NamespaceAll, fields.Everything())
+		return cache.NewSharedIndexInformer(lw, &kubeovn.Vlan{}, f.defaultResync, cache.Indexers{})
+	})
+}
+
+func (f *kubeInformerFactory) ProviderNetwork() cache.SharedIndexInformer {
+	return f.getInformer(gvr.From(kubeovn.ProviderNetwork{}), func() cache.SharedIndexInformer {
+		lw := cache.NewListWatchFromClient(clients.Clients.KubeOVNRestClient, "provider-networks", k8sv1.NamespaceAll, fields.Everything())
+		return cache.NewSharedIndexInformer(lw, &kubeovn.ProviderNetwork{}, f.defaultResync, cache.Indexers{})
+	})
+}
+
 func GetVirtualMachineInformerIndexers() cache.Indexers {
 	return cache.Indexers{
 		cache.NamespaceIndex: cache.MetaNamespaceIndexFunc,
@@ -263,7 +281,7 @@ func (f *kubeInformerFactory) VirtualMachineRestore() cache.SharedIndexInformer 
 
 func (f *kubeInformerFactory) VirtualMachineClone() cache.SharedIndexInformer {
 	return f.getInformer(gvr.From(clonev1alpha1.VirtualMachineClone{}), func() cache.SharedIndexInformer {
-		lw := cache.NewListWatchFromClient(clients.Clients.KubevirtClient.GeneratedKubeVirtClient().SnapshotV1beta1().RESTClient(), "virtualmachineclones", k8sv1.NamespaceAll, fields.Everything())
+		lw := cache.NewListWatchFromClient(clients.Clients.KubevirtClient.GeneratedKubeVirtClient().CloneV1alpha1().RESTClient(), "virtualmachineclones", k8sv1.NamespaceAll, fields.Everything())
 		return cache.NewSharedIndexInformer(lw, &clonev1alpha1.VirtualMachineClone{}, f.defaultResync, cache.Indexers{})
 	})
 }

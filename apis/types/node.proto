@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package vink.kubevm.io.apis.types;
+
+option go_package = "github.com/kubevm.io/vink/apis/types";
+
+message NodeResourceMetrics {
+    float cpu_usage = 1;
+    float cpu_total = 2;
+    float memery_usage = 3;
+    float memery_total = 4;
+    float storage_usage = 5;
+    float storage_total = 6;
+}
+
+message NodeCephStorage {
+    int32 osd = 1;
+    bool up = 2;
+    string bluestore_bdev_dev_node = 3;
+    string bluestore_bdev_type = 4;
+    float storage_usage = 5;
+    float storage_total = 6;
+}

@@ -39,6 +39,17 @@ func (this *FieldSelectorGroup) UnmarshalJSON(b []byte) error {
 	return TypesUnmarshaler.Unmarshal(bytes.NewReader(b), this)
 }
 
+// MarshalJSON is a custom marshaler for OperatingSystem
+func (this *OperatingSystem) MarshalJSON() ([]byte, error) {
+	str, err := TypesMarshaler.MarshalToString(this)
+	return []byte(str), err
+}
+
+// UnmarshalJSON is a custom unmarshaler for OperatingSystem
+func (this *OperatingSystem) UnmarshalJSON(b []byte) error {
+	return TypesUnmarshaler.Unmarshal(bytes.NewReader(b), this)
+}
+
 var (
 	TypesMarshaler   = &jsonpb.Marshaler{}
 	TypesUnmarshaler = &jsonpb.Unmarshaler{AllowUnknownFields: true}

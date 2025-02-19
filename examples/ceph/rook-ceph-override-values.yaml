@@ -4,7 +4,7 @@ resources:
     memory: "0"
 
 csi:
-  enableRbdDriver: false
+  enableRbdDriver: true
   enableCephfsDriver: true
   provisionerReplicas: 1
   csiRBDProvisionerResource: |
@@ -196,3 +196,12 @@ csi:
           cpu: "0"
         limits:
           memory: "0"
+
+  serviceMonitor:
+    # -- Enable ServiceMonitor for Ceph CSI drivers
+    enabled: true
+
+monitoring:
+  # -- Enable monitoring. Requires Prometheus to be pre-installed.
+  # Enabling will also create RBAC rules to allow Operator to create ServiceMonitors
+  enabled: true

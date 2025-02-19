@@ -38,4 +38,11 @@ enum ResourceType {
 	VIRTUAL_MACHINE_SNAPSHOT = 14;
 	VIRTUAL_MACHINE_RESTORE = 15;
 	VIRTUAL_MACHINE_CLONE = 16;
+	PROVIDER_NETWORK = 17;
+	VLAN = 18;
+}
+
+message OperatingSystem {
+	string name = 1;
+	string version = 2;
 }

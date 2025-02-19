@@ -5,6 +5,7 @@ go 1.22.7
 replace github.com/kubevm.io/vink/apis => ./apis
 
 require (
+	github.com/go-resty/resty/v2 v2.16.5
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/websocket v1.5.3
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
@@ -18,6 +19,7 @@ require (
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f
 	github.com/mwitkow/grpc-proxy v0.0.0-20230212185441-f345521cb9c9
 	github.com/prometheus/client_golang v1.19.1
+	github.com/prometheus/common v0.55.0
 	github.com/samber/lo v1.39.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/slok/go-http-metrics v0.12.0
@@ -25,8 +27,8 @@ require (
 	github.com/spf13/viper v1.19.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.52.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.53.0
-	golang.org/x/net v0.30.0
-	golang.org/x/sync v0.8.0
+	golang.org/x/net v0.33.0
+	golang.org/x/sync v0.10.0
 	google.golang.org/grpc v1.66.2
 	google.golang.org/protobuf v1.34.2
 	k8s.io/api v0.31.1
@@ -78,7 +80,6 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.68.0 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
-	github.com/prometheus/common v0.55.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
 	github.com/rs/cors v1.7.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
@@ -125,9 +126,9 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0
 	golang.org/x/oauth2 v0.23.0 // indirect
-	golang.org/x/sys v0.26.0 // indirect
-	golang.org/x/term v0.25.0 // indirect
-	golang.org/x/text v0.19.0 // indirect
+	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/term v0.27.0 // indirect
+	golang.org/x/text v0.21.0 // indirect
 	golang.org/x/time v0.6.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240903143218-8af14fe29dc1 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240903143218-8af14fe29dc1 // indirect

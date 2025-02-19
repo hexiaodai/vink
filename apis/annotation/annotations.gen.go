@@ -28,7 +28,8 @@ type ResourceTypes int
 const (
 	Unknown ResourceTypes = iota
     DataVolume
-    VirtualMachineInstance
+    Node
+    VirtualMachine
 )
 
 func (r ResourceTypes) String() string {
@@ -36,7 +37,9 @@ func (r ResourceTypes) String() string {
 	case 1:
 		return "DataVolume"
 	case 2:
-		return "VirtualMachineInstance"
+		return "Node"
+	case 3:
+		return "VirtualMachine"
 	}
 	return "Unknown"
 }
@@ -82,14 +85,64 @@ var (
 		},
 	}
 
-	VinkHost = Instance {
-		Name:          "vink.kubevm.io/host",
-		Description:   "Specifies the host machine where the virtual machine "+
-                        "instance is scheduled to run.",
+	VinkDisks = Instance {
+		Name:          "vink.kubevm.io/disks",
+		Description:   "",
 		FeatureStatus: Alpha,
 		Deprecated:    false,
 		Resources: []ResourceTypes{
-			VirtualMachineInstance,
+			VirtualMachine,
+		},
+	}
+
+	VinkHost = Instance {
+		Name:          "vink.kubevm.io/host",
+		Description:   "Specifies the host machine where the virtual machine is "+
+                        "scheduled to run.",
+		FeatureStatus: Alpha,
+		Deprecated:    false,
+		Resources: []ResourceTypes{
+			VirtualMachine,
+		},
+	}
+
+	VinkMonitor = Instance {
+		Name:          "vink.kubevm.io/monitor",
+		Description:   "",
+		FeatureStatus: Alpha,
+		Deprecated:    false,
+		Resources: []ResourceTypes{
+			VirtualMachine,
+		},
+	}
+
+	VinkNetworks = Instance {
+		Name:          "vink.kubevm.io/networks",
+		Description:   "",
+		FeatureStatus: Alpha,
+		Deprecated:    false,
+		Resources: []ResourceTypes{
+			VirtualMachine,
+		},
+	}
+
+	VinkOperatingSystem = Instance {
+		Name:          "vink.kubevm.io/operating-system",
+		Description:   "",
+		FeatureStatus: Alpha,
+		Deprecated:    false,
+		Resources: []ResourceTypes{
+			VirtualMachine,
+		},
+	}
+
+	VinkStorage = Instance {
+		Name:          "vink.kubevm.io/storage",
+		Description:   "",
+		FeatureStatus: Alpha,
+		Deprecated:    false,
+		Resources: []ResourceTypes{
+			Node,
 		},
 	}
 
@@ -99,13 +152,19 @@ func AllResourceAnnotations() []*Instance {
 	return []*Instance {
 		&IoKubevirtCdiStorageBindImmediateRequested,
 		&VinkDatavolumeOwner,
+		&VinkDisks,
 		&VinkHost,
+		&VinkMonitor,
+		&VinkNetworks,
+		&VinkOperatingSystem,
+		&VinkStorage,
 	}
 }
 
 func AllResourceTypes() []string {
 	return []string {
 		"DataVolume",
-		"VirtualMachineInstance",
+		"Node",
+		"VirtualMachine",
 	}
 }

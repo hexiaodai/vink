@@ -19,3 +19,13 @@ grafana:
     server:
       root_url: /grafana
       serve_from_sub_path: true
+
+prometheus-node-exporter:
+  prometheus:
+    monitor:
+      attachMetadata:
+        node: true
+      relabelings:
+      - action: replace
+        sourceLabels: [__meta_kubernetes_node_name]
+        targetLabel: nodename
