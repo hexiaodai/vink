@@ -1,0 +1,94 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: monitoring-override-values
+  namespace: vink
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    "helm.sh/hook-weight": "5"
+data:
+  values.yaml: |
+    alertmanager:
+      enabled: false
+
+    kubeStateMetrics:
+      enabled: true
+
+    prometheus:
+      prometheusSpec:
+        serviceMonitorSelectorNilUsesHelmValues: false
+
+    grafana:
+      grafana.ini:
+        auth.anonymous:
+          enabled: true
+          org_role: Viewer
+        http:
+          enable_cors: true
+          allow_from_origin: "*"
+        server:
+          root_url: /grafana
+          serve_from_sub_path: true
+
+    prometheus-node-exporter:
+      prometheus:
+        monitor:
+          attachMetadata:
+            node: true
+          relabelings:
+          - action: replace
+            sourceLabels: [__meta_kubernetes_node_name]
+            targetLabel: nodename
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: vink
+  name: monitoring-installer
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    "helm.sh/hook-weight": "5"
+spec:
+  template:
+    metadata:
+      name: vink
+    spec:
+      serviceAccountName: vink
+      restartPolicy: OnFailure
+      containers:
+        - name: monitoring-installer
+          image: hejianmin/shell:0.0.1-f1a26a48
+          env:
+            - name: HTTP_PROXY
+              value: http://192.168.18.240:7897
+            - name: HTTPS_PROXY
+              value: http://192.168.18.240:7897
+            - name: NO_PROXY
+              value: localhost,127.0.0.1,10.233.0.1
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+
+              echo "Installing Monitor"
+              helm repo add prometheus-community https://prometheus-community.github.io/helm-charts --force-update
+              helm repo update prometheus-community
+
+              helm upgrade --install --create-namespace --namespace monitoring monitoring \
+                  prometheus-community/kube-prometheus-stack \
+                  -f /config/values.yaml \
+                  --wait \
+                  --timeout 600s \
+                  --debug
+          volumeMounts:
+            - name: config-volume
+              mountPath: /config
+              readOnly: true
+      volumes:
+        - name: config-volume
+          configMap:
+            name: monitoring-override-values

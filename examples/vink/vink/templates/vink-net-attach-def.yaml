@@ -3,6 +3,9 @@ kind: NetworkAttachmentDefinition
 metadata:
   name: default
   namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "1"
 spec:
   config: >-
     { "cniVersion": "0.3.0", "type": "kube-ovn", "server_socket":

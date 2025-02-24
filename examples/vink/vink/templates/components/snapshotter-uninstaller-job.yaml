@@ -1,0 +1,47 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: vink
+  name: snapshotter-uninstaller
+  annotations:
+    "helm.sh/hook": pre-delete
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    "helm.sh/hook-weight": "3"
+spec:
+  template:
+    metadata:
+      name: vink
+    spec:
+      serviceAccountName: vink
+      restartPolicy: OnFailure
+      containers:
+        - name: snapshotter-uninstaller
+          image: hejianmin/shell:0.0.1-f1a26a48
+          env:
+            - name: HTTP_PROXY
+              value: http://192.168.18.240:7897
+            - name: HTTPS_PROXY
+              value: http://192.168.18.240:7897
+            - name: NO_PROXY
+              value: localhost,127.0.0.1,10.233.0.1
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+
+              kubectl delete -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/master/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml --ignore-not-found=true
+              kubectl delete -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/master/client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml --ignore-not-found=true
+              kubectl delete -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/master/client/config/crd/snapshot.storage.k8s.io_volumesnapshots.yaml --ignore-not-found=true
+
+              kubectl delete -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/master/deploy/kubernetes/snapshot-controller/rbac-snapshot-controller.yaml --ignore-not-found=true
+              kubectl delete -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/master/deploy/kubernetes/snapshot-controller/setup-snapshot-controller.yaml --ignore-not-found=true
+
+              kubectl delete -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/master/deploy/kubernetes/csi-snapshotter/rbac-csi-snapshotter.yaml --ignore-not-found=true
+              kubectl delete -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/master/deploy/kubernetes/csi-snapshotter/rbac-external-provisioner.yaml --ignore-not-found=true
+              kubectl delete -f https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/master/deploy/kubernetes/csi-snapshotter/setup-csi-snapshotter.yaml --ignore-not-found=true
+
+              # kubectl kustomize https://github.com/kubernetes-csi/external-snapshotter/client/config/crd | kubectl delete -f -
+              # kubectl -n kube-system kustomize https://github.com/kubernetes-csi/external-snapshotter/deploy/kubernetes/snapshot-controller | kubectl delete -f -
+              # kubectl kustomize https://github.com/kubernetes-csi/external-snapshotter/deploy/kubernetes/csi-snapshotter | kubectl delete -f -
+
