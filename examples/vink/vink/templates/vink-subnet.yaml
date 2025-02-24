@@ -2,6 +2,9 @@ apiVersion: kubeovn.io/v1
 kind: Subnet
 metadata:
   name: vink
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "1"
 spec:
   protocol: IPv4
   provider: default.{{ .Release.Namespace }}.ovn

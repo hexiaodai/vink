@@ -23,7 +23,12 @@ const (
 
 	CephUsernameDefault = "admin"
 
-	CephPasswordDefault = "dpDloRDp7'lol=NI;/RO"
+	CephPasswordDefault = ""
+	// CephPasswordDefault = "dpDloRDp7'lol=NI;/RO"
+
+	CephPasswordSecretNameDefault = "rook-ceph-dashboard-password"
+
+	CephPasswordSecretNamespaceDefault = "rook-ceph"
 
 	MonitorIntervalDefault = "1m"
 )
@@ -45,6 +50,10 @@ const (
 
 	CephPassword = "ceph-password"
 
+	CephPasswordSecretName = "ceph-password-secret-name"
+
+	CephPasswordSecretNamespace = "ceph-password-secret-namespace"
+
 	MonitorInterval = "monitor-interval"
 )
 
@@ -65,6 +74,10 @@ type Config struct {
 
 	CephPassword string
 
+	CephPasswordSecretName string
+
+	CephPasswordSecretNamespace string
+
 	MonitorInterval time.Duration
 }
 
@@ -77,5 +90,7 @@ func (c *Config) Populate() {
 	c.Ceph = viper.GetString(Ceph)
 	c.CephUsername = viper.GetString(CephUsername)
 	c.CephPassword = viper.GetString(CephPassword)
+	c.CephPasswordSecretName = viper.GetString(CephPasswordSecretName)
+	c.CephPasswordSecretNamespace = viper.GetString(CephPasswordSecretNamespace)
 	c.MonitorInterval = viper.GetDuration(MonitorInterval)
 }

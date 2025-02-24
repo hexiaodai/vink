@@ -40,6 +40,12 @@ func InitFlags(cmd *cobra.Command) error {
 	flags.String(config.CephPassword, config.CephPasswordDefault, "Ceph password")
 	bindEnv(config.CephPassword)
 
+	flags.String(config.CephPasswordSecretName, config.CephPasswordSecretNameDefault, "Ceph password secret name")
+	bindEnv(config.CephPasswordSecretName)
+
+	flags.String(config.CephPasswordSecretNamespace, config.CephPasswordSecretNamespaceDefault, "Ceph password secret namespace")
+	bindEnv(config.CephPasswordSecretNamespace)
+
 	monitorInterval, err := time.ParseDuration(config.MonitorIntervalDefault)
 	if err != nil {
 		return err

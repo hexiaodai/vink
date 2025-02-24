@@ -1,0 +1,101 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubeovn-override-values
+  namespace: vink
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    "helm.sh/hook-weight": "-10"
+data:
+  values.yaml: |
+    cni_conf:
+      CNI_CONFIG_PRIORITY: "90"
+
+    ovn-central:
+      requests:
+        cpu: "10m"
+        memory: "64Mi"
+
+    ovs-ovn:
+      requests:
+        cpu: "10m"
+        memory: "64Mi"
+
+    kube-ovn-controller:
+      requests:
+        cpu: "10m"
+        memory: "64Mi"
+
+    kube-ovn-cni:
+      requests:
+        cpu: "10m"
+        memory: "64Mi"
+
+    kube-ovn-pinger:
+      requests:
+        cpu: "10m"
+        memory: "64Mi"
+
+    kube-ovn-monitor:
+      requests:
+        cpu: "10m"
+        memory: "64Mi"
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: vink
+  name: kubeovn-installer
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    "helm.sh/hook-weight": "-8"
+spec:
+  template:
+    metadata:
+      name: vink
+    spec:
+      serviceAccountName: vink
+      restartPolicy: OnFailure
+      containers:
+        - name: kubeovn-installer
+          image: hejianmin/shell:0.0.1-f1a26a48
+          env:
+            - name: HTTP_PROXY
+              value: http://192.168.18.240:7897
+            - name: HTTPS_PROXY
+              value: http://192.168.18.240:7897
+            - name: NO_PROXY
+              value: localhost,127.0.0.1,10.233.0.1
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+
+              echo "Installing Kube-OVN"
+              helm repo add kubeovn https://kubeovn.github.io/kube-ovn --force-update
+              helm repo update kubeovn
+
+              kubectl label node -l beta.kubernetes.io/os=linux kubernetes.io/os=linux --overwrite
+              kubectl label node -l node-role.kubernetes.io/control-plane kube-ovn/role=master --overwrite
+
+              MASTER_NODE_IPS=$(kubectl get nodes -l node-role.kubernetes.io/control-plane -o=jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}' | tr ' ' ',')
+
+              helm upgrade --install --create-namespace kube-ovn kubeovn/kube-ovn \
+                  --namespace kube-system \
+                  --set MASTER_NODES=${MASTER_NODE_IPS} \
+                  -f /config/values.yaml \
+                  --wait \
+                  --timeout 600s \
+                  --debug
+          volumeMounts:
+            - name: config-volume
+              mountPath: /config
+              readOnly: true
+      volumes:
+        - name: config-volume
+          configMap:
+            name: kubeovn-override-values

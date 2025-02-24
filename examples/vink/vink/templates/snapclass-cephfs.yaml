@@ -2,6 +2,9 @@ apiVersion: snapshot.storage.k8s.io/v1
 kind: VolumeSnapshotClass
 metadata:
   name: csi-cephfsplugin-snapclass
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "1"
 driver: rook-ceph.cephfs.csi.ceph.com # csi-provisioner-name
 parameters:
   # Specify a string that identifies your cluster. Ceph CSI supports any

@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: vink
+  name: cdi-uninstaller
+  annotations:
+    "helm.sh/hook": pre-delete
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    "helm.sh/hook-weight": "1"
+spec:
+  template:
+    metadata:
+      name: vink
+    spec:
+      serviceAccountName: vink
+      restartPolicy: OnFailure
+      containers:
+        - name: cdi-uninstaller
+          image: hejianmin/shell:0.0.1-f1a26a48
+          env:
+            - name: HTTP_PROXY
+              value: http://192.168.18.240:7897
+            - name: HTTPS_PROXY
+              value: http://192.168.18.240:7897
+            - name: NO_PROXY
+              value: localhost,127.0.0.1,10.233.0.1
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+
+              helm delete --namespace cdi cdi --debug

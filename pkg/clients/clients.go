@@ -12,6 +12,7 @@ import (
 	spv2beta1 "github.com/spidernet-io/spiderpool/pkg/k8s/apis/spiderpool.spidernet.io/v2beta1"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -91,7 +92,16 @@ func InitClients(ctx context.Context, cfg *config.Config) error {
 		return err
 	}
 
-	Clients.Ceph, err = NewCeph(ctx, cfg.Ceph, cfg.CephUsername, cfg.CephPassword)
+	cephPassword := cfg.CephPassword
+	if len(cephPassword) == 0 {
+		cephSecret, err := Clients.CoreV1().Secrets(cfg.CephPasswordSecretNamespace).Get(ctx, cfg.CephPasswordSecretName, metav1.GetOptions{})
+		if err != nil {
+			return err
+		}
+		cephPassword = string(cephSecret.Data["password"])
+	}
+
+	Clients.Ceph, err = NewCeph(ctx, cfg.Ceph, cfg.CephUsername, cephPassword)
 	if err != nil {
 		return err
 	}
