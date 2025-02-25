@@ -14,6 +14,7 @@ import (
 	"github.com/kubevm.io/vink/apis/types"
 	"github.com/kubevm.io/vink/pkg/clients"
 	pkg_clients "github.com/kubevm.io/vink/pkg/clients"
+	"github.com/yalp/jsonpath"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -57,6 +58,7 @@ type arbitraryFieldSelector struct {
 	FieldPath      string
 	Operator       string
 	ExpectedValues []string
+	JsonPath       string
 }
 
 func parseFieldPath(fieldPath string) []string {
@@ -78,7 +80,13 @@ func (fs *arbitraryFieldSelector) matches(item *unstructured.Unstructured) (bool
 	}
 
 	for _, actualValue := range actualValues {
+		if len(fs.JsonPath) > 0 {
+			if value, err := getJsonPathValue(actualValue, fs.JsonPath); err == nil {
+				actualValue = value
+			}
+		}
 		actualValue = strings.ToLower(actualValue)
+
 		var expectedValue string
 		if len(fs.ExpectedValues) > 0 {
 			expectedValue = strings.ToLower(fs.ExpectedValues[0])
@@ -217,6 +225,32 @@ func getValuesFromFieldPath(obj map[string]interface{}, fieldPathParts []string)
 	return getValuesFromFieldPath(subObj, remainingParts)
 }
 
+var errInvalidJsonString = errors.New("invalid JSON string")
+
+func getJsonPathValue(input string, jsonPath string) (string, error) {
+	var jsonObject interface{}
+	if err := json.Unmarshal([]byte(input), &jsonObject); err != nil {
+		return "", errInvalidJsonString
+	}
+
+	value, err := jsonpath.Read(jsonObject, jsonPath)
+	if err != nil {
+		return "", err
+	}
+
+	var valueStr string
+	switch v := value.(type) {
+	case string:
+		valueStr = v
+	case float64, int, bool:
+		valueStr = fmt.Sprintf("%v", v)
+	default:
+		return "", fmt.Errorf("unsupported JSONPath value type: %T", v)
+	}
+
+	return valueStr, nil
+}
+
 func listResourcesByListOptions(ctx context.Context, cli dynamic.NamespaceableResourceInterface, opts *resource_v1alpha1.ListOptions) ([]unstructured.Unstructured, error) {
 	res, err := cli.Namespace(opts.Namespace).List(ctx, metav1.ListOptions{
 		LabelSelector: opts.LabelSelector,
@@ -315,6 +349,7 @@ func FilterFuncWithFieldSelector(fieldSelectorGroup *types.FieldSelectorGroup) (
 		for _, selector := range fieldSelectorGroup.FieldSelectors {
 			fieldSelector := &arbitraryFieldSelector{
 				FieldPath:      selector.FieldPath,
+				JsonPath:       selector.JsonPath,
 				Operator:       selector.Operator,
 				ExpectedValues: selector.Values,
 			}

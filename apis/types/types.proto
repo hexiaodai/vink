@@ -13,6 +13,7 @@ message FieldSelector {
     string field_path = 1;
     string operator = 2;
     repeated string values = 3;
+	string json_path = 4;
 }
 
 message FieldSelectorGroup {

@@ -165,6 +165,8 @@ func (m *FieldSelector) validate(all bool) error {
 
 	// no validation rules for Operator
 
+	// no validation rules for JsonPath
+
 	if len(errors) > 0 {
 		return FieldSelectorMultiError(errors)
 	}

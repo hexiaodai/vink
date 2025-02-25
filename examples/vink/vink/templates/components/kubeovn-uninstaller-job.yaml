@@ -30,6 +30,14 @@ spec:
             - |
               set -e
 
+              curl -sSL https://raw.githubusercontent.com/kubeovn/kube-ovn/release-1.13/dist/images/cleanup.sh -o cleanup.sh
+
+              bash cleanup.sh || true
+
               if helm status kube-ovn --namespace kube-system > /dev/null 2>&1; then
                 helm delete kube-ovn --namespace kube-system --debug
               fi
+
+              bash cleanup.sh || true
+
+              kubectl rollout restart daemonset calico-node -n kube-system

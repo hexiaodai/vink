@@ -15,7 +15,6 @@ require (
 	github.com/k8snetworkplumbingwg/network-attachment-definition-client v1.7.1
 	github.com/kubeovn/kube-ovn v1.12.23
 	github.com/kubevm.io/vink/apis v0.0.0-00010101000000-000000000000
-	github.com/mitchellh/mapstructure v1.5.0
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f
 	github.com/mwitkow/grpc-proxy v0.0.0-20230212185441-f345521cb9c9
 	github.com/prometheus/client_golang v1.19.1
@@ -25,6 +24,7 @@ require (
 	github.com/slok/go-http-metrics v0.12.0
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
+	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.52.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.53.0
 	golang.org/x/net v0.33.0
@@ -73,6 +73,7 @@ require (
 	github.com/klauspost/compress v1.17.8 // indirect
 	github.com/kubernetes-csi/external-snapshotter/client/v4 v4.2.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
+	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/openshift/client-go v3.9.0+incompatible // indirect
