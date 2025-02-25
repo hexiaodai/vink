@@ -144,7 +144,7 @@ data:
                         "datasource": {
                             "uid": "$datasource"
                         },
-                        "expr": "sum(irate(kubevirt_vmi_vcpu_seconds_total{namespace=\"$namespace\",name=\"$vm\"}[$__rate_interval]))",
+                        "expr": "sum(irate(kubevirt_vmi_vcpu_seconds_total{namespace=\"$namespace\",name=\"$vm\"}[$__rate_interval])) / 1000",
                         "format": "table",
                         "instant": true,
                         "intervalFactor": 2,
