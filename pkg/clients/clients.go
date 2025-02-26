@@ -225,6 +225,10 @@ func InterfaceToJSON(obj any) (string, error) {
 		un, err = Unstructured(payload)
 	case *clonev1alpha1.VirtualMachineClone:
 		un, err = Unstructured(payload)
+	case *kubeovnv1.ProviderNetwork:
+		un, err = Unstructured(payload)
+	case *kubeovnv1.Vlan:
+		un, err = Unstructured(payload)
 	default:
 		err = fmt.Errorf("unsupported payload type %T", payload)
 	}
