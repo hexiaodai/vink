@@ -1,3 +1,22 @@
+- [网络](#网络)
+  - [虚拟机网络](#虚拟机网络)
+    - [创建 Overlay 网络](#创建overlay网络)
+      - [创建具有 Overlay 网络的虚拟机](#创建具有overlay网络的虚拟机)
+    - [创建 Underlay 网络](#创建underlay网络)
+      - [创建具有 Underlay 网络的虚拟机](#创建具有underlay网络的虚拟机)
+    - [Underlay/Overlay 混合网络](#underlayoverlay混合网络)
+      - [创建具有 Underlay/Overlay 混合网络的虚拟机](#创建具有underlayoverlay混合网络的虚拟机)
+  - [Underlay 流量拓扑](#underlay流量拓扑)
+    - [同节点同子网](#同节点同子网)
+    - [跨节点同子网](#跨节点同子网)
+    - [同节点不同子网](#同节点不同子网)
+    - [跨节点不同子网](#跨节点不同子网)
+    - [访问外部](#访问外部)
+    - [无 VLAN Tag](#无vlan-tag)
+    - [多 VLAN Tag](#多vlan-tag)
+
+# 网络
+
 ## 虚拟机网络
 
 Vink 利用 Multus 和 Kube-OVN CNI 插件，实现 Underlay/Overlay 混合网络架构。
@@ -91,6 +110,22 @@ Vink 利用 Multus 和 Kube-OVN CNI 插件，实现 Underlay/Overlay 混合网�
 
 ![创建虚拟机-underlay网络](./images/创建虚拟机-underlay网络.png)
 
+### Underlay/Overlay 混合网络
+
+#### 创建具有 Underlay/Overlay 混合网络的虚拟机
+
+您现在可以使用上面配置的 Underlay 和 Overlay 网络配置，创建多网卡的虚拟机：
+
+1. 前往 `虚拟资源` > `虚拟机` > `创建虚拟机`
+2. 选择 `网络` > `网络接口` > `添加网络`，依次添加 Overlay 和 Underlay 网络
+3. 配置以下参数：
+   - Network
+   - Interface
+   - Multus CR
+   - 子网
+
+![创建具有underlay-overlay混合网络的虚拟机](./images/创建具有underlay-overlay混合网络的虚拟机.png)
+
 ## Underlay 流量拓扑
 
 本文档介绍 Underlay 模式下流量在不同情况下的转发路径。
@@ -98,3 +133,23 @@ Vink 利用 Multus 和 Kube-OVN CNI 插件，实现 Underlay/Overlay 混合网�
 ### 同节点同子网
 
 内部逻辑交换机直接交换数据包，不进入外部网络。
+
+### 跨节点同子网
+
+数据包经由节点网卡进入外部交换机，由外部交换机进行交换。
+
+### 同节点不同子网
+
+数据包经由节点网卡进入外部网络，由外部交换机及路由器进行交换和路由转发。
+
+### 跨节点不同子网
+
+数据包经由节点网卡进入外部网络，由外部交换机及路由器进行交换和路由转发。
+
+### 访问外部
+
+数据包经由节点网卡进入外部网络，由外部交换机及路由器进行交换和路由转发。
+
+### 无 VLAN Tag
+
+### 多 VLAN Tag
