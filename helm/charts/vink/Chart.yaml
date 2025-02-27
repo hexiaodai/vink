@@ -1,6 +1,0 @@
-apiVersion: v2
-name: vink
-description: A Helm chart for Vink
-type: application
-version: 0.0.0
-appVersion: 0.0.0
