@@ -22,6 +22,7 @@ import (
 	"k8s.io/client-go/util/flowcontrol"
 	clonev1alpha1 "kubevirt.io/api/clone/v1alpha1"
 	virtv1 "kubevirt.io/api/core/v1"
+	poolv1alpha1 "kubevirt.io/api/pool/v1alpha1"
 	snapshotv1beta1 "kubevirt.io/api/snapshot/v1beta1"
 	"kubevirt.io/client-go/kubecli"
 	cdiv1beta1 "kubevirt.io/containerized-data-importer-api/pkg/apis/core/v1beta1"
@@ -37,6 +38,7 @@ func init() {
 	v1alpha1.AddToScheme(scheme.Scheme)
 	snapshotv1beta1.AddToScheme(scheme.Scheme)
 	clonev1alpha1.AddToScheme(scheme.Scheme)
+	poolv1alpha1.AddToScheme(scheme.Scheme)
 }
 
 var Clients = &clients{}
@@ -228,6 +230,8 @@ func InterfaceToJSON(obj any) (string, error) {
 	case *kubeovnv1.ProviderNetwork:
 		un, err = Unstructured(payload)
 	case *kubeovnv1.Vlan:
+		un, err = Unstructured(payload)
+	case *poolv1alpha1.VirtualMachinePool:
 		un, err = Unstructured(payload)
 	default:
 		err = fmt.Errorf("unsupported payload type %T", payload)

@@ -41,6 +41,7 @@ enum ResourceType {
 	VIRTUAL_MACHINE_CLONE = 16;
 	PROVIDER_NETWORK = 17;
 	VLAN = 18;
+	VIRTUAL_MACHINE_POOL = 19;
 }
 
 message OperatingSystem {
