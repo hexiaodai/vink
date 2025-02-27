@@ -10,6 +10,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	clonev1alpha1 "kubevirt.io/api/clone/v1alpha1"
 	virtv1 "kubevirt.io/api/core/v1"
+	poolv1alpha1 "kubevirt.io/api/pool/v1alpha1"
 	snapshotv1beta1 "kubevirt.io/api/snapshot/v1beta1"
 	cdiv1beta1 "kubevirt.io/containerized-data-importer-api/pkg/apis/core/v1beta1"
 )
@@ -57,6 +58,12 @@ func From[T any](o T) schema.GroupVersionResource {
 			Group:    virtv1.SchemeGroupVersion.Group,
 			Version:  virtv1.SchemeGroupVersion.Version,
 			Resource: "virtualmachines",
+		}
+	case poolv1alpha1.VirtualMachinePool, *poolv1alpha1.VirtualMachinePool:
+		return schema.GroupVersionResource{
+			Group:    poolv1alpha1.SchemeGroupVersion.Group,
+			Version:  poolv1alpha1.SchemeGroupVersion.Version,
+			Resource: "virtualmachinepools",
 		}
 	case virtv1.VirtualMachineInstance, *virtv1.VirtualMachineInstance:
 		return schema.GroupVersionResource{
@@ -157,6 +164,8 @@ func ResolveGVR(rt types.ResourceType) schema.GroupVersionResource {
 		return From(kubeovn.ProviderNetwork{})
 	case types.ResourceType_VLAN:
 		return From(kubeovn.Vlan{})
+	case types.ResourceType_VIRTUAL_MACHINE_POOL:
+		return From(poolv1alpha1.VirtualMachinePool{})
 	}
 
 	return schema.GroupVersionResource{}
