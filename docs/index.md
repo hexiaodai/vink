@@ -1,4 +1,6 @@
-<!-- [Quickstart Guides](./quickstarts.md) -->
+[Dashboard](./dashboard.md)
+
+[Host](./host.md)
 
 [Virtual Machine Management](./vm-management.md)
 
