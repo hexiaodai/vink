@@ -1,2 +1,0 @@
-Verify that all KubeVirt components are installed correctly:
-  kubectl get all -n {{ .Values.namespace }}
