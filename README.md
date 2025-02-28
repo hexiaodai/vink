@@ -16,7 +16,9 @@ Vink（Virtual Machines in Kubernetes）是基于 KubeVirt 构建的开源云原
 
 - **存储管理:** 采用 Ceph 分布式存储，支持快照、克隆以及虚拟机的实时扩容和实时迁移。
 
-- **Kubernetes 原生集成:** 支持使用 Kubernetes 原生 API 部署虚拟机。
+- **监控:** 采用 Prometheus 和 Grafana 监控系统，提供虚拟机、节点、Ceph 存储和 Kube-OVN 组件的监控数据。
+
+- **Kubernetes 原生集成:** 使用 Kubernetes 原生 API 部署虚拟机。
 
 - **可扩展性与高可用性:** 通过自动扩展和故障转移机制确保虚拟机的可靠性。
 
