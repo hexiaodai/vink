@@ -12,7 +12,7 @@ Vink（Virtual Machines in Kubernetes）是基于 KubeVirt 构建的开源云原
 
 - **镜像管理:** 提供镜像导入和共享功能。
 
-- **网络管理:** 采用 Kube-OVN 与 Multus CNI，实现 VLAN Underlay/Overlay 混合网络（支持多网络接口）。如果外部网络需要连接到虚拟机，建议使用 VLAN 或未标记的 Underlay 网络；否则推荐使用 Overlay 网络，它能提供更多功能（如 VPC、ACL 和虚拟子网）。
+- **网络管理:** 采用 Kube-OVN 与 Multus CNI，实现 VLAN Underlay/Overlay 混合网络（支持多网络接口）与弹性 IP（EIP）。如果外部网络需要连接到虚拟机，建议使用 VLAN 或未标记的 Underlay 网络；否则推荐使用 Overlay 网络，它能提供更多功能（如 VPC、ACL 和虚拟子网）。
 
 - **存储管理:** 采用 Ceph 分布式存储，支持快照、克隆以及虚拟机的实时扩容和实时迁移。
 
