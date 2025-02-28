@@ -35,7 +35,7 @@ func (dm *Daemon) Execute(ctx context.Context) error {
 	_ = dm.informerFactory.VirtualMachineSnapshot()
 	_ = dm.informerFactory.VirtualMachineRestore()
 	_ = dm.informerFactory.VirtualMachineClone()
-	_ = dm.informerFactory.VirtualMachineSummary()
+	_ = dm.informerFactory.VirtualMachinePool()
 	_ = dm.informerFactory.Multus()
 	_ = dm.informerFactory.Subnet()
 	_ = dm.informerFactory.IPPool()

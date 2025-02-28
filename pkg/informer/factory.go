@@ -6,12 +6,12 @@ import (
 	"math/rand"
 	"sync"
 	"time"
+	poolv1alpha1 "kubevirt.io/api/pool/v1alpha1"
 
 	netv1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
 	kubeovn "github.com/kubeovn/kube-ovn/pkg/apis/kubeovn/v1"
 	"github.com/kubevm.io/vink/pkg/clients"
 	"github.com/kubevm.io/vink/pkg/clients/gvr"
-	"github.com/kubevm.io/vink/pkg/k8s/apis/vink/v1alpha1"
 	"github.com/kubevm.io/vink/pkg/log"
 	k8sv1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/fields"
@@ -41,7 +41,7 @@ type KubeInformerFactory interface {
 	// VirtualMachine handles the VMIs that are stopped or not running
 	VirtualMachine() cache.SharedIndexInformer
 
-	VirtualMachineSummary() cache.SharedIndexInformer
+	VirtualMachinePool() cache.SharedIndexInformer
 
 	DataVolume() cache.SharedIndexInformer
 
@@ -251,13 +251,6 @@ func (f *kubeInformerFactory) VirtualMachine() cache.SharedIndexInformer {
 	})
 }
 
-func (f *kubeInformerFactory) VirtualMachineSummary() cache.SharedIndexInformer {
-	return f.getInformer(gvr.From(v1alpha1.VirtualMachineSummary{}), func() cache.SharedIndexInformer {
-		lw := cache.NewListWatchFromClient(clients.Clients.VinkRestClient, "virtualmachinesummarys", k8sv1.NamespaceAll, fields.Everything())
-		return cache.NewSharedIndexInformer(lw, &v1alpha1.VirtualMachineSummary{}, f.defaultResync, cache.Indexers{})
-	})
-}
-
 func (f *kubeInformerFactory) DataVolume() cache.SharedIndexInformer {
 	return f.getInformer(gvr.From(cdiv1.DataVolume{}), func() cache.SharedIndexInformer {
 		lw := cache.NewListWatchFromClient(clients.Clients.CdiClient().CdiV1beta1().RESTClient(), "datavolumes", k8sv1.NamespaceAll, fields.Everything())
@@ -283,6 +276,13 @@ func (f *kubeInformerFactory) VirtualMachineClone() cache.SharedIndexInformer {
 	return f.getInformer(gvr.From(clonev1alpha1.VirtualMachineClone{}), func() cache.SharedIndexInformer {
 		lw := cache.NewListWatchFromClient(clients.Clients.KubevirtClient.GeneratedKubeVirtClient().CloneV1alpha1().RESTClient(), "virtualmachineclones", k8sv1.NamespaceAll, fields.Everything())
 		return cache.NewSharedIndexInformer(lw, &clonev1alpha1.VirtualMachineClone{}, f.defaultResync, cache.Indexers{})
+	})
+}
+
+func (f *kubeInformerFactory) VirtualMachinePool() cache.SharedIndexInformer {
+	return f.getInformer(gvr.From(poolv1alpha1.VirtualMachinePool{}), func() cache.SharedIndexInformer {
+		lw := cache.NewListWatchFromClient(clients.Clients.KubevirtClient.GeneratedKubeVirtClient().PoolV1alpha1().RESTClient(), "virtualmachinepools", k8sv1.NamespaceAll, fields.Everything())
+		return cache.NewSharedIndexInformer(lw, &poolv1alpha1.VirtualMachinePool{}, f.defaultResync, cache.Indexers{})
 	})
 }
 
