@@ -1,6 +1,6 @@
 # Vink
 
-[英文文档](./README.md)
+[英文文档](./README.en.md)
 
 Vink（Virtual Machines in Kubernetes）是基于 KubeVirt 构建的开源云原生虚拟化平台，为 Kubernetes 提供原生虚拟机全生命周期管理能力。通过深度集成 Kube-OVN 网络插件、Rook-Ceph 分布式存储、External-Snapshotter 快照系统，以及 Prometheus & Grafana 监控体系，构建了轻量化云原生虚拟化平台。
 
@@ -23,6 +23,8 @@ Vink（Virtual Machines in Kubernetes）是基于 KubeVirt 构建的开源云原
 - **可扩展性与高可用性:** 通过自动扩展和故障转移机制确保虚拟机的可靠性。
 
 ## 架构
+
+![Vink](./docs/images/vink.png)
 
 ## 快速开始
 
