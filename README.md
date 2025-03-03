@@ -54,6 +54,17 @@ Vink（Virtual Machines in Kubernetes）是基于 KubeVirt 构建的开源云原
 helm upgrade --install --create-namespace --namespace vink vink oci://registry-1.docker.io/hejianmin/vink --wait --timeout 1800s --debug
 ```
 
+```bash
+NAME             	NAMESPACE  	REVISION	UPDATED                                	STATUS  	CHART                       	APP VERSION
+cdi              	cdi        	4       	2025-02-25 10:44:52.800527214 +0000 UTC	deployed	cdi-0.0.1-f1a26a48          	0.0.1-f1a26a48
+kube-ovn         	kube-system	4       	2025-02-25 10:41:34.938708426 +0000 UTC	deployed	kube-ovn-v1.13.3            	1.13.3
+kubevirt         	kubevirt   	4       	2025-02-25 10:44:36.199738081 +0000 UTC	deployed	kubevirt-0.0.1-f1a26a48     	0.0.1-f1a26a48
+monitoring       	monitoring 	4       	2025-02-25 10:42:21.451281681 +0000 UTC	deployed	kube-prometheus-stack-69.5.1	v0.80.1
+rook-ceph        	rook-ceph  	4       	2025-02-25 10:41:45.758136708 +0000 UTC	deployed	rook-ceph-v1.16.4           	v1.16.4
+rook-ceph-cluster	rook-ceph  	4       	2025-02-25 10:41:52.442879278 +0000 UTC	deployed	rook-ceph-cluster-v1.16.4   	v1.16.4
+vink             	vink       	4       	2025-02-25 10:40:41.148996124 +0000 UTC	deployed	vink-0.0.1-165797c0         	0.0.1-165797c0
+```
+
 ### 清理
 
 要卸载 Vink 并删除所有相关资源，请使用：
