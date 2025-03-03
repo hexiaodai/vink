@@ -26,6 +26,14 @@ Vink（Virtual Machines in Kubernetes）是基于 KubeVirt 构建的开源云原
 
 ![Vink](./docs/images/vink.png)
 
+**KubeVirt** 是 Kubernetes 的虚拟机管理组件，通过 CRD 扩展机制实现容器与虚拟机的统一编排。
+
+**Kube-OVN** 是 Kubernetes 的网络插件，为 Pod 和虚拟机提供 SDN（软件定义网络）能力，并支持 VLAN Underlay 网络，使虚拟机能够直接使用物理网络地址，与物理网络高效互联。
+
+**Rook-Ceph** 是 Kubernetes 平台上的分布式存储解决方案，支持块存储和文件存储。其中块存储提供快照、克隆及动态扩容等高级特性，文件存储则具备实时迁移能力，可满足不同场景的持久化存储需求。
+
+**Prometheus** 和 **Grafana** 是监控与可视化工具，可用于监控 Vink 运行状态，包括虚拟机、节点、Ceph 存储和 Kube-OVN 组件的运行数据。
+
 ## 快速开始
 
 [快速开始指南](./docs/index.md)
