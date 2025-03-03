@@ -12,27 +12,27 @@ Vink（Virtual Machines in Kubernetes）是基于 KubeVirt 构建的开源云原
 
 - **镜像管理:** 提供镜像导入和共享功能。
 
-- **网络管理:** 采用 Kube-OVN 与 Multus CNI，实现 VLAN Underlay/Overlay 混合网络（支持多网络接口）与弹性 IP（EIP）。如果外部网络需要连接到虚拟机，建议使用 VLAN 或未标记的 Underlay 网络；否则推荐使用 Overlay 网络，它能提供更多功能（如 VPC、ACL 和虚拟子网）。
+- **网络管理:** 支持 VLAN Underlay/Overlay 混合网络、多网络接口与弹性 IP（EIP）。如果外部网络需要连接到虚拟机，建议使用 VLAN 或未标记的 Underlay 网络，它直接使用物理网络地址，与物理网络高效互联；否则推荐使用 Overlay 网络，它能提供更多功能（如 VPC、ACL 和虚拟子网）。
 
-- **存储管理:** 采用 Ceph 分布式存储，支持快照、克隆以及虚拟机的实时扩容和实时迁移。
+- **存储管理:** 支持分布式存储，支持快照、克隆以及虚拟机的实时扩容和实时迁移。
 
-- **监控:** 采用 Prometheus 和 Grafana 监控系统，提供虚拟机、节点、Ceph 存储和 Kube-OVN 组件的监控数据。
+- **监控:** 提供虚拟机、节点、Ceph 存储和 Kube-OVN 组件的监控数据。
 
 - **Kubernetes 原生集成:** 使用 Kubernetes 原生 API 部署虚拟机。
 
-- **可扩展性与高可用性:** 通过自动扩展和故障转移机制确保虚拟机的可靠性。
+- **可扩展性与高可用性:** 自动扩展和故障转移机制确保虚拟机的可靠性。
 
 ## 架构
 
 ![Vink](./docs/images/vink.png)
 
-**KubeVirt** 是 Kubernetes 的虚拟机管理组件，通过 CRD 扩展机制实现容器与虚拟机的统一编排。
+- **KubeVirt** 是 Kubernetes 的虚拟机管理组件，通过 CRD 扩展机制实现容器与虚拟机的统一编排。
 
-**Kube-OVN** 是 Kubernetes 的网络插件，为 Pod 和虚拟机提供 SDN（软件定义网络）能力，并支持 VLAN Underlay 网络，使虚拟机能够直接使用物理网络地址，与物理网络高效互联。
+- **Kube-OVN** 和 **Multus** 是 Kubernetes 的网络插件，为虚拟机提供 SDN（软件定义网络）能力。同时支持 Underlay/Overlay 混合网络。
 
-**Rook-Ceph** 是 Kubernetes 平台上的分布式存储解决方案，支持块存储和文件存储。其中块存储提供快照、克隆及动态扩容等高级特性，文件存储则具备实时迁移能力，可满足不同场景的持久化存储需求。
+- **Rook-Ceph** 是 Kubernetes 平台上的分布式存储解决方案，支持块存储和文件存储。其中块存储提供快照、克隆及动态扩容等高级特性，文件存储则具备实时迁移能力，可满足不同场景的持久化存储需求。
 
-**Prometheus** 和 **Grafana** 是监控与可视化工具，可用于监控 Vink 运行状态，包括虚拟机、节点、Ceph 存储和 Kube-OVN 组件的运行数据。
+- **Prometheus** 和 **Grafana** 是监控与可视化工具，可用于监控 Vink 运行状态。
 
 ## 快速开始
 
