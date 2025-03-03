@@ -36,15 +36,15 @@ Vink（Virtual Machines in Kubernetes）是基于 KubeVirt 构建的开源云原
 
 ## 快速开始
 
-[Dashboard](./docs/dashboard.md)
+- [Dashboard](./docs/dashboard.md)
 
-[Host](./docs/host.md)
+- [Host](./docs/host.md)
 
-[Virtual Machine Management](./docs/vm-management.md)
+- [Virtual Machine Management](./docs/vm-management.md)
 
-[Volume](./docs/volume.md)
+- [Volume](./docs/volume.md)
 
-[Network](./docs/network.md)
+- [Network](./docs/network.md)
 
 ### 安装
 
