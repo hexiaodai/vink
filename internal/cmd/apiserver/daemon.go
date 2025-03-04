@@ -60,9 +60,10 @@ func (dm *Daemon) Execute(ctx context.Context) error {
 	dm.grpcServer = servers.NewGRPCServer(grpcAddress, register)
 	log.Infof("Starting gRPC server at: %s", grpcAddress)
 
+	errCh := make(chan error)
 	go func() {
 		if err := dm.grpcServer.Run(); err != nil {
-			panic(err)
+			errCh <- err
 		}
 	}()
 
@@ -74,7 +75,7 @@ func (dm *Daemon) Execute(ctx context.Context) error {
 	log.Infof("Starting http server at: %s", httpAddress)
 	go func() {
 		if err := dm.httpServer.Run(); err != nil {
-			panic(err)
+			errCh <- err
 		}
 	}()
 
@@ -82,17 +83,21 @@ func (dm *Daemon) Execute(ctx context.Context) error {
 
 	go func() {
 		if err := grpcweb.Run(ctx); err != nil {
-			panic(err)
+			errCh <- err
 		}
 	}()
 
-	<-ctx.Done()
-	return nil
+	select {
+	case err := <-errCh:
+		return err
+	case <-ctx.Done():
+		return nil
+	}
 }
 
 func (dm *Daemon) Shutdown() error {
 	if err := dm.grpcServer.Stop(); err != nil {
-		log.Errorf("failed to stop grpc server: %v", err)
+		log.Errorf("Failed to stop grpc server: %v", err)
 	}
 	return dm.httpServer.Stop()
 }

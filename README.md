@@ -32,7 +32,7 @@ Vink（Virtual Machines in Kubernetes）是基于 KubeVirt 构建的开源云原
 
 - **Rook-Ceph** 是 Kubernetes 平台上的分布式存储解决方案，支持块存储和文件存储。其中块存储提供快照、克隆及动态扩容等高级特性，文件存储则具备实时迁移能力，可满足不同场景的持久化存储需求。
 
-- **Prometheus** 和 **Grafana** 是监控与可视化工具，可用于监控 Vink 运行状态。
+- **Prometheus** 和 **Grafana** 是监控与可视化工具，用于监控 Vink 运行状态。
 
 ## 快速开始
 
