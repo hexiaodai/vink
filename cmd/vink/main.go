@@ -28,29 +28,38 @@ func main() {
 				return err
 			}
 
+			errCh := make(chan error)
+
 			ctrl := cmdctl.New(config)
 			go func() {
 				if err := ctrl.Execute(ctx); err != nil {
-					panic(err)
+					errCh <- err
+				}
+			}()
+			defer func() {
+				if err := ctrl.Shutdown(); err != nil {
+					log.Errorf("Failed to shutdown controller: %v", err)
 				}
 			}()
 
 			apiserver := apiserver.New(config)
 			go func() {
 				if err := apiserver.Execute(ctx); err != nil {
-					panic(err)
+					errCh <- err
+				}
+			}()
+			defer func() {
+				if err := apiserver.Shutdown(); err != nil {
+					log.Errorf("Failed to shutdown apiserver: %v", err)
 				}
 			}()
 
-			<-ctx.Done()
-			if err := ctrl.Shutdown(); err != nil {
-				log.Error(err)
+			select {
+			case err := <-errCh:
+				return err
+			case <-ctx.Done():
+				return nil
 			}
-			if err := apiserver.Shutdown(); err != nil {
-				log.Error(err)
-			}
-
-			return nil
 		},
 	}
 

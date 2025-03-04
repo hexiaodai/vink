@@ -9,7 +9,6 @@ import (
 	"github.com/kubevm.io/vink/internal/controller"
 	"github.com/kubevm.io/vink/internal/controller/node"
 	"github.com/kubevm.io/vink/internal/controller/virtualmachine"
-	// vm_summary "github.com/kubevm.io/vink/internal/controller/vm_summary"
 	"github.com/kubevm.io/vink/pkg/clients"
 	"github.com/kubevm.io/vink/pkg/k8s/apis/vink/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
@@ -51,7 +50,7 @@ func (dm *Daemon) Execute(ctx context.Context) error {
 		Scheme:                  scheme,
 		LeaderElectionID:        "vink.kubevm.io/ctrl",
 		LeaderElectionNamespace: "vink",
-		LeaderElection:          false,
+		LeaderElection:          true,
 		Metrics: server.Options{
 			BindAddress: "0",
 		},
@@ -60,47 +59,12 @@ func (dm *Daemon) Execute(ctx context.Context) error {
 		return err
 	}
 
-	// if err := (&vm_summary.VirtualMachineReconciler{
-	// 	Client: mgr.GetClient(),
-	// 	Cache:  mgr.GetCache(),
-	// }).SetupWithManager(mgr); err != nil {
-	// 	return err
-	// }
-
-	// if err := (&vm_summary.VirtualMachineInstanceReconciler{
-	// 	Client: mgr.GetClient(),
-	// 	Cache:  mgr.GetCache(),
-	// }).SetupWithManager(mgr); err != nil {
-	// 	return err
-	// }
-
-	// if err := (&vm_summary.NetworkReconciler{
-	// 	Client: mgr.GetClient(),
-	// 	Cache:  mgr.GetCache(),
-	// }).SetupWithManager(mgr); err != nil {
-	// 	return err
-	// }
-
-	// if err := (&vm_summary.DataVolumeReconciler{
-	// 	Client: mgr.GetClient(),
-	// 	Cache:  mgr.GetCache(),
-	// }).SetupWithManager(mgr); err != nil {
-	// 	return err
-	// }
-
 	if err := (&controller.DataVolumeOwnerReconciler{
 		Client: mgr.GetClient(),
 		Cache:  mgr.GetCache(),
 	}).SetupWithManager(mgr); err != nil {
 		return err
 	}
-
-	// if err := (&controller.VMIHostReconciler{
-	// 	Client: mgr.GetClient(),
-	// 	Cache:  mgr.GetCache(),
-	// }).SetupWithManager(mgr); err != nil {
-	// 	return err
-	// }
 
 	if err := (&virtualmachine.NetworkReconciler{
 		Client: mgr.GetClient(),
