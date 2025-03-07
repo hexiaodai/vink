@@ -48,7 +48,7 @@ func (dm *Daemon) Execute(ctx context.Context) error {
 
 	mgr, err := ctrl.NewManager(clients.Clients.Config(), ctrl.Options{
 		Scheme:                  scheme,
-		LeaderElectionID:        "vink.kubevm.io/ctrl",
+		LeaderElectionID:        "vink.kubevm.io",
 		LeaderElectionNamespace: "vink",
 		LeaderElection:          true,
 		Metrics: server.Options{
