@@ -28,6 +28,14 @@ type FakeVinkV1alpha1 struct {
 	*testing.Fake
 }
 
+func (c *FakeVinkV1alpha1) Templates(namespace string) v1alpha1.TemplateInterface {
+	return &FakeTemplates{c, namespace}
+}
+
+func (c *FakeVinkV1alpha1) TemplateInstances(namespace string) v1alpha1.TemplateInstanceInterface {
+	return &FakeTemplateInstances{c, namespace}
+}
+
 func (c *FakeVinkV1alpha1) VirtualMachineSummaries(namespace string) v1alpha1.VirtualMachineSummaryInterface {
 	return &FakeVirtualMachineSummaries{c, namespace}
 }

@@ -3,11 +3,13 @@ package main
 import (
 	"github.com/kubevm.io/vink/config"
 	vinkcmd "github.com/kubevm.io/vink/internal/cmd"
-	"github.com/kubevm.io/vink/internal/cmd/apiserver"
+
+	// "github.com/kubevm.io/vink/internal/cmd/apiserver"
 	cmdctl "github.com/kubevm.io/vink/internal/cmd/ctrl"
 	"github.com/kubevm.io/vink/pkg/clients"
 	"github.com/kubevm.io/vink/pkg/log"
 	"github.com/spf13/cobra"
+	_ "k8s.io/code-generator"
 	ctrl "sigs.k8s.io/controller-runtime"
 )
 
@@ -42,17 +44,17 @@ func main() {
 				}
 			}()
 
-			apiserver := apiserver.New(config)
-			go func() {
-				if err := apiserver.Execute(ctx); err != nil {
-					errCh <- err
-				}
-			}()
-			defer func() {
-				if err := apiserver.Shutdown(); err != nil {
-					log.Errorf("Failed to shutdown apiserver: %v", err)
-				}
-			}()
+			// apiserver := apiserver.New(config)
+			// go func() {
+			// 	if err := apiserver.Execute(ctx); err != nil {
+			// 		errCh <- err
+			// 	}
+			// }()
+			// defer func() {
+			// 	if err := apiserver.Shutdown(); err != nil {
+			// 		log.Errorf("Failed to shutdown apiserver: %v", err)
+			// 	}
+			// }()
 
 			select {
 			case err := <-errCh:

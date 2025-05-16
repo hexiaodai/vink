@@ -1,0 +1,17 @@
+apiVersion: kubeovn.io/v1
+kind: Subnet
+metadata:
+  name: vink
+spec:
+  protocol: IPv4
+  provider: vink.vink.ovn
+  vpc: ovn-cluster
+  cidrBlock: 10.69.0.0/16
+  excludeIps:
+    - 10.69.0.1
+    - 10.69.0.255
+  gateway: 10.69.0.1
+  gatewayType: distributed
+  natOutgoing: true
+  routeTable: ""
+  namespaces: ["*"]

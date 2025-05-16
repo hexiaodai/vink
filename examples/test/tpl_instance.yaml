@@ -1,0 +1,7 @@
+apiVersion: vink.kubevm.io/v1alpha1
+kind: TemplateInstance
+metadata:
+  name: k8s-ci-runner
+  namespace: default
+spec:
+  template: ci-runner

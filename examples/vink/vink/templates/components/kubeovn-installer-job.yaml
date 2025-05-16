@@ -87,7 +87,7 @@ spec:
               helm upgrade --install --create-namespace kube-ovn kubeovn/kube-ovn \
                   --namespace kube-system \
                   --set MASTER_NODES=${MASTER_NODE_IPS} \
-                  -f /config/values.yaml \
+                  -f values.yaml \
                   --wait \
                   --timeout 600s \
                   --debug

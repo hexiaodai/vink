@@ -24,6 +24,10 @@ import (
 
 // Interface provides access to all the informers in this group version.
 type Interface interface {
+	// Templates returns a TemplateInformer.
+	Templates() TemplateInformer
+	// TemplateInstances returns a TemplateInstanceInformer.
+	TemplateInstances() TemplateInstanceInformer
 	// VirtualMachineSummaries returns a VirtualMachineSummaryInformer.
 	VirtualMachineSummaries() VirtualMachineSummaryInformer
 }
@@ -37,6 +41,16 @@ type version struct {
 // New returns a new Interface.
 func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakListOptions internalinterfaces.TweakListOptionsFunc) Interface {
 	return &version{factory: f, namespace: namespace, tweakListOptions: tweakListOptions}
+}
+
+// Templates returns a TemplateInformer.
+func (v *version) Templates() TemplateInformer {
+	return &templateInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// TemplateInstances returns a TemplateInstanceInformer.
+func (v *version) TemplateInstances() TemplateInstanceInformer {
+	return &templateInstanceInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // VirtualMachineSummaries returns a VirtualMachineSummaryInformer.

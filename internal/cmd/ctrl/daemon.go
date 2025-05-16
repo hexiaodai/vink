@@ -2,13 +2,17 @@ package ctrl
 
 import (
 	"context"
+	"path"
 
 	netv1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
 	kubeovn "github.com/kubeovn/kube-ovn/pkg/apis/kubeovn/v1"
 	"github.com/kubevm.io/vink/config"
-	"github.com/kubevm.io/vink/internal/controller"
-	"github.com/kubevm.io/vink/internal/controller/node"
-	"github.com/kubevm.io/vink/internal/controller/virtualmachine"
+	"github.com/kubevm.io/vink/internal/controller/template"
+	"github.com/kubevm.io/vink/internal/controller/template_instance"
+
+	// "github.com/kubevm.io/vink/internal/controller"
+	// "github.com/kubevm.io/vink/internal/controller/node"
+	// "github.com/kubevm.io/vink/internal/controller/virtualmachine"
 	"github.com/kubevm.io/vink/pkg/clients"
 	"github.com/kubevm.io/vink/pkg/k8s/apis/vink/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
@@ -20,6 +24,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/metrics/server"
+	"sigs.k8s.io/controller-runtime/pkg/webhook"
 )
 
 var scheme = runtime.NewScheme()
@@ -54,63 +59,94 @@ func (dm *Daemon) Execute(ctx context.Context) error {
 		Metrics: server.Options{
 			BindAddress: "0",
 		},
+		WebhookServer: webhook.NewServer(webhook.Options{
+			Port: 8081,
+			// CertDir: path.Dir("/Users/hetongxue/workspace/examples/operator/example/secret/"),
+			CertDir: path.Dir("examples/secret/"),
+		}),
 	})
 	if err != nil {
 		return err
 	}
 
-	if err := (&controller.DataVolumeOwnerReconciler{
+	if err := (&template.Reconciler{
 		Client: mgr.GetClient(),
 		Cache:  mgr.GetCache(),
 	}).SetupWithManager(mgr); err != nil {
 		return err
 	}
 
-	if err := (&virtualmachine.NetworkReconciler{
+	if err := (&template_instance.Reconciler{
 		Client: mgr.GetClient(),
 		Cache:  mgr.GetCache(),
 	}).SetupWithManager(mgr); err != nil {
 		return err
 	}
 
-	if err := (&virtualmachine.OperatingSystemReconciler{
+	if err := (&template.Webhook{
 		Client: mgr.GetClient(),
-		Cache:  mgr.GetCache(),
-	}).SetupWithManager(mgr); err != nil {
+	}).SetupWebhookWithManager(mgr); err != nil {
 		return err
 	}
 
-	if err := (&virtualmachine.HostReconciler{
-		Client: mgr.GetClient(),
-		Cache:  mgr.GetCache(),
-	}).SetupWithManager(mgr); err != nil {
-		return err
-	}
+	// if err := (&virtualmachine.Webhook{
+	// 	Client: mgr.GetClient(),
+	// }).SetupWebhookWithManager(mgr); err != nil {
+	// 	return err
+	// }
 
-	if err := (&virtualmachine.DiskReconciler{
-		Client: mgr.GetClient(),
-		Cache:  mgr.GetCache(),
-	}).SetupWithManager(mgr); err != nil {
-		return err
-	}
+	// if err := (&controller.DataVolumeOwnerReconciler{
+	// 	Client: mgr.GetClient(),
+	// 	Cache:  mgr.GetCache(),
+	// }).SetupWithManager(mgr); err != nil {
+	// 	return err
+	// }
 
-	monitor, err := virtualmachine.NewCollector(mgr.GetClient(), mgr.GetCache())
-	if err != nil {
-		return err
-	}
-	go monitor.Collector(ctx, dm.config.MonitorInterval)
+	// if err := (&virtualmachine.NetworkReconciler{
+	// 	Client: mgr.GetClient(),
+	// 	Cache:  mgr.GetCache(),
+	// }).SetupWithManager(mgr); err != nil {
+	// 	return err
+	// }
 
-	nodeMonitor, err := node.NewCollector(mgr.GetClient(), mgr.GetCache())
-	if err != nil {
-		return err
-	}
-	go nodeMonitor.Collector(ctx, dm.config.MonitorInterval)
+	// if err := (&virtualmachine.OperatingSystemReconciler{
+	// 	Client: mgr.GetClient(),
+	// 	Cache:  mgr.GetCache(),
+	// }).SetupWithManager(mgr); err != nil {
+	// 	return err
+	// }
 
-	storage, err := node.NewCephStorageCollector(mgr.GetClient(), mgr.GetCache())
-	if err != nil {
-		return err
-	}
-	go storage.Collector(ctx, dm.config.MonitorInterval)
+	// if err := (&virtualmachine.HostReconciler{
+	// 	Client: mgr.GetClient(),
+	// 	Cache:  mgr.GetCache(),
+	// }).SetupWithManager(mgr); err != nil {
+	// 	return err
+	// }
+
+	// if err := (&virtualmachine.DiskReconciler{
+	// 	Client: mgr.GetClient(),
+	// 	Cache:  mgr.GetCache(),
+	// }).SetupWithManager(mgr); err != nil {
+	// 	return err
+	// }
+
+	// monitor, err := virtualmachine.NewCollector(mgr.GetClient(), mgr.GetCache())
+	// if err != nil {
+	// 	return err
+	// }
+	// go monitor.Collector(ctx, dm.config.MonitorInterval)
+
+	// nodeMonitor, err := node.NewCollector(mgr.GetClient(), mgr.GetCache())
+	// if err != nil {
+	// 	return err
+	// }
+	// go nodeMonitor.Collector(ctx, dm.config.MonitorInterval)
+
+	// storage, err := node.NewCephStorageCollector(mgr.GetClient(), mgr.GetCache())
+	// if err != nil {
+	// 	return err
+	// }
+	// go storage.Collector(ctx, dm.config.MonitorInterval)
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
 		return err

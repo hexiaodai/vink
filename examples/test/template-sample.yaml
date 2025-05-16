@@ -1,0 +1,45 @@
+apiVersion: vink.kubevm.io/v1alpha1
+kind: Template
+metadata:
+  name: ci-runner
+  namespace: default
+spec:
+  general:
+    source:
+      builtin:
+        name: ubuntu
+        version: 22.04
+
+    user:
+      name: root
+      password: dangerous
+
+  compute:
+    cpu:
+      cores: 2
+    memory:
+      size: 4Gi
+
+  storage:
+    rootDisk:
+      size: 32Gi
+    dataDisks:
+      - size: 32Gi
+      - size: 64Gi
+
+  network:
+    interfaces:
+      - type: masquerade
+      - type: bridge
+
+  initialization: {}
+
+  access:
+    ssh:
+      enabled: true
+    console:
+      vnc: true
+      serial: true
+
+  advanced:
+    rawVMOverrides: {}

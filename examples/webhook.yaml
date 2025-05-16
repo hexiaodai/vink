@@ -1,0 +1,99 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: template-vink-webhook
+webhooks:
+  - name: template.vink.kubevm.io
+    rules:
+      - apiGroups:
+          - vink.kubevm.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - templates
+    clientConfig:
+      url: https://172.16.1.89:8081/validate-vink-kubevm-io-v1alpha1-template
+      caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUNxRENDQVpBQ0NRQ2RqVGdhRlNiZ2V6QU5CZ2txaGtpRzl3MEJBUXNGQURBV01SUXdFZ1lEVlFRRERBdHYKY0dWeVlYUnZjaTFqWVRBZUZ3MHlOVEEzTWpnd01USTBOVFphRncwek5UQTNNall3TVRJME5UWmFNQll4RkRBUwpCZ05WQkFNTUMyOXdaWEpoZEc5eUxXTmhNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDCkFRRUFuS05DNkNjNGlKa0RIdzFtRFd0eXUwaUJDbG1WcUsxcWxBS1lxeGhDeWo4clVDMFA5UHAycHo4QjhDL1UKNVo1SmZiYmhBUUsvYjk2dU00cTg0cTNuUjEvRHBGNjltbnF0MGNGQmNnRUVTUnF0a3owS1hLb3VZSjRIQWgzZwpIRVlwbzh2UUFJU29TTkRvUWFsM1JEVityUEo5MXJpTHc3QkdYRFE2RmM3TlY2S3o2M3luSGRQQ1h1QVpybkFDClNHSXllaHI0bkcyYzRPME5ueUpqZXNJUXh0VVBhaU03Vm1uV2VxNmdRK09uK0E1dHFEVXlRS29BaWVycEhWd3YKNWFxRy9xZFR6Q1Q2Yk5ZYkRPZFlYQnhnempSRnlFV3piTjJtVWFlbVhMN1QwRVpkZndVMzV2Uk12dm13dGEzNwp4UHpPYjVxanQwU0pKazF6MnZwQS9wekxwUUlEQVFBQk1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQmJRWklLCnNmNjAxbXRoT2hsSjVZdGFnd1Q4WnBQZTZqaEowaVloNTVUeUMzL0ZzY3g3QW9rRnB6RWJmaDJ2bmxjWkxYaWcKM3hXZk1xbUExbTRBekx0RURnU3JZNXFMUE1BeU1BQmR5WUcyYjA2dGpoOURwZE9CMCs4M3ZIN0ZMU2FBTHVjagpxdkQ3UC8yeThRNXM5djBmYTlveU1vb29vYnhNcHRPZkZpbnRCZ0srZnpWR3M4NVBHcERZN0JHR3I0V1RSQ0UyCm85OHBxRHdldDE0ajZmSkR4a0QrVXhBbFJ1SU8ySlRrV00rZkhSczFMczNsd25WVGN6RXN5YWxnUmFQVVhWelQKZUVzakxjdWtvbG9hWVJsUHhHODM5RHpYbXRjczRRdjlSd3kxNVp2eWxXTUxjYWtaVWx2SVNqdVl3U3R1Sk93YwpQUldGVUYvY2h4d2dYZUQ5Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    admissionReviewVersions: ["v1"]
+    failurePolicy: Fail
+    sideEffects: None
+---
+
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: template-vink-webhook
+webhooks:
+  - name: template.vink.kubevm.io
+    rules:
+      - apiGroups:
+          - vink.kubevm.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+          - DELETE
+        resources:
+          - templates
+    clientConfig:
+      url: https://172.16.1.89:8081/mutate-vink-kubevm-io-v1alpha1-template
+      caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUNxRENDQVpBQ0NRQ2RqVGdhRlNiZ2V6QU5CZ2txaGtpRzl3MEJBUXNGQURBV01SUXdFZ1lEVlFRRERBdHYKY0dWeVlYUnZjaTFqWVRBZUZ3MHlOVEEzTWpnd01USTBOVFphRncwek5UQTNNall3TVRJME5UWmFNQll4RkRBUwpCZ05WQkFNTUMyOXdaWEpoZEc5eUxXTmhNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDCkFRRUFuS05DNkNjNGlKa0RIdzFtRFd0eXUwaUJDbG1WcUsxcWxBS1lxeGhDeWo4clVDMFA5UHAycHo4QjhDL1UKNVo1SmZiYmhBUUsvYjk2dU00cTg0cTNuUjEvRHBGNjltbnF0MGNGQmNnRUVTUnF0a3owS1hLb3VZSjRIQWgzZwpIRVlwbzh2UUFJU29TTkRvUWFsM1JEVityUEo5MXJpTHc3QkdYRFE2RmM3TlY2S3o2M3luSGRQQ1h1QVpybkFDClNHSXllaHI0bkcyYzRPME5ueUpqZXNJUXh0VVBhaU03Vm1uV2VxNmdRK09uK0E1dHFEVXlRS29BaWVycEhWd3YKNWFxRy9xZFR6Q1Q2Yk5ZYkRPZFlYQnhnempSRnlFV3piTjJtVWFlbVhMN1QwRVpkZndVMzV2Uk12dm13dGEzNwp4UHpPYjVxanQwU0pKazF6MnZwQS9wekxwUUlEQVFBQk1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQmJRWklLCnNmNjAxbXRoT2hsSjVZdGFnd1Q4WnBQZTZqaEowaVloNTVUeUMzL0ZzY3g3QW9rRnB6RWJmaDJ2bmxjWkxYaWcKM3hXZk1xbUExbTRBekx0RURnU3JZNXFMUE1BeU1BQmR5WUcyYjA2dGpoOURwZE9CMCs4M3ZIN0ZMU2FBTHVjagpxdkQ3UC8yeThRNXM5djBmYTlveU1vb29vYnhNcHRPZkZpbnRCZ0srZnpWR3M4NVBHcERZN0JHR3I0V1RSQ0UyCm85OHBxRHdldDE0ajZmSkR4a0QrVXhBbFJ1SU8ySlRrV00rZkhSczFMczNsd25WVGN6RXN5YWxnUmFQVVhWelQKZUVzakxjdWtvbG9hWVJsUHhHODM5RHpYbXRjczRRdjlSd3kxNVp2eWxXTUxjYWtaVWx2SVNqdVl3U3R1Sk93YwpQUldGVUYvY2h4d2dYZUQ5Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    admissionReviewVersions: ["v1"]
+    failurePolicy: Fail
+    sideEffects: None
+---
+
+# apiVersion: admissionregistration.k8s.io/v1
+# kind: MutatingWebhookConfiguration
+# metadata:
+#   name: virtualmachine-vink-webhook
+# webhooks:
+# - admissionReviewVersions:
+#   - v1
+#   - v1beta1
+#   clientConfig:
+#     url: https://172.16.1.89:8081/mutate-kubevirt-io-v1-virtualmachine
+#     caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUNxRENDQVpBQ0NRQ2RqVGdhRlNiZ2V6QU5CZ2txaGtpRzl3MEJBUXNGQURBV01SUXdFZ1lEVlFRRERBdHYKY0dWeVlYUnZjaTFqWVRBZUZ3MHlOVEEzTWpnd01USTBOVFphRncwek5UQTNNall3TVRJME5UWmFNQll4RkRBUwpCZ05WQkFNTUMyOXdaWEpoZEc5eUxXTmhNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDCkFRRUFuS05DNkNjNGlKa0RIdzFtRFd0eXUwaUJDbG1WcUsxcWxBS1lxeGhDeWo4clVDMFA5UHAycHo4QjhDL1UKNVo1SmZiYmhBUUsvYjk2dU00cTg0cTNuUjEvRHBGNjltbnF0MGNGQmNnRUVTUnF0a3owS1hLb3VZSjRIQWgzZwpIRVlwbzh2UUFJU29TTkRvUWFsM1JEVityUEo5MXJpTHc3QkdYRFE2RmM3TlY2S3o2M3luSGRQQ1h1QVpybkFDClNHSXllaHI0bkcyYzRPME5ueUpqZXNJUXh0VVBhaU03Vm1uV2VxNmdRK09uK0E1dHFEVXlRS29BaWVycEhWd3YKNWFxRy9xZFR6Q1Q2Yk5ZYkRPZFlYQnhnempSRnlFV3piTjJtVWFlbVhMN1QwRVpkZndVMzV2Uk12dm13dGEzNwp4UHpPYjVxanQwU0pKazF6MnZwQS9wekxwUUlEQVFBQk1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQmJRWklLCnNmNjAxbXRoT2hsSjVZdGFnd1Q4WnBQZTZqaEowaVloNTVUeUMzL0ZzY3g3QW9rRnB6RWJmaDJ2bmxjWkxYaWcKM3hXZk1xbUExbTRBekx0RURnU3JZNXFMUE1BeU1BQmR5WUcyYjA2dGpoOURwZE9CMCs4M3ZIN0ZMU2FBTHVjagpxdkQ3UC8yeThRNXM5djBmYTlveU1vb29vYnhNcHRPZkZpbnRCZ0srZnpWR3M4NVBHcERZN0JHR3I0V1RSQ0UyCm85OHBxRHdldDE0ajZmSkR4a0QrVXhBbFJ1SU8ySlRrV00rZkhSczFMczNsd25WVGN6RXN5YWxnUmFQVVhWelQKZUVzakxjdWtvbG9hWVJsUHhHODM5RHpYbXRjczRRdjlSd3kxNVp2eWxXTUxjYWtaVWx2SVNqdVl3U3R1Sk93YwpQUldGVUYvY2h4d2dYZUQ5Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+#   failurePolicy: Fail
+#   matchPolicy: Equivalent
+#   name: virtualmachine.vink.kubevm.io
+#   namespaceSelector: {}
+#   objectSelector: {}
+#   reinvocationPolicy: IfNeeded
+#   rules:
+#   - apiGroups:
+#     - kubevirt.io
+#     apiVersions:
+#     - v1alpha3
+#     - v1
+#     operations:
+#     - CREATE
+#     - UPDATE
+#     resources:
+#     - virtualmachines
+#     scope: '*'
+#   sideEffects: None
+#   timeoutSeconds: 10
+
+# webhooks:
+#   - name: 00-virtualmachine.vink.kubevm.io
+#     rules:
+#       - apiGroups:
+#           - kubevirt.io
+#         apiVersions:
+#           - v1
+#         operations:
+#           - CREATE
+#         resources:
+#           - virtualmachines
+#         scope: '*'
+#     clientConfig:
+#       url: https://172.16.1.89:8081/mutate-kubevirt-io-v1-virtualmachine
+#       caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUNxRENDQVpBQ0NRQ2RqVGdhRlNiZ2V6QU5CZ2txaGtpRzl3MEJBUXNGQURBV01SUXdFZ1lEVlFRRERBdHYKY0dWeVlYUnZjaTFqWVRBZUZ3MHlOVEEzTWpnd01USTBOVFphRncwek5UQTNNall3TVRJME5UWmFNQll4RkRBUwpCZ05WQkFNTUMyOXdaWEpoZEc5eUxXTmhNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDCkFRRUFuS05DNkNjNGlKa0RIdzFtRFd0eXUwaUJDbG1WcUsxcWxBS1lxeGhDeWo4clVDMFA5UHAycHo4QjhDL1UKNVo1SmZiYmhBUUsvYjk2dU00cTg0cTNuUjEvRHBGNjltbnF0MGNGQmNnRUVTUnF0a3owS1hLb3VZSjRIQWgzZwpIRVlwbzh2UUFJU29TTkRvUWFsM1JEVityUEo5MXJpTHc3QkdYRFE2RmM3TlY2S3o2M3luSGRQQ1h1QVpybkFDClNHSXllaHI0bkcyYzRPME5ueUpqZXNJUXh0VVBhaU03Vm1uV2VxNmdRK09uK0E1dHFEVXlRS29BaWVycEhWd3YKNWFxRy9xZFR6Q1Q2Yk5ZYkRPZFlYQnhnempSRnlFV3piTjJtVWFlbVhMN1QwRVpkZndVMzV2Uk12dm13dGEzNwp4UHpPYjVxanQwU0pKazF6MnZwQS9wekxwUUlEQVFBQk1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQmJRWklLCnNmNjAxbXRoT2hsSjVZdGFnd1Q4WnBQZTZqaEowaVloNTVUeUMzL0ZzY3g3QW9rRnB6RWJmaDJ2bmxjWkxYaWcKM3hXZk1xbUExbTRBekx0RURnU3JZNXFMUE1BeU1BQmR5WUcyYjA2dGpoOURwZE9CMCs4M3ZIN0ZMU2FBTHVjagpxdkQ3UC8yeThRNXM5djBmYTlveU1vb29vYnhNcHRPZkZpbnRCZ0srZnpWR3M4NVBHcERZN0JHR3I0V1RSQ0UyCm85OHBxRHdldDE0ajZmSkR4a0QrVXhBbFJ1SU8ySlRrV00rZkhSczFMczNsd25WVGN6RXN5YWxnUmFQVVhWelQKZUVzakxjdWtvbG9hWVJsUHhHODM5RHpYbXRjczRRdjlSd3kxNVp2eWxXTUxjYWtaVWx2SVNqdVl3U3R1Sk93YwpQUldGVUYvY2h4d2dYZUQ5Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+#     admissionReviewVersions: ["v1"]
+#     failurePolicy: Fail
+#     sideEffects: None

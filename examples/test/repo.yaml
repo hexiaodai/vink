@@ -1,0 +1,11 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: vink
+  namespace: flux-system
+spec:
+  interval: 10m
+  timeout: 10m
+  url: https://github.com/kubevm-io/vink
+  ref:
+    branch: main

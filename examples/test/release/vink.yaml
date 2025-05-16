@@ -1,0 +1,39 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: vink
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: kube-ovn
+      namespace: flux-system
+    - name: multus-cni
+      namespace: flux-system
+    - name: monitoring
+      namespace: flux-system
+    - name: rook-ceph
+      namespace: flux-system
+    - name: rook-ceph-cluster
+      namespace: flux-system
+    - name: snapshotter
+      namespace: flux-system
+    - name: kubevirt
+      namespace: flux-system
+    - name: cdi
+      namespace: flux-system
+  interval: 1m
+  timeout: 10m
+  chart:
+    spec:
+      chart: ./examples/vink/dev
+      sourceRef:
+        kind: GitRepository
+        name: vink
+        namespace: flux-system
+  targetNamespace: vink
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3

@@ -18,6 +18,22 @@ limitations under the License.
 
 package v1alpha1
 
+// TemplateListerExpansion allows custom methods to be added to
+// TemplateLister.
+type TemplateListerExpansion interface{}
+
+// TemplateNamespaceListerExpansion allows custom methods to be added to
+// TemplateNamespaceLister.
+type TemplateNamespaceListerExpansion interface{}
+
+// TemplateInstanceListerExpansion allows custom methods to be added to
+// TemplateInstanceLister.
+type TemplateInstanceListerExpansion interface{}
+
+// TemplateInstanceNamespaceListerExpansion allows custom methods to be added to
+// TemplateInstanceNamespaceLister.
+type TemplateInstanceNamespaceListerExpansion interface{}
+
 // VirtualMachineSummaryListerExpansion allows custom methods to be added to
 // VirtualMachineSummaryLister.
 type VirtualMachineSummaryListerExpansion interface{}

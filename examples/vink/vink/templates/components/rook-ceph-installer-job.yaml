@@ -492,14 +492,14 @@ spec:
 
               helm upgrade --install --create-namespace --namespace rook-ceph rook-ceph \
                   rook-release/rook-ceph \
-                  -f /config/values.yaml \
+                  -f values.yaml \
                   --wait \
                   --timeout 600s \
                   --debug
 
               helm upgrade --install --create-namespace --namespace rook-ceph rook-ceph-cluster \
                   rook-release/rook-ceph-cluster \
-                  -f /config/cluster-values.yaml \
+                  -f values.yaml \
                   --wait \
                   --timeout 600s \
                   --debug

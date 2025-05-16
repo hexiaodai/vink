@@ -1,0 +1,61 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: kube-ovn
+  namespace: flux-system
+spec:
+  url: https://kubeovn.github.io/kube-ovn/
+  interval: 10m
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kube-ovn
+  namespace: flux-system
+spec:
+  interval: 10m
+  timeout: 10m
+  chart:
+    spec:
+      chart: kube-ovn
+      version: v1.13.12
+      sourceRef:
+        kind: HelmRepository
+        name: kube-ovn
+        namespace: flux-system
+  targetNamespace: kube-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    MASTER_NODES: 192.168.124.132
+
+    cni_conf:
+      CNI_CONFIG_PRIORITY: "00"
+
+    ovn-central:
+      requests:
+        cpu: "10m"
+        memory: "64Mi"
+    ovs-ovn:
+      requests:
+        cpu: "10m"
+        memory: "64Mi"
+    kube-ovn-controller:
+      requests:
+        cpu: "10m"
+        memory: "64Mi"
+    kube-ovn-cni:
+      requests:
+        cpu: "10m"
+        memory: "64Mi"
+    kube-ovn-pinger:
+      requests:
+        cpu: "10m"
+        memory: "64Mi"
+    kube-ovn-monitor:
+        cpu: "10m"
+        memory: "64Mi"

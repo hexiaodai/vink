@@ -1,0 +1,150 @@
+apiVersion: vink.kubevm.io/v1alpha1
+kind: Template
+metadata:
+  name: ci-runner
+  namespace: default
+spec:
+  general:
+    os:
+      name: ubuntu
+      version: 22.04
+
+    source:
+      builtin:
+        name: ubuntu
+        version: 22.04
+      registry:
+        url: docker://kubevirt/ubuntu-container-disk:22.04
+      http:
+        url: https://cloud-images.ubuntu.com/ubuntu-22.04-server-cloudimg-amd64-disk-kvm.img
+      s3:
+        url: s3://kubevirt/ubuntu-container-disk:22.04
+      pvc:
+        name: ubuntu-22.04
+      dataVolume:
+        name: ubuntu-22.04
+
+    user:
+      name: root
+      password: password
+      # passwordBase64: cGFzc3dvcmQxMjM=
+      # passwordSecretRef: user-secret
+      sshKey: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC3z5
+      # sshKeyBase64: c2hzaC1rZXktYmFzZTY0LXZhbHVl
+      # sshKeySecretRef: ssh-secret
+
+  # general:
+  #   os:
+  #     name: ubuntu
+  #     version: 22.04
+  #     source:
+  #       builtin:
+  #         distribution: ubuntu
+  #         version: 22.04
+  #       http:
+  #         url: https://cloud-images.ubuntu.com/ubuntu-22.04-server-cloudimg-amd64-disk-kvm.img
+  #       s3:
+  #         url: s3://kubevirt/ubuntu-container-disk:22.04
+  #       registry:
+  #         url: docker://kubevirt/ubuntu-container-disk:22.04
+  #       pvc:
+  #         name: ubuntu-22.04
+  #       dataVolume:
+  #         name: ubuntu-22.04
+
+      # # name: ubuntu
+      # # version: 22.04
+      # source:
+      #   http:
+      #     url: https://cloud-images.ubuntu.com/ubuntu-22.04-server-cloudimg-amd64-disk-kvm.img
+      #   # s3:
+      #   #   url: s3://kubevirt/ubuntu-container-disk:22.04
+      #   # registry:
+      #   #   url: docker://kubevirt/ubuntu-container-disk:22.04
+      #   # pvc:
+      #   #   name: ubuntu-22.04
+      #   # dataVolume:
+      #   #   name: ubuntu-22.04
+
+    # user:
+    #   name: root
+    #   password: password
+    #   # passwordBase64: cGFzc3dvcmQxMjM=
+    #   # passwordSecretRef: user-secret
+    #   sshKey: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC3z5
+    #   # sshKeyBase64: c2hzaC1rZXktYmFzZTY0LXZhbHVl
+    #   # sshKeySecretRef: ssh-secret
+
+  compute:
+    cpu:
+      cores: 2
+      threads: 2
+    memory:
+      size: 4Gi
+
+  storage:
+    rootDisk:
+      # name: root
+      size: 20Gi
+      # storageClass: ceph-block
+    dataDisks:
+      - size: 50Gi
+        storageClass: ceph-block
+        mountPath: /mnt/workspace
+        name: ${name}-0
+      # - size: 50Gi
+      #   storageClass: ceph-block
+      #   mountPath: /mnt/workspace
+      #   name: ${name}-1
+      # - size: 50Gi
+      #   storageClass: ceph-block
+      #   mountPath: /mnt/workspace
+      #   name: ${name}-2
+
+  network:
+    interfaces:
+      - type: bridge
+        # networkName: vink/default
+        # ipPool: 192-168
+        # name: default
+      - type: masquerade
+        # networkName: vink/default
+        # ipPool: 192-168
+        # name: internal
+
+  initialization:
+    cloudInit:
+      userData: |
+        #cloud-config
+        runcmd:
+          - echo "Welcome to CI Runner"
+
+  access:
+    ssh:
+      enabled: true
+      # port: 22
+    console:
+      vnc: true
+      serial: true
+
+  advanced:
+    rawVMOverrides: {} # 支持嵌入完整 kubevirt.io/v1 VirtualMachineSpec
+ 
+# apiVersion: vink.kubevm.io/v1alpha1
+# kind: Template
+# metadata:
+#   name: ci-runner
+#   namespace: default
+# spec:
+#   networks:
+#   - subnet: default
+#     ippool: 192-168
+#   disks:
+#   - storageClass: ceph-block
+#     size: 10Gi
+#     name: disk0
+#   cpu:
+#     cores: 2
+#     threads: 1
+#   memory:
+#     size: 4Gi

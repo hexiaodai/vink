@@ -34,6 +34,7 @@ require (
 	k8s.io/api v0.31.1
 	k8s.io/apimachinery v0.31.1
 	k8s.io/client-go v12.0.0+incompatible
+	k8s.io/code-generator v0.31.1
 	kubevirt.io/api v1.4.0
 	kubevirt.io/client-go v1.3.0
 	kubevirt.io/containerized-data-importer-api v1.59.0
@@ -86,10 +87,12 @@ require (
 	github.com/x448/float16 v0.8.4 // indirect
 	go.mongodb.org/mongo-driver v1.13.1 // indirect
 	go.uber.org/zap v1.27.0 // indirect
+	golang.org/x/mod v0.21.0 // indirect
 	golang.org/x/tools v0.26.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect
 	gopkg.in/evanphx/json-patch.v4 v4.12.0 // indirect
 	k8s.io/apiextensions-apiserver v0.31.0 // indirect
+	k8s.io/gengo/v2 v2.0.0-20240812201722-3b05ca7b6e59 // indirect
 	k8s.io/kube-openapi v0.31.0 // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
 )

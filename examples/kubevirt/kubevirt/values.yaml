@@ -9,6 +9,7 @@ kubevirt:
   # Holds kubevirt configurations. Same as the virt-configMap.
   configuration:
     developerConfiguration:
+      useEmulation: true
       featureGates:
         - Snapshot
   customizeComponents: {}
@@ -24,7 +25,8 @@ kubevirt:
   workloadUpdateStrategy: {}
   # monitorAccount: prometheus-k8s
   # monitorAccount: monitoring-kube-prometheus-operator
-  monitorAccount: monitoring-kube-prometheus-prometheus
+  # monitorAccount: monitoring-kube-prometheus-prometheus
+  monitorAccount: monitoring-monitoring-kube-prometheus
   monitorNamespace: monitoring
 
 hookImage: hejianmin/shell:0.0.1-4e596d93

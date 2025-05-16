@@ -15,7 +15,8 @@ const (
 
 	APIServerGRPCWebDefault = "8080"
 
-	PrometheusDefault = "http://monitoring-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090"
+	PrometheusDefault = "http://monitoring-monitoring-kube-prometheus.monitoring.svc.cluster.local:9090"
+	// PrometheusDefault = "http://monitoring-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090"
 	// PrometheusDefault = "http://192.168.18.199:31511"
 
 	// CephDefault = "https://192.168.18.199:8443"

@@ -28,12 +28,22 @@ import (
 
 type VinkV1alpha1Interface interface {
 	RESTClient() rest.Interface
+	TemplatesGetter
+	TemplateInstancesGetter
 	VirtualMachineSummariesGetter
 }
 
 // VinkV1alpha1Client is used to interact with features provided by the vink group.
 type VinkV1alpha1Client struct {
 	restClient rest.Interface
+}
+
+func (c *VinkV1alpha1Client) Templates(namespace string) TemplateInterface {
+	return newTemplates(c, namespace)
+}
+
+func (c *VinkV1alpha1Client) TemplateInstances(namespace string) TemplateInstanceInterface {
+	return newTemplateInstances(c, namespace)
 }
 
 func (c *VinkV1alpha1Client) VirtualMachineSummaries(namespace string) VirtualMachineSummaryInterface {
