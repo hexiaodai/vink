@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vink-ui
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: vink-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vink-ui
+  template:
+    metadata:
+      labels:
+        app: vink-ui
+    spec:
+      containers:
+      - name: vink-ui
+        image: docker.io/hejianmin/vink-ui:0.0.0-af4b4de1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+          name: http
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 500m
+            memory: 128Mi
+          requests:
+            cpu: 10m
+            memory: 64Mi
+        volumeMounts:
+        - readOnly: true
+          mountPath: /etc/nginx/conf.d
+          name: nginx-conf
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: vink-nginx
