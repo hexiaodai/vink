@@ -1,0 +1,19 @@
+configuration:
+  debug: true
+  apiserver:
+    http: 9090
+    grpc: 9091
+    grpcWeb: 8080
+
+hookImage: hejianmin/shell:0.0.1-4e596d93
+# hookImage: rancher/kubectl:v1.28.7
+hookRestartPolicy: OnFailure
+hookSecurityContext:
+  seccompProfile:
+    type: RuntimeDefault
+  runAsNonRoot: true
+  runAsUser: 1000
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
