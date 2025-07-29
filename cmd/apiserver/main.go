@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/gorilla/mux"
@@ -8,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/kubevm.io/vink/internal/management"
+	"github.com/kubevm.io/vink/internal/pkg/cache"
 	"github.com/kubevm.io/vink/internal/pkg/servers"
 	"github.com/kubevm.io/vink/pkg/clients"
 	"github.com/kubevm.io/vink/pkg/log"
@@ -30,7 +32,12 @@ func main() {
 				return err
 			}
 
-			register, err := management.RegisterGRPCRoutes()
+			cacheInstance := cache.NewCache(context.TODO())
+
+			subscribe := cache.NewSubscribe(cacheInstance)
+			go subscribe.Run(cmd.Context())
+
+			register, err := management.RegisterGRPCRoutes(clients.GetClients(), cacheInstance, subscribe)
 			if err != nil {
 				return err
 			}

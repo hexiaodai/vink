@@ -15,292 +15,19 @@
   "produces": [
     "application/json"
   ],
-  "paths": {
-    "/apis/vink.io/v1alpha1/namespaces/{namespace}/virtualmachines": {
-      "get": {
-        "operationId": "VirtualMachineManagement_ListVirtualMachines",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1alpha1ListVirtualMachinesResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "namespace",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "options.limit",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int32"
-          },
-          {
-            "name": "options.continue",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "options.labelsSelector",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "options.fieldSelector",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "VirtualMachineManagement"
-        ]
-      }
-    },
-    "/apis/vink.io/v1alpha1/namespaces/{namespace}/virtualmachines/{name}": {
-      "delete": {
-        "operationId": "VirtualMachineManagement_DeleteVirtualMachine",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1alpha1DeleteVirtualMachineResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "namespace",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "name",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "VirtualMachineManagement"
-        ]
-      },
-      "post": {
-        "operationId": "VirtualMachineManagement_CreateVirtualMachine",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1alpha1VirtualMachine"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "namespace",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "name",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "config": {
-                  "$ref": "#/definitions/v1alpha1VirtualMachineConfig"
-                }
-              }
-            }
-          }
-        ],
-        "tags": [
-          "VirtualMachineManagement"
-        ]
-      }
-    },
-    "/apis/vink.io/v1alpha1/namespaces/{namespace}/virtualmachines/{name}/power": {
-      "put": {
-        "operationId": "VirtualMachineManagement_ManageVirtualMachinePowerState",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1alpha1VirtualMachine"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "namespace",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "name",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "powerState": {
-                  "$ref": "#/definitions/ManageVirtualMachinePowerStateRequestPowerState"
-                }
-              }
-            }
-          }
-        ],
-        "tags": [
-          "VirtualMachineManagement"
-        ]
-      }
-    }
-  },
+  "paths": {},
   "definitions": {
-    "ManageVirtualMachinePowerStateRequestPowerState": {
+    "VirtualMachinePowerStateRequestPowerState": {
       "type": "string",
       "enum": [
         "UNSPECIFIED",
         "ON",
-        "OFF"
+        "OFF",
+        "REBOOT",
+        "FORCE_OFF",
+        "FORCE_REBOOT"
       ],
       "default": "UNSPECIFIED"
-    },
-    "VirtualMachineConfigCompute": {
-      "type": "object",
-      "properties": {
-        "cpuCores": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "memory": {
-          "type": "string"
-        }
-      }
-    },
-    "VirtualMachineConfigNetwork": {
-      "type": "object"
-    },
-    "VirtualMachineConfigStorage": {
-      "type": "object",
-      "properties": {
-        "root": {
-          "$ref": "#/definitions/VirtualMachineConfigStorageDataVolume"
-        },
-        "data": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/VirtualMachineConfigStorageDataVolume"
-          }
-        }
-      }
-    },
-    "VirtualMachineConfigStorageDataVolume": {
-      "type": "object",
-      "properties": {
-        "ref": {
-          "$ref": "#/definitions/commonNamespaceName"
-        },
-        "capacity": {
-          "type": "string"
-        },
-        "storageClassName": {
-          "type": "string"
-        }
-      },
-      "title": "message RootVolume {\n    common.NamespaceNamed data_volume_ref = 1;\n    string capacity = 2;\n    string storage_class_name = 3;\n}\nmessage DataVolume {\n    oneof data_volume {\n        common.NamespaceName ref = 1;\n        string capacity = 2;\n    }\n    string storage_class_name = 3;\n}"
-    },
-    "VirtualMachineConfigUserConfig": {
-      "type": "object",
-      "properties": {
-        "cloudInitBase64": {
-          "type": "string"
-        },
-        "sshPublicKeys": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "commonListOptions": {
-      "type": "object",
-      "properties": {
-        "limit": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "continue": {
-          "type": "string"
-        },
-        "labelsSelector": {
-          "type": "string"
-        },
-        "fieldSelector": {
-          "type": "string"
-        }
-      }
-    },
-    "commonNamespaceName": {
-      "type": "object",
-      "properties": {
-        "namespace": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        }
-      }
     },
     "protobufAny": {
       "type": "object",
@@ -310,14 +37,6 @@
         }
       },
       "additionalProperties": {}
-    },
-    "protobufNullValue": {
-      "type": "string",
-      "enum": [
-        "NULL_VALUE"
-      ],
-      "default": "NULL_VALUE",
-      "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\n The JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
     },
     "rpcStatus": {
       "type": "object",
@@ -338,25 +57,7 @@
         }
       }
     },
-    "v1alpha1DeleteVirtualMachineResponse": {
-      "type": "object"
-    },
-    "v1alpha1ListVirtualMachinesResponse": {
-      "type": "object",
-      "properties": {
-        "items": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1alpha1VirtualMachine"
-          }
-        },
-        "options": {
-          "$ref": "#/definitions/commonListOptions"
-        }
-      }
-    },
-    "v1alpha1VirtualMachine": {
+    "typesNamespaceName": {
       "type": "object",
       "properties": {
         "namespace": {
@@ -364,51 +65,6 @@
         },
         "name": {
           "type": "string"
-        },
-        "virtualMachine": {
-          "type": "object"
-        },
-        "virtualMachineInstance": {
-          "type": "object"
-        },
-        "virtualMachineDataVolume": {
-          "$ref": "#/definitions/v1alpha1VirtualMachineDataVolume",
-          "title": "google.protobuf.Struct virtual_machine_network = 5;"
-        },
-        "creationTimestamp": {
-          "type": "string",
-          "format": "date-time"
-        }
-      }
-    },
-    "v1alpha1VirtualMachineConfig": {
-      "type": "object",
-      "properties": {
-        "storage": {
-          "$ref": "#/definitions/VirtualMachineConfigStorage"
-        },
-        "network": {
-          "$ref": "#/definitions/VirtualMachineConfigNetwork"
-        },
-        "compute": {
-          "$ref": "#/definitions/VirtualMachineConfigCompute"
-        },
-        "userConfig": {
-          "$ref": "#/definitions/VirtualMachineConfigUserConfig"
-        }
-      }
-    },
-    "v1alpha1VirtualMachineDataVolume": {
-      "type": "object",
-      "properties": {
-        "root": {
-          "type": "object"
-        },
-        "data": {
-          "type": "array",
-          "items": {
-            "type": "object"
-          }
         }
       }
     }
