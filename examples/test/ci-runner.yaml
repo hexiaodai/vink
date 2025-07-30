@@ -12,12 +12,12 @@ spec:
       # registry:
       #   url: docker://release.daocloud.io/virtnest/system-images/debian-12-x86_64:v1
       http:
-        url: https://cloud.centos.org/centos/10-stream/images/CentOS-Stream-GenericCloud-10-latest.x86_64.qcow2
+        # url: https://cloud.centos.org/centos/10-stream/images/CentOS-Stream-GenericCloud-10-latest.x86_64.qcow2
         # url: https://chuangtzu.ftp.acc.umu.se/cdimage/cloud/bookworm/latest/debian-12-genericcloud-amd64.qcow2
-        # url: https://cdimage.debian.org/cdimage/cloud/bookworm/latest/debian-12-genericcloud-amd64.qcow2
+        url: https://cdimage.debian.org/cdimage/cloud/bookworm/latest/debian-12-genericcloud-amd64.qcow2
     user:
       name: root
-      password: password
+      password: dangerous
   compute:
     cpu:
       cores: 2

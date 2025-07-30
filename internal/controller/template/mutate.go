@@ -16,7 +16,7 @@ const (
 
 	defaultNetworkType = "bridge"
 
-	defaultNetworkNad = "vink/vink"
+	defaultNetworkNad = "vink/default"
 
 	defaultNetworkSubnet = "vink"
 )

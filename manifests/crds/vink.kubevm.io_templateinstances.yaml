@@ -23,6 +23,9 @@ spec:
       jsonPath: .spec.template
       name: Template
       type: string
+    - jsonPath: .status.applied
+      name: Applied
+      type: boolean
     - jsonPath: .metadata.creationTimestamp
       name: Age
       type: date
@@ -68,8 +71,8 @@ spec:
               reason:
                 description: Reason provides any error or status message.
                 type: string
-              virtualMachineName:
-                description: VirtualMachineName is the name of the generated VM object.
+              virtualMachine:
+                description: VirtualMachine is the name of the generated VM object.
                 type: string
             type: object
         required:

@@ -16,7 +16,15 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
-const defaultNetworkAnno = "v1.multus-cni.io/default-network"
+const (
+	multusDefaultNetworkAnno = "v1.multus-cni.io/default-network"
+
+	cdiStorageBindImmediateAnno = "cdi.kubevirt.io/storage.bind.immediate.requested"
+)
+
+const (
+	appCreatedByLabel = "app.kubernetes.io/created-by"
+)
 
 func (r *Reconciler) buildVirtualMachineFromTemplate(_ context.Context, tpl *v1alpha1.Template, tplInstance *v1alpha1.TemplateInstance) (*kubevirtv1.VirtualMachine, error) {
 	var (
@@ -40,7 +48,7 @@ func (r *Reconciler) buildVirtualMachineFromTemplate(_ context.Context, tpl *v1a
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: tplInstance.Namespace,
 			Name:      tplInstance.Name,
-			Labels:    map[string]string{"app.kubernetes.io/created-by": "vink.kubevm.io"},
+			Labels:    map[string]string{appCreatedByLabel: v1alpha1.GroupVersion.Group},
 			OwnerReferences: []metav1.OwnerReference{{
 				APIVersion:         tplInstance.APIVersion,
 				Kind:               tplInstance.Kind,
@@ -100,19 +108,10 @@ func buildDataVolumeTemplates(tpl *v1alpha1.Template) *DataVolumeTemplateResult 
 		ObjectMeta: metav1.ObjectMeta{
 			Name: rootDvName,
 			Annotations: map[string]string{
-				"cdi.kubevirt.io/storage.bind.immediate.requested": "true",
+				cdiStorageBindImmediateAnno: "true",
 			},
 		},
 		Spec: cdiv1.DataVolumeSpec{
-			// Storage: &cdiv1.StorageSpec{
-			// 	AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOnce},
-			// 	Resources: corev1.ResourceRequirements{
-			// 		Requests: corev1.ResourceList{
-			// 			corev1.ResourceStorage: resource.MustParse(tpl.Spec.Storage.RootDisk.Size),
-			// 		},
-			// 	},
-			// 	StorageClassName: lo.ToPtr(tpl.Spec.Storage.RootDisk.StorageClass),
-			// },
 			PVC: &corev1.PersistentVolumeClaimSpec{
 				AccessModes: []corev1.PersistentVolumeAccessMode{
 					corev1.ReadWriteOnce,
@@ -137,18 +136,10 @@ func buildDataVolumeTemplates(tpl *v1alpha1.Template) *DataVolumeTemplateResult 
 			ObjectMeta: metav1.ObjectMeta{
 				Name: dvName,
 				Annotations: map[string]string{
-					"cdi.kubevirt.io/storage.bind.immediate.requested": "true",
+					cdiStorageBindImmediateAnno: "true",
 				},
 			},
 			Spec: cdiv1.DataVolumeSpec{
-				// Storage: &cdiv1.StorageSpec{
-				// 	Resources: corev1.ResourceRequirements{
-				// 		Requests: corev1.ResourceList{
-				// 			corev1.ResourceStorage: resource.MustParse(disk.Size),
-				// 		},
-				// 	},
-				// 	StorageClassName: lo.ToPtr(disk.StorageClass),
-				// },
 				PVC: &corev1.PersistentVolumeClaimSpec{
 					AccessModes: []corev1.PersistentVolumeAccessMode{
 						corev1.ReadWriteOnce,
@@ -241,7 +232,7 @@ func buildCloudInit(tpl *v1alpha1.Template) (*kubevirtv1.Volume, *kubevirtv1.Dis
 
 	var init = tpl.Spec.Initialization
 	if init == nil || init.CloudInit == nil || len(init.CloudInit.UserDataBase64) == 0 || len(init.CloudInit.UserData) == 0 {
-		defaultInit, err := generateDefaultCloudInit2(tpl)
+		defaultInit, err := generateDefaultCloudInit(tpl)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -265,37 +256,20 @@ func buildCloudInit(tpl *v1alpha1.Template) (*kubevirtv1.Volume, *kubevirtv1.Dis
 	return &cloudInitVolume, &cloudInitDisk, nil
 }
 
-func buildChpasswdList(user *v1alpha1.UserSpec) string {
+func buildChpasswdList(users []*v1alpha1.UserSpec) string {
 	var b strings.Builder
-	if user.Password != "" {
+	for _, user := range users {
 		b.WriteString(fmt.Sprintf("%s:%s\n", user.Name, user.Password))
 	}
 	return b.String()
-}
-
-const defaultCloudInit = `
-#cloud-config
-ssh_pwauth: true
-disable_root: false
-chpasswd: {"list": "root:dangerous", expire: False}
-
-runcmd:
-- dhclient -r && dhclient
-- sed -i "/#\?PermitRootLogin/s/^.*$/PermitRootLogin yes/g" /etc/ssh/sshd_config
-- systemctl restart sshd.service
-`
-
-func generateDefaultCloudInit2(_ *v1alpha1.Template) (string, error) {
-	return defaultCloudInit, nil
 }
 
 func generateDefaultCloudInit(tpl *v1alpha1.Template) (string, error) {
 	cfg := map[string]any{
 		"ssh_pwauth":   tpl.Spec.Access.Ssh.Enabled,
 		"disable_root": false,
-		// "chpasswd":     {"list": "root:dangerous", expire: False},
 		"chpasswd": map[string]any{
-			"list":   buildChpasswdList(tpl.Spec.General.User),
+			"list":   buildChpasswdList([]*v1alpha1.UserSpec{tpl.Spec.General.User}),
 			"expire": false,
 		},
 		"runcmd": []string{

@@ -9,6 +9,7 @@ import (
 // +kubebuilder:subresource:status
 // +kubebuilder:resource:categories=vink,path="templateinstances",scope="Namespaced",shortName="tpli",singular="templateinstance"
 // +kubebuilder:printcolumn:name="Template",type=string,JSONPath=".spec.template",description="Referenced template name"
+// +kubebuilder:printcolumn:name="Applied",type="boolean",JSONPath=".status.applied"
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 
 type TemplateInstance struct {
@@ -31,15 +32,15 @@ type TemplateInstanceSpec struct {
 type TemplateInstanceStatus struct {
 	// Applied indicates whether the template has been successfully rendered and the VM created.
 	// +optional
-	Applied bool `json:"applied,omitempty"`
+	Applied bool `json:"applied"`
 
 	// Reason provides any error or status message.
 	// +optional
 	Reason string `json:"reason,omitempty"`
 
-	// VirtualMachineName is the name of the generated VM object.
+	// VirtualMachine is the name of the generated VM object.
 	// +optional
-	VirtualMachineName string `json:"virtualMachineName,omitempty"`
+	VirtualMachine string `json:"virtualMachine,omitempty"`
 }
 
 //+kubebuilder:object:root=true
