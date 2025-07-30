@@ -42,7 +42,7 @@ spec:
 
               echo "Installing KubeVirt"
               helm upgrade --install --create-namespace --namespace kubevirt kubevirt \
-                  oci://registry-1.docker.io/hejianmin/kubevirt --version 0.0.1-f1a26a48 \
+                  oci://registry-1.docker.io/hejianmin/kubevirt --version 0.0.1 \
                   --wait \
                   --timeout 600s \
                   --debug

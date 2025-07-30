@@ -449,7 +449,8 @@ function kube::codegen::gen_client() {
     local informers_subdir="informers"
     local boilerplate="${KUBE_CODEGEN_ROOT}/hack/boilerplate.go.txt"
     local plural_exceptions=""
-    local v="${KUBE_VERBOSE:-0}"
+    # local v="${KUBE_VERBOSE:-0}"
+    local v=10
 
     while [ "$#" -gt 0 ]; do
         case "$1" in

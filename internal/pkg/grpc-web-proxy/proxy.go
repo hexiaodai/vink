@@ -40,6 +40,8 @@ func NewDetaultProxy(cfg *config.Config) *Proxy {
 		HealthEndpointName: "_health",
 		HealthServiceName:  "health",
 		BackendHostPort:    cfg.APIServerGRPC,
+		EnableRequestDebug: true,
+		RunTlsServer:       false,
 	}
 }
 

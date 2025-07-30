@@ -24,6 +24,7 @@ type resourceWatchManagement struct {
 }
 
 func (rw *resourceWatchManagement) Watch(request *resource_v1alpha1.WatchRequest, server resource_v1alpha1.ResourceWatchManagement_WatchServer) error {
+	fmt.Println("======")
 	gvr := gvr.ResolveGVR(request.ResourceType)
 
 	informer, ok := rw.kubeInformerFactory.Informers()[gvr]
